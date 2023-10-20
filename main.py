@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 import MetaTrader5 as mt5
 
+
 class MT5Interface(QMainWindow):
     def __init__(self):
         super().__init__()
