@@ -1,13 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
-import MetaTrader4 as mt4
-import MetaTrader4.constants as mt4c
+import MetaTrader5 as mt5
 
-class MT4Interface(QMainWindow):
+class MT5Interface(QMainWindow):
     def __init__(self):
-        super().__init__()
+        super().__init()
 
-        self.setWindowTitle("MT4 Interface")
+        self.setWindowTitle("MT5 Interface")
         self.setGeometry(100, 100, 400, 200)
 
         self.central_widget = QWidget(self)
@@ -15,8 +14,8 @@ class MT4Interface(QMainWindow):
 
         self.layout = QVBoxLayout()
 
-        self.connect_button = QPushButton("Conectar a MT4")
-        self.connect_button.clicked.connect(self.connect_to_mt4)
+        self.connect_button = QPushButton("Conectar a MT5")
+        self.connect_button.clicked.connect(self.connect_to_mt5)
         self.layout.addWidget(self.connect_button)
 
         self.status_label = QLabel()
@@ -24,23 +23,33 @@ class MT4Interface(QMainWindow):
 
         self.central_widget.setLayout(self.layout)
 
-    def connect_to_mt4(self):
-        # Establecer la dirección del servidor MetaTrader 4
-        server = "127.0.0.1:port_number"  # Reemplace "port_number" con el número de puerto correcto
+    def connect_to_mt5(self):
+        # Establecer la dirección del servidor MetaTrader 5
+        server = "127.0.0.1:443"  # Reemplaza "port_number" con el número de puerto correcto
 
-        # Iniciar la conexión con MetaTrader 4
-        mt4.initialize(server)
+        # Usuario y contraseña para tu cuenta de MT5
+        account_number = "1003359"
+        password = "PaSs5248"
 
-        # Obtener la cuenta actual
-        account = mt4.account_info()
+        # Iniciar la conexión con MetaTrader 5
+        if mt5.initialize(server):
+            # Intentar iniciar sesión en tu cuenta
+            login_result = mt5.login(account_number, password)
 
-        # Actualizar la etiqueta de estado
-        self.status_label.setText(f"Conectado a MT4. Cuenta: {account}")
+            if login_result:
+                # Obtener la información de la cuenta actual
+                account = mt5.account_info()
 
-        # Finalizar la conexión con MetaTrader 4 (debe agregar un botón para cerrar la conexión)
+                # Actualizar la etiqueta de estado
+                self.status_label.setText(f"Conectado a MT5. Cuenta: {account['login']}")
+            else:
+                self.status_label.setText("Error al iniciar sesión. Verifica tus credenciales.")
+        else:
+            self.status_label.setText("Error al conectarse a MT5. Verifica la dirección del servidor.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MT4Interface()
+    window = MT5Interface()
     window.show()
     sys.exit(app.exec_())
+
