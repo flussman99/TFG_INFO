@@ -4,7 +4,7 @@ import MetaTrader5 as mt5
 
 class MT5Interface(QMainWindow):
     def __init__(self):
-        super().__init()
+        super().__init__()
 
         self.setWindowTitle("MT5 Interface")
         self.setGeometry(100, 100, 400, 200)
