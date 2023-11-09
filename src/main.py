@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 
 # Creating a bot
 b = bot.Bot(0.01, 15*60, "EURUSD")
-
-usr = 51468408
-password = "YHPuThmy"
-
+with open("login.txt", 'r') as f:
+    lines = f.readlines()
+    usr = int(lines[0].strip())
+    password = lines[1].strip()
+    server = lines[2].strip()
 
 # Login into mt5
-if not b.mt5_login(usr, password):
+if not b.mt5_login(usr,password,server):
     quit()
 b.thread_tick_reader()
 #b.thread_slope_abs_rel()
