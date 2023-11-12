@@ -23,3 +23,6 @@ https://www.mql5.com/en/docs/python_metatrader5/mt5login_py
 He añadido un word con el diagrama de clases no añadais todavia el resto de clases que no sean bot y main ya que primero hemos tenido que hacer bien el login que ya funciona iremos añadiendo poco a poco las clases si os veis los videos y avanzais podeis ir añadiendolas
 
 Os he añadido tb el .exe del metatrader5 de ICmarkets que es el trader que vamos a utilizar
+
+VIDEO MQL5 PROGRAMANDO
+https://youtu.be/iwQwu1AXDk0?si=UyOqHTZ7ZmDP54Ak

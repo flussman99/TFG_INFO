@@ -2,7 +2,7 @@ import bot
 import matplotlib.pyplot as plt
 
 # Creating a bot
-b = bot.Bot(0.01, 15*60, "EURUSD")
+b = bot.Bot(1, 15*60, "SAN.MAD")
 with open("login.txt", 'r') as f:
     lines = f.readlines()
     usr = int(lines[0].strip())
@@ -32,3 +32,4 @@ if len(lista_segundos) < 10000:
 
 plt.plot(xAxis, yAxis)
 plt.show()
+#plt.savefig()

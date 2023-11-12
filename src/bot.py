@@ -1,6 +1,7 @@
 import threading
 import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-#import tick_reader, slope_abs_rel, orders
+import tick_reader
+#importslope_abs_rel, orders
 #import MACD, RSI
 
 class Bot:
