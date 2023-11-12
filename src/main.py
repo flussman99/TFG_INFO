@@ -1,6 +1,12 @@
 import bot
 import matplotlib.pyplot as plt
 
+from formularios.form_maestro_design import FormularioMaestroDesign
+
+app = FormularioMaestroDesign()
+app.mainloop()
+
+
 # Creating a bot
 b = bot.Bot(1, 15*60, "SAN.MAD")
 with open("login.txt", 'r') as f:
