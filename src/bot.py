@@ -1,6 +1,6 @@
 import threading
 import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import tick_reader
+import tick_reader as tr
 #importslope_abs_rel, orders
 #import MACD, RSI
 
@@ -55,7 +55,7 @@ class Bot:
     def thread_tick_reader(self):
         """Function to launch the tick reader thread.
         """
-        t = threading.Thread(target=tick_reader.thread_tick_reader, 
+        t = threading.Thread(target=tr.thread_tick_reader, 
                              args=(self.pill2kill, self.ticks, self.trading_data,))
         self.threads.append(t)
         t.start()
