@@ -65,36 +65,36 @@ class Bot:
         """Function to launch the thread for calculating the slope
         and, the absolute and relative points in the chart.
         """
-        t = threading.Thread(target=slope_abs_rel.thread_slope_abs_rel, 
-                             args=(self.pill2kill, self.ticks, self.indicators))
-        self.threads.append(t)
-        t.start()
+        #t = threading.Thread(target=slope_abs_rel.thread_slope_abs_rel, 
+                             #args=(self.pill2kill, self.ticks, self.indicators))
+        #self.threads.append(t)
+        #t.start()
         print('Thread - slope_abs_rel. LAUNCHED')
     
     def thread_MACD(self):
         """Function to launch the thread for calculating the MACD.
         """
-        t = threading.Thread(target=MACD.thread_macd, 
-                             args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
-        self.threads.append(t)
-        t.start()
+        #t = threading.Thread(target=MACD.thread_macd, 
+         #                    args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
+        #self.threads.append(t)
+        #t.start()
         print('Thread - MACD. LAUNCHED')
     
     def thread_RSI(self):
-        t = threading.Thread(target=RSI.thread_RSI, 
-                             args=(self.pill2kill, self.ticks, self.indicators))
-        self.threads.append(t)
-        t.start()
+        #t = threading.Thread(target=RSI.thread_RSI, 
+        #                     args=(self.pill2kill, self.ticks, self.indicators))
+        #self.threads.append(t)
+        #t.start()
         print('Thread - RSI. LAUNCHED')
     
     def thread_orders(self):
-        t = threading.Thread(target=orders.thread_orders, 
-                             args=(self.pill2kill, self.trading_data))
-        self.threads.append(t)
-        t.start()
+        #t = threading.Thread(target=orders.thread_orders, 
+         #                    args=(self.pill2kill, self.trading_data))
+        #self.threads.append(t)
+        #t.start()
         print('Thread - orders. LAUNCHED')
 
-    def mt5_login(self,usr:int, password:str, server:str) -> bool:
+    def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
         """Function to initialize the metatrader 5 aplication
         and login wiht our account details.
 
@@ -109,7 +109,7 @@ class Bot:
             print("initialize() failed, error code =",mt5.last_error())
             return False
         
-        authorized=mt5.login(usr,password,server)
+        authorized=mt5.login(login=usr,password=passw,server=serv)
         if authorized:
             # display trading account data 'as is'
             #print(mt5.account_info())
