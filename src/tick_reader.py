@@ -77,6 +77,8 @@ def calcular_rentabilidad(symbol: str, start_date: datetime.datetime, end_date: 
     """
     timezone = pytz.timezone("Etc/UTC")
 
+    #A partir de aqui, tendriamos que de alguna forma seleccionar la accion que queremos, y escoger dos fechas de incio y cierre para obtener la rentabilidad
+
     ticks = mt5.copy_ticks_range(symbol, start_date.replace(tzinfo=timezone), end_date.replace(tzinfo=timezone), mt5.COPY_TICKS_ALL)
     if ticks is None or len(ticks) < 2:
         print("Datos insuficientes")
@@ -87,8 +89,8 @@ def calcular_rentabilidad(symbol: str, start_date: datetime.datetime, end_date: 
 
     # Calcular rentabilidad
     if precio_apertura != 0:
-        profitability = ((precio_cierre - precio_apertura) / precio_apertura) * 100
-        return profitability
+        rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
+        return rentabilidad
     else:
         print("No es posible calcular la rentabilidad")
         return None
