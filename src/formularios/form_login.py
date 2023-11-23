@@ -25,6 +25,7 @@ class FormularioLoginDesign(tk.Toplevel):
         etiqueta_usuario =tk.Label(self.cuerpo_principal, text="Usuario", font=('Times', 14),fg="#666a88",bg='#fcfcfc', anchor="w")
         etiqueta_usuario.pack(fill=tk.X, padx=20,pady=5)
         self.usuario = ttk.Entry(self.cuerpo_principal, textvariable="51468408",font=('Times', 14))
+        self.usuario.insert(0, "51468408")  # Insertar el usuario predeterminado
         self.usuario.pack(fill=tk.X, padx=20,pady=10)
 
         #Parte de Contraseña
@@ -32,6 +33,7 @@ class FormularioLoginDesign(tk.Toplevel):
         etiqueta_password.pack(fill=tk.X, padx=20, pady=5)
         self.password = ttk.Entry(self.cuerpo_principal, font=('Times', 14))
         self.password.pack(fill=tk.X, padx=20, pady=10)
+        self.password.insert(0, "YHPuThmy")
         self.password.config(show="*")
 
         #Botón de Iniciar Sesión
