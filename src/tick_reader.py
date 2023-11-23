@@ -64,6 +64,35 @@ def load_ticks(ticks: list, market: str, time_period: int):
         for i in range(not_needed_ticks):
             del ticks[0]
 
+def calcular_rentabilidad(symbol: str, start_date: datetime.datetime, end_date: datetime.datetime):
+    """
+    Calculate the profitability of a symbol between two dates.
+
+    Args:
+        symbol (str): Accion que vamos a observar
+        start_date (datetime.datetime): Fecha inicio 
+        end_date (datetime.datetime): Fecha cierre 
+    Returns:
+        float: Profitability percentage.
+    """
+    timezone = pytz.timezone("Etc/UTC")
+
+    ticks = mt5.copy_ticks_range(symbol, start_date.replace(tzinfo=timezone), end_date.replace(tzinfo=timezone), mt5.COPY_TICKS_ALL)
+    if ticks is None or len(ticks) < 2:
+        print("Datos insuficientes")
+        return None
+
+    precio_apertura = ticks[0]  #Precio de apertura
+    precio_cierre = ticks[-1]  #Precio de cierre
+
+    # Calcular rentabilidad
+    if precio_apertura != 0:
+        profitability = ((precio_cierre - precio_apertura) / precio_apertura) * 100
+        return profitability
+    else:
+        print("No es posible calcular la rentabilidad")
+        return None
+    
 
 def thread_tick_reader(pill2kill, ticks: list, trading_data: dict):
     """Function executed by a thread. It fills the list of ticks and
