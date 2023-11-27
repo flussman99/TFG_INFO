@@ -4,7 +4,7 @@ Username:	tfginfotrading@gmail.com
 Password:	VNHP4614
 
 
-Trading Platform:	MT5
+Trading Platform: MT5
 Login:	51468408
 Password:	YHPuThmy
 Server:	ICMarketsEU-Demo
