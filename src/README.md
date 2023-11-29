@@ -30,3 +30,6 @@ https://youtu.be/iwQwu1AXDk0?si=UyOqHTZ7ZmDP54Ak
 
 Para que salgan los iconos que queremos tenemos que instalar todos el zip que está en el Drive: fontawesome-free-6.5.0-desktop.zip
 Cuando esté descargado, nos metemos en la carpeta otfs, y ahí abrimos el archivo fuente: Font Awesome 6 Free-Solid-900 y lo instalamos
+
+pip install pandas
+pip instal openpyxl
