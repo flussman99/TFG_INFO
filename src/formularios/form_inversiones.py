@@ -1,46 +1,59 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
-from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA
+import sys
+"from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
 class FormularioInversiones(tk.Toplevel):
-   """"" 
+   
     def __init__(self, panel_principal):
 
-        self.title("Calculadora de Rentabilidad")
-        self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
-        self.geometry("400x200")  # Ajusta el tamaño según tus necesidades
+        self.barra_superior = tk.Frame(panel_principal)
+        self.barra_superior.grid(row=0, column=0, sticky="nsew")
 
-        # Crear y configurar widgets
-        self.accion_label = ttk.Label(self, text="Seleccione una acción:")
-        self.acciones = ["AAPL", "GOOGL", "MSFT", "TSLA"]  # Lista de acciones de ejemplo
-        self.accion_combobox = ttk.Combobox(self, values=self.acciones)
-        self.accion_combobox.set(self.acciones[0])
+        self.cuerpo_principal = tk.Frame(panel_principal)
+        self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
-        self.fecha_inicio_label = ttk.Label(self, text="Fecha de inicio (YYYY-MM-DD):")
-        self.fecha_inicio_entry = ttk.Entry(self)
 
-        self.fecha_fin_label = ttk.Label(self, text="Fecha de fin (YYYY-MM-DD):")
-        self.fecha_fin_entry = ttk.Entry(self)
+        title = tk.Label(self.cuerpo_principal, text="Operaciones de inversión", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
+        title.grid(row=1, column=1)
 
-        self.calcular_button = ttk.Button(self, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
 
-        self.resultado_label = ttk.Label(self, text="Resultado:")
+        texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
+        acciones = ["AAPL", "GOOGL", "MSFT", "TSLA"]  # Lista de acciones de ejemplo
+        combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
+        combo_acciones.set(acciones[0])
 
-        # Ubicar widgets en la ventana
-        self.accion_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-        self.accion_combobox.grid(row=0, column=1, padx=10, pady=10)
 
-        self.fecha_inicio_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-        self.fecha_inicio_entry.grid(row=1, column=1, padx=10, pady=10)
+        texto_acciones.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+        combo_acciones.grid(row=2, column=1, padx=10, pady=10)
 
-        self.fecha_fin_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-        self.fecha_fin_entry.grid(row=2, column=1, padx=10, pady=10)
 
-        self.calcular_button.grid(row=3, column=0, columnspan=2, pady=10)
+        fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY-MM-DD):")
+        fecha_inicio_entry = ttk.Entry(self.cuerpo_principal)
 
-        self.resultado_label.grid(row=4, column=0, columnspan=2, pady=10)
+        fecha_fin_label = ttk.Label(self.cuerpo_principal, text="Fecha de fin (YYYY-MM-DD):")
+        fecha_fin_entry = ttk.Entry(self.cuerpo_principal)
+
+        calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
+
+        resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
+
+
+        fecha_inicio_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+        fecha_inicio_entry.grid(row=3, column=1, padx=10, pady=10)
+
+        fecha_fin_label.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+        fecha_fin_entry.grid(row=4, column=1, padx=10, pady=10)
+
+        calcular_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+        resultado_label.grid(row=6, column=0, columnspan=2, pady=10)
+
+
+        #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
+
 
     def calcular_rentabilidad(self):
         # Obtener valores de los widgets
@@ -72,11 +85,10 @@ class FormularioInversiones(tk.Toplevel):
         return 0
 
 # Crear la ventana principal
-ventana = tk.Tk()
+#ventana = tk.Tk()
 
 # Crear la instancia de la clase FormularioInversiones
-formulario = FormularioInversiones(ventana)
+#formulario = FormularioInversiones(ventana)
 
 # Iniciar el bucle de eventos
-ventana.mainloop()
-"""
+#ventana.mainloop()
