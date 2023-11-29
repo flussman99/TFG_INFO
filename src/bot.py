@@ -36,7 +36,7 @@ class Bot:
 
         Args:
             lotage (float): Lotage to be used by the bot.
-            time_period (int): Time period of the bot, 1 minute, 15 minutes... (in seconds)
+            time_period (int): Time period of the bot, 24h * 3600 (in seconds)
             market (str): Market to operate in.
         """
         self.trading_data['lotage'] = lotage

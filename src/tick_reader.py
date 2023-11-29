@@ -1,70 +1,15 @@
 import MetaTrader5 as mt5
-import datetime
+import datetime as dt
 import pytz
+import openpyxl
+import pandas as pd
 
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
 spread_list = []
 
-
-def store_tick(ticks: list, market: str):#primera forma
-    """Function that stores a tick into the given list,
-    and also it checks if the list is full to remove a value.
-
-    Args:
-        ticks (list): List to be filled
-        market (str): Market to be taken
-    """
-    tick = mt5.symbol_info_tick(market)#esta funcion tenemos los precios
-    ticks.append(tick.ask)
-    
-    # If the list is full (MAX_TICKS_LEN), 
-    # we delete the first value
-    if len(ticks) >= MAX_TICKS_LEN:
-        del ticks[0]
-
-
-def load_ticks(ticks: list, market: str, time_period: int):
-    """Function to load into a list, previous ticks.
-
-    Args:
-        ticks (list): List where to load ticks.
-        market (str): Market from which we have to take ticks.
-        time_period (int): Time period in which we want to operate.
-        1 minute, 15 minutes... (in seconds)
-    """
-    # Checking if we are on the weekend (we include the friday),
-    # if so, we take ticks from an earlier date.
-    today = datetime.datetime.utcnow().date()
-    if today.weekday() >= 5 or today.weekday() == 0: 
-        yesterday = today - datetime.timedelta(days=3)
-    else:
-        yesterday = today - datetime.timedelta(days=1)
-
-    # Loading data
-    timezone = pytz.timezone("Etc/UTC")
-    utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
-    loaded_ticks = mt5.copy_ticks_from(market, utc_from, 300000, mt5.COPY_TICKS_ALL)
-    if loaded_ticks is None:
-        print("Error loading the ticks")
-        return -1
-
-    # Filling the list
-    second_to_include = loaded_ticks[0][0]
-    for tick in loaded_ticks:
-        # Every X seconds we add a value to the list
-        if tick[0] > second_to_include+time_period:
-            ticks.append(tick[2])
-            second_to_include = tick[0]
-    
-    # Removing the ticks that we do not need
-    not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-    if not_needed_ticks > 0:
-        for i in range(not_needed_ticks):
-            del ticks[0]
-
-def calcular_rentabilidad(symbol: str, start_date: datetime.datetime, end_date: datetime.datetime):
+def calcular_rentabilidad(symbol: str, start_date: dt.datetime, end_date: dt.datetime):
     """
     Calculate the profitability of a symbol between two dates.
 
@@ -133,3 +78,97 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict):
         # The last tick is going to be changed all the time with the actual one
         ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
         i += 1
+
+def load_ticks(ticks: list, market: str, time_period: int):
+    """Function to load into a list, previous ticks.
+
+    Args:
+        ticks (list): List where to load ticks.
+        market (str): Market from which we have to take ticks.
+        time_period (int): Time period in which we want to operate.
+        1 minute, 15 minutes... (in seconds)
+    """
+    # Checking if we are on the weekend (we include the friday),
+    # if so, we take ticks from an earlier date.
+    today = dt.datetime.utcnow().date()#fecha actual
+    if today.weekday() == 0: #lunes
+        yesterday = today - dt.timedelta(days=3)
+    elif today.weekday() == 6:#domingo
+        yesterday = today - dt.timedelta(days=2)
+    else:#resto dias dia anterior
+        yesterday = today - dt.timedelta(days=1)
+
+    # Loading data
+    timezone = pytz.timezone("Etc/UTC")
+    utc_from = dt.datetime(2023, 11,28, tzinfo=timezone)
+    utc_to = dt.datetime(2023, 11,29, tzinfo=timezone)
+    #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
+    #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
+    loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
+    if loaded_ticks is None:
+        print("Error loading the ticks")
+        return -1
+
+    # create DataFrame out of the obtained data
+    ticks_frame = pd.DataFrame(loaded_ticks)
+    # convert time in seconds into the datetime format
+    ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
+        # Nombre del archivo Excel de salida
+    excel_filename = 'ticks_data.xlsx'
+
+    # Exportar el DataFrame a Excel
+    ticks_frame.to_excel(excel_filename, index=False)
+
+    # display data
+    print("\nDisplay dataframe with ticks")
+    print(ticks_frame)
+
+
+    # Filling the list
+    second_to_include = loaded_ticks[0][0]
+    for tick in loaded_ticks:
+        # Every X seconds we add a value to the list
+        if tick[0] > second_to_include+time_period:
+            ticks.append(tick)
+            second_to_include = tick[0]
+      # display data
+   
+   # create DataFrame out of the obtained data
+    ticks_frame = pd.DataFrame(ticks)
+    print("\nDisplay dataframe with ticks")
+    print(ticks_frame)
+    # convert time in seconds into the datetime format
+    #ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
+        # Nombre del archivo Excel de salida
+    excel_filename = 'buenos.xlsx'
+
+    # Exportar el DataFrame a Excel
+    ticks_frame.to_excel(excel_filename, index=False)
+
+   
+
+    # Removing the ticks that we do not need
+    not_needed_ticks = len(ticks) - MAX_TICKS_LEN
+    if not_needed_ticks > 0:
+        for i in range(not_needed_ticks):
+            del ticks[0]
+
+
+
+def store_tick(ticks: list, market: str):#primera forma
+    """Function that stores a tick into the given list,
+    and also it checks if the list is full to remove a value.
+
+    Args:
+        ticks (list): List to be filled
+        market (str): Market to be taken
+    """
+    tick = mt5.symbol_info_tick(market)#esta funcion tenemos los precios
+    ticks.append(tick.ask)
+    
+    # If the list is full (MAX_TICKS_LEN), 
+    # we delete the first value
+    if len(ticks) >= MAX_TICKS_LEN:
+        del ticks[0]
+
+

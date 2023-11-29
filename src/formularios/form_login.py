@@ -3,6 +3,7 @@ import tkinter as tk
 import matplotlib.pyplot as plt
 from tkinter import ttk, messagebox
 from tkinter.font import BOLD
+import pandas as pd
 import sys 
 from bot import Bot as bt
 
@@ -51,8 +52,9 @@ class FormularioLoginDesign(tk.Toplevel):
                 server = lines[2].strip()
         if(usu!=usr or password!=key):
             messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
-        else:   
-            b = bt(1, 15*60, "SAN.MAD")
+        else: 
+            #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
+            b = bt(1, 3600, "SAN.MAD")#camibiar esta accion por una lista que podamos elegir
         
             if not b.mt5_login(int(usr),key,server):
                 quit()
@@ -63,14 +65,17 @@ class FormularioLoginDesign(tk.Toplevel):
             xAxis = []
             yAxis = []
             i = 1
-            if len(lista_segundos) < 10000:
-                for element in b.get_ticks():
-                    xAxis.append(i)
-                    yAxis.append(element)
-                    i += 1
+            print("Ticks received:",len(lista_segundos))
 
-                    plt.plot(xAxis, yAxis)
-                    plt.show()
-            messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")
+            print("Display obtained ticks 'as is'")
+            count = 0
+            for tick in lista_segundos:
+                count+=1
+                print(tick)
+                if count >= 10:
+                    break
+            ticks_frame = pd.DataFrame(lista_segundos)
+            print(ticks_frame.head(10))
+          
             #FormularioMaestroDesign()
            
