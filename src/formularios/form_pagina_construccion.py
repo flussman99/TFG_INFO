@@ -15,5 +15,5 @@ class FormularioPagConstruccion(tk.Toplevel):
         self.labelTitulo.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
         
         self.label_imagen = tk.Label(self.barra_inferior, image=logo)
-        self.barra_inferior.place(x=0,y=0,relwidth=1, relheight=1)
         self.label_imagen.config(fg="#fff", font=("Roboto", 10), bg=COLOR_CUERPO_PRINCIPAL)
+        self.barra_inferior.pack(x=0,y=0,relwidth=1, relheight=1)

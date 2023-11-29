@@ -52,7 +52,7 @@ class FormularioMaestroDesign(tk.Tk):
    
     def controles_barra_superior(self):
         #Configuración de la barra superior
-        font_awesome = font.Font(family='FontAwesome', size=12)
+        font_awesome = font.Font(family="FontAwesome", size=14)
         
         #Etiqueta de título
         self.labelTitulo = tk.Label(self.barra_superior, text="MetaTrader")
@@ -76,7 +76,7 @@ class FormularioMaestroDesign(tk.Tk):
         #Configuración del menú lateral
         ancho_menu = 20
         alto_menu = 2
-        font_awesome = font.Font(family='FontAwesome', size=15)
+        font_awesome = font.Font(family="FontAwesome", size=15)
 
         #Etiqueta de perfil
         self.labelPerfil = tk.Label(
