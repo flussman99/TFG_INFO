@@ -102,6 +102,8 @@ def load_ticks(ticks: list, market: str, time_period: int):
     timezone = pytz.timezone("Etc/UTC")
     utc_from = dt.datetime(2023, 11,28, tzinfo=timezone)
     utc_to = dt.datetime(2023, 11,29, tzinfo=timezone)
+    #rango de fechas del que cojo los ticks
+    
     #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
     #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
@@ -125,7 +127,7 @@ def load_ticks(ticks: list, market: str, time_period: int):
 
 
     # Filling the list
-    second_to_include = loaded_ticks[0][0]
+    second_to_include = 0
     for tick in loaded_ticks:
         # Every X seconds we add a value to the list
         if tick[0] > second_to_include+time_period:

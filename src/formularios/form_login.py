@@ -55,7 +55,7 @@ class FormularioLoginDesign(tk.Toplevel):
         else: 
             #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
             b = bt(1, 3600, "SAN.MAD")#camibiar esta accion por una lista que podamos elegir
-        
+            #cada 3600 segundos cogemos un tick
             if not b.mt5_login(int(usr),key,server):
                 quit()
 
