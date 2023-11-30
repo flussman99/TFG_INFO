@@ -59,24 +59,6 @@ class FormularioLoginDesign(tk.Toplevel):
         
             if not b.mt5_login(int(usr),key,server):
                 quit()
-
-            b.thread_tick_reader()
-            b.wait()
-            lista_segundos = b.get_ticks()
-            xAxis = []
-            yAxis = []
-            i = 1
-            print("Ticks received:",len(lista_segundos))
-
-            print("Display obtained ticks 'as is'")
-            count = 0
-            for tick in lista_segundos:
-                count+=1
-                print(tick)
-                if count >= 10:
-                    break
-            ticks_frame = pd.DataFrame(lista_segundos)
-            print(ticks_frame.head(10))
           
             #FormularioMaestroDesign()
            
