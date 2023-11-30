@@ -38,11 +38,11 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_acciones.grid(row=2, column=1, padx=10, pady=10)
 
 
-        fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY-MM-DD):")
-        fecha_inicio_entry = ttk.Entry(self.cuerpo_principal)
+        fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY/MM/DD):")
+        self.fecha_inicio_entry = ttk.Entry(self.cuerpo_principal)
 
-        fecha_fin_label = ttk.Label(self.cuerpo_principal, text="Fecha de fin (YYYY-MM-DD):")
-        fecha_fin_entry = ttk.Entry(self.cuerpo_principal)
+        fecha_fin_label = ttk.Label(self.cuerpo_principal, text="Fecha de fin (YYYY/MM/DD):")
+        self.fecha_fin_entry = ttk.Entry(self.cuerpo_principal)
 
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia:")
         frecuencia = ["1M", "2M", "3M", "4M", "5M", "6M", "10M", "12M", "15M", "20M", "30M", "1H", "2H", "3H", "4H", "6H", "8H", "12H", "Daily", "Weekly", "Monthly"]  # Lista de frecuencias de ejemplo
@@ -60,10 +60,10 @@ class FormularioInversiones(tk.Toplevel):
 
 
         fecha_inicio_label.grid(row=4, column=0, padx=10, pady=10)
-        fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
 
         fecha_fin_label.grid(row=5, column=0, padx=10, pady=10)
-        fecha_fin_entry.grid(row=5, column=1, padx=10, pady=10)
+        self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=10)
 
 
         calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
@@ -78,12 +78,14 @@ class FormularioInversiones(tk.Toplevel):
         
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
 
         frec = self.calcular_frecuencia(frecuencia_txt)
 
         b = bt(1, frec, accion_txt)  # Cambiar esta acción por una lista que podamos elegir
 
-        b.thread_tick_reader()
+        b.thread_tick_reader(inicio_txt, fin_txt)
         #b.wait()
         lista_segundos = b.get_ticks()
         xAxis = []
@@ -96,7 +98,7 @@ class FormularioInversiones(tk.Toplevel):
         for tick in lista_segundos:
             count+=1
             print(tick)
-            if count >= 10:
+            if count >= frec:
                 break
         ticks_frame = pd.DataFrame(lista_segundos)
         print(ticks_frame.head(10))
