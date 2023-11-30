@@ -56,7 +56,7 @@ class FormularioInversiones(tk.Toplevel):
 
         resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
 
-        ticks_button = ttk.Button(self.cuerpo_principal, text="Sacar nº ticks", command=self.coger_ticks())
+        ticks_button = ttk.Button(self.cuerpo_principal, text="Sacar nº ticks", command=self.coger_ticks)
 
 
         fecha_inicio_label.grid(row=4, column=0, padx=10, pady=10)
@@ -83,10 +83,8 @@ class FormularioInversiones(tk.Toplevel):
 
         b = bt(1, frec, accion_txt)  # Cambiar esta acción por una lista que podamos elegir
 
-
-
         b.thread_tick_reader()
-        b.wait()
+        #b.wait()
         lista_segundos = b.get_ticks()
         xAxis = []
         yAxis = []
