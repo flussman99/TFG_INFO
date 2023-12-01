@@ -50,7 +50,7 @@ class FormularioPagInformacion(tk.Toplevel):
             {"nombre": "David Viejo", "imagen": "src/imagenes/participantes/david.png"},
             {"nombre": "Cristian Manzanas", "imagen": "src/imagenes/participantes/cristian.png"},
             {"nombre": "Notkero Gomez", "imagen": "src/imagenes/participantes/notkero.png"},
-            {"nombre": "Jose Antonio del rio", "imagen": "src/imagenes/participantes/participantes.png"},
+            {"nombre": "Jose Antonio del rio", "imagen": "src/imagenes/participantes/jose.png"},
         ]
 
         for i, participante in enumerate(participantes):
