@@ -11,7 +11,7 @@ MAX_LEN_SPREAD = 20
 spread_list = []
 TIMEZONE=pytz.timezone("Etc/UTC")
 
-def calcular_rentabilidad(symbol: str, start_date: dt.datetime, end_date: dt.datetime):
+def calcular_rentabilidad(symbol: str,precio_apertura: int,precio_cierre: int):
     """
     Calculate the profitability of a symbol between two dates.
 
@@ -22,25 +22,11 @@ def calcular_rentabilidad(symbol: str, start_date: dt.datetime, end_date: dt.dat
     Returns:
         float: Profitability percentage.
     """
-    timezone = pytz.timezone("Etc/UTC")
 
-    #A partir de aqui, tendriamos que de alguna forma seleccionar la accion que queremos, y escoger dos fechas de incio y cierre para obtener la rentabilidad
-
-    ticks = mt5.copy_ticks_range(symbol, start_date.replace(tzinfo=timezone), end_date.replace(tzinfo=timezone), mt5.COPY_TICKS_ALL)
-    if ticks is None or len(ticks) < 2:
-        print("Datos insuficientes")
-        return None
-
-    precio_apertura = ticks[0]  #Precio de apertura
-    precio_cierre = ticks[-1]  #Precio de cierre
-
-    # Calcular rentabilidad
-    if precio_apertura != 0:
-        rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
-        return rentabilidad
-    else:
-        print("No es posible calcular la rentabilidad")
-        return None
+    rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
+    print(rentabilidad)
+    return rentabilidad
+    
     
 
 def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, fin_txt):
@@ -164,12 +150,24 @@ def calcular_mediamovil(market: str, prices: list):
     for index, row in prices_frame.iterrows():
         media_movil_cp = row['mediaMovil_CP']
         media_movil_lp = row['mediaMovil_LP']
-
+        precioCompra= row['price']
+        guardar=0
+        posicion_abierta=False
         # Comparar las medias móviles
-        if media_movil_cp > media_movil_lp:
-            decisiones.append("Vendo")
+        if media_movil_cp > media_movil_lp and posicion_abierta:
+            decisiones.append("-1")#VENDO
+            posicion_abierta=False
+            prices_frame['Rentabilidad']=calcular_rentabilidad(market,guardar,prices["price"])
+        elif media_movil_cp > media_movil_lp and not posicion_abierta:
+            decisiones.append("NO PA")#VENDO
+        elif media_movil_cp < media_movil_lp and not posicion_abierta:
+            decisiones.append("1")#COMPRO
+            posicion_abierta=True
+            guardar=precioCompra
+        elif media_movil_cp < media_movil_lp and posicion_abierta:
+            decisiones.append("POSICION ABIERTA")#COMPRO
         else:
-            decisiones.append("Compro")
+            decisiones.append("NO HAY MEDIA MOVILES")#COMPRO
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
