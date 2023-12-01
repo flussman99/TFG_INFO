@@ -23,9 +23,11 @@ def calcular_rentabilidad(symbol: str,precio_apertura: int,precio_cierre: int):
         float: Profitability percentage.
     """
 
-    rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
-    print(rentabilidad)
-    return rentabilidad
+    if precio_apertura != 0 :
+
+        rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
+        print(rentabilidad)
+        return rentabilidad
     
     
 
@@ -145,6 +147,7 @@ def calcular_mediamovil(market: str, prices: list):
     prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
      # Lista para almacenar las decisiones
     decisiones = []
+    posicion_abierta=False
 
     # Iterar sobre las filas del DataFrame
     for index, row in prices_frame.iterrows():
@@ -152,19 +155,18 @@ def calcular_mediamovil(market: str, prices: list):
         media_movil_lp = row['mediaMovil_LP']
         precioCompra= row['price']
         guardar=0
-        posicion_abierta=False
         # Comparar las medias móviles
-        if media_movil_cp > media_movil_lp and posicion_abierta:
+        if media_movil_cp > media_movil_lp and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            prices_frame['Rentabilidad']=calcular_rentabilidad(market,guardar,prices["price"])
-        elif media_movil_cp > media_movil_lp and not posicion_abierta:
+            prices_frame['Rentabilidad']=calcular_rentabilidad(market,guardar,row['price'])
+        elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
             decisiones.append("NO PA")#VENDO
-        elif media_movil_cp < media_movil_lp and not posicion_abierta:
+        elif media_movil_cp < media_movil_lp and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             posicion_abierta=True
             guardar=precioCompra
-        elif media_movil_cp < media_movil_lp and posicion_abierta:
+        elif media_movil_cp < media_movil_lp and posicion_abierta == True:
             decisiones.append("POSICION ABIERTA")#COMPRO
         else:
             decisiones.append("NO HAY MEDIA MOVILES")#COMPRO
