@@ -93,38 +93,6 @@ class Bot:
         #self.threads.append(t)
         #t.start()
         print('Thread - orders. LAUNCHED')
-
-    def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
-        """Function to initialize the metatrader 5 aplication
-        and login wiht our account details.
-
-        Args:
-            usr (int): User ID.
-            password (str): Password
-
-        Returns:
-            bool: True if everything is OK, False if not
-        """
-        if not mt5.initialize():
-            print("initialize() failed, error code =",mt5.last_error())
-            return False
-        
-        authorized=mt5.login(login=usr,password=passw,server=serv)
-        if authorized:
-            # display trading account data 'as is'
-            #print(mt5.account_info())
-            # display trading account data in the form of a list
-            print("Show account_info()._asdict():")
-            account_info_dict = mt5.account_info()._asdict()
-
-            for prop in account_info_dict:
-                print("  {}={}".format(prop, account_info_dict[prop]))
-
-        else:
-            print("failed to connect at account #{}, error code: {}".format(usr, mt5.last_error()))
-            return False
-
-        return True
     
     def kill_threads(self):
         """Function to kill all the loaded threads.

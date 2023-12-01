@@ -6,6 +6,8 @@ from tkinter.font import BOLD
 import pandas as pd
 import sys 
 from bot import Bot as bt
+import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
+
 
 class FormularioLoginDesign(tk.Toplevel):
 
@@ -55,10 +57,40 @@ class FormularioLoginDesign(tk.Toplevel):
             messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
         else: 
             #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
-            b = bt(1, 60, "SAN.MAD")#camibiar esta accion por una lista que podamos elegir
-            #cada 3600 segundos cogemos un tick
-            if not b.mt5_login(int(usr),key,server):
+            if not self.mt5_login(int(usr),key,server):
                 quit()
           
             #FormularioMaestroDesign()
+
+    def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
+        """Function to initialize the metatrader 5 aplication
+        and login wiht our account details.
+
+        Args:
+            usr (int): User ID.
+            password (str): Password
+
+        Returns:
+            bool: True if everything is OK, False if not
+        """
+        if not mt5.initialize():
+            print("initialize() failed, error code =",mt5.last_error())
+            return False
+        
+        authorized=mt5.login(login=usr,password=passw,server=serv)
+        if authorized:
+            # display trading account data 'as is'
+            #print(mt5.account_info())
+            # display trading account data in the form of a list
+            print("Show account_info()._asdict():")
+            account_info_dict = mt5.account_info()._asdict()
+
+            for prop in account_info_dict:
+                print("  {}={}".format(prop, account_info_dict[prop]))
+
+        else:
+            print("failed to connect at account #{}, error code: {}".format(usr, mt5.last_error()))
+            return False
+
+        return True
            
