@@ -81,7 +81,8 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, f
         ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
         i += 1
 
-def load_ticks(ticks: list, market: str, time_period: int):
+
+def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     """Function to load into a list, previous ticks.
 
     Args:
@@ -102,8 +103,10 @@ def load_ticks(ticks: list, market: str, time_period: int):
 
     # Loading data
     timezone = pytz.timezone("Etc/UTC")
-    utc_from = dt.datetime(2023, 11,28, tzinfo=timezone)
-    utc_to = dt.datetime(2023, 11,29, tzinfo=timezone)
+    fecha_inicio = txt_to_int_fecha(inicio_txt)
+    fecha_fin = txt_to_int_fecha(fin_txt)
+    utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
+    utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
     #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
     #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
@@ -135,6 +138,8 @@ def load_ticks(ticks: list, market: str, time_period: int):
 
 
     calcular_mediamovil(market,ticks)
+
+    ticks.clear()
 
     # Removing the ticks that we do not need
     not_needed_ticks = len(ticks) - MAX_TICKS_LEN

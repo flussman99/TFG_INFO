@@ -14,7 +14,7 @@ https://www.youtube.com/watch?v=6Kj-45iHhdg&list=PLuhsSjG-BPPIX4g-RlA_KXUA1hlXgH
 me he visto hasta el 5
 
 REPOSITORIO GITHUB DEL TIO DE LOS VIDEOS, muy util
-https://github.com/kecoma1/Trading_BOT´
+https://github.com/kecoma1/Trading_BOT
 
 
 ENLACE INFORMACION BIBLIOTECAS Metatrader5 con explicacion de las funciones, muy util
