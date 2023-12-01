@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import sys
 from bot import Bot as bt
+from tkcalendar import DateEntry
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
@@ -27,7 +28,30 @@ class FormularioInversiones(tk.Toplevel):
         title = tk.Label(self.cuerpo_principal, text="Operaciones de inversión", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
         title.grid(row=0, column=1, sticky="nsew")
 
-        
+              
+              
+        # Function to filter the options
+        def filter_options(event):
+
+            combobox = event.widget
+            options = combobox.cget('values')
+            data = combobox.get()
+
+            if data:
+                # Filter the options
+                filtered_options = [option for option in options if option.startswith(data)]
+            else:
+                # If the data is empty, reset the options to the original list
+                filtered_options = options
+
+            combobox['values'] = filtered_options
+
+            if hasattr(filter_options, 'job'):
+                self.cuerpo_principal.after_cancel(filter_options.job)
+
+            # Schedule a new job
+            filter_options.job = self.cuerpo_principal.after(2000, combobox.event_generate, '<Down>')
+
 
         texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
         b = bt(1, 3600, "SAN.MAD")  # COMO HACERLO MEJOR??
@@ -35,34 +59,35 @@ class FormularioInversiones(tk.Toplevel):
         #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
         #self.combo_acciones.set(acciones[0])
         # Create the combobox
-        self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
+        self.acciones_var = tk.StringVar(value=acciones)
+        self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
         self.combo_acciones.set(acciones[0])
 
-        # Function to filter the options
-        def filter_options(event):
-            data = self.combo_acciones.get()
-            filtered_options = [option for option in acciones if option.startswith(data)]
-            self.combo_acciones['values'] = filtered_options
-
-        # Bind the function to the combobox
         self.combo_acciones.bind('<KeyRelease>', filter_options)
-
 
 
         texto_acciones.grid(row=2, column=0, padx=10, pady=10)
         self.combo_acciones.grid(row=2, column=1, padx=10, pady=10)
-
+     
 
         fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY/MM/DD):")
-        self.fecha_inicio_entry = ttk.Entry(self.cuerpo_principal)
+        self.fecha_inicio_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
+        
 
         fecha_fin_label = ttk.Label(self.cuerpo_principal, text="Fecha de fin (YYYY/MM/DD):")
-        self.fecha_fin_entry = ttk.Entry(self.cuerpo_principal)
+        self.fecha_fin_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
+
 
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia:")
         frecuencia = ["1M", "2M", "3M", "4M", "5M", "6M", "10M", "12M", "15M", "20M", "30M", "1H", "2H", "3H", "4H", "6H", "8H", "12H", "Daily", "Weekly", "Monthly"]  # Lista de frecuencias de ejemplo
-        self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, values=frecuencia)
+        
+
+        self.frecuencia_var = tk.StringVar(value=frecuencia)
+        self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.set(frecuencia[0])
+
+        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
+
 
         texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
         self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
@@ -196,6 +221,7 @@ class FormularioInversiones(tk.Toplevel):
         # Debes implementarla según tus necesidades
         # Retorna un valor de ejemplo (reemplázalo)
         return 0
+
 
 # Crear la ventana principal
 #ventana = tk.Tk()
