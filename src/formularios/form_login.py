@@ -55,8 +55,8 @@ class FormularioLoginDesign(tk.Toplevel):
             messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
         else: 
             #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
-            b = bt(1, 3600, "SAN.MAD")#camibiar esta accion por una lista que podamos elegir
-        
+            b = bt(1, 60, "SAN.MAD")#camibiar esta accion por una lista que podamos elegir
+            #cada 3600 segundos cogemos un tick
             if not b.mt5_login(int(usr),key,server):
                 quit()
           

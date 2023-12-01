@@ -35,3 +35,8 @@ pip install pandas
 pip instal openpyxl
 pip install Pillow      (Para que se vean las imagenes)
 
+
+Instalar
+
+pip install openpyxl
+pip install pandas  

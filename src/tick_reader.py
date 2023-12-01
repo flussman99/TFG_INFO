@@ -3,11 +3,13 @@ import datetime as dt
 import pytz
 import openpyxl
 import pandas as pd
+import numpy as np
 
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
 spread_list = []
+TIMEZONE=pytz.timezone("Etc/UTC")
 
 def calcular_rentabilidad(symbol: str, start_date: dt.datetime, end_date: dt.datetime):
     """
@@ -79,7 +81,7 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, f
         ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
         i += 1
 
-def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
+def load_ticks(ticks: list, market: str, time_period: int):
     """Function to load into a list, previous ticks.
 
     Args:
@@ -100,10 +102,8 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 
     # Loading data
     timezone = pytz.timezone("Etc/UTC")
-    fecha_inicio = txt_to_int_fecha(inicio_txt)
-    fecha_fin = txt_to_int_fecha(fin_txt)
-    utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
-    utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
+    utc_from = dt.datetime(2023, 11,28, tzinfo=timezone)
+    utc_to = dt.datetime(2023, 11,29, tzinfo=timezone)
     #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
     #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
@@ -125,29 +125,16 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     print("\nDisplay dataframe with ticks")
     print(ticks_frame)
 
-
     # Filling the list
-    second_to_include = loaded_ticks[0][0]
+    second_to_include = 0
     for tick in loaded_ticks:
         # Every X seconds we add a value to the list
-        if tick[0] > second_to_include+time_period:
-            ticks.append(tick)
+        if tick[0] > second_to_include + time_period:
+            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             second_to_include = tick[0]
-      # display data
-   
-   # create DataFrame out of the obtained data
-    ticks_frame = pd.DataFrame(ticks)
-    print("\nDisplay dataframe with ticks")
-    print(ticks_frame)
-    # convert time in seconds into the datetime format
-    #ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
-        # Nombre del archivo Excel de salida
-    excel_filename = 'buenos.xlsx'
 
-    # Exportar el DataFrame a Excel
-    ticks_frame.to_excel(excel_filename, index=False)
 
-   
+    calcular_mediamovil(market,ticks)
 
     # Removing the ticks that we do not need
     not_needed_ticks = len(ticks) - MAX_TICKS_LEN
@@ -156,6 +143,59 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
             del ticks[0]
 
 
+
+
+def calcular_mediamovil(market: str, prices: list):
+
+    # Crear un DataFrame de la lista prices
+    prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
+    # Puedes ajustar el tamaño de la ventana según tus necesidades
+    prices_frame['mediaMovil_CP'] = prices_frame['price'].rolling(window=30).mean()
+    prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
+     # Lista para almacenar las decisiones
+    decisiones = []
+
+    # Iterar sobre las filas del DataFrame
+    for index, row in prices_frame.iterrows():
+        media_movil_cp = row['mediaMovil_CP']
+        media_movil_lp = row['mediaMovil_LP']
+
+        # Comparar las medias móviles
+        if media_movil_cp > media_movil_lp:
+            decisiones.append("Vendo")
+        else:
+            decisiones.append("Compro")
+
+    # Agregar la lista de decisiones como una nueva columna al DataFrame
+    prices_frame['Decision'] = decisiones
+
+
+    print(prices_frame)
+    excel_filename = 'media.xlsx'
+    # Exportar el DataFrame a Excel
+    prices_frame.to_excel(excel_filename, index=False)
+   # rest of your code
+
+
+def moving_average_crossover_strategy(prices, short_window, long_window):
+
+    
+
+    signals = pd.DataFrame(index=prices.index)
+    signals['signal'] = 0.0
+
+    # Crear media móvil simple corta
+    signals['short_mavg'] = prices.rolling(window=short_window, min_periods=5, center=False).mean()
+
+    # Crear media móvil simple larga
+    signals['long_mavg'] = prices.rolling(window=long_window, min_periods=1, center=False).mean()
+    # Crear señales de trading
+    signals['signal'][short_window:] = np.where(signals['short_mavg'][short_window:] > signals['long_mavg'][short_window:], 1.0, 0.0)
+
+    # Generar órdenes de trading
+    signals['positions'] = signals['signal'].diff()
+
+    return signals
 
 def store_tick(ticks: list, market: str):#primera forma
     """Function that stores a tick into the given list,
