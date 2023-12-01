@@ -27,11 +27,26 @@ class FormularioInversiones(tk.Toplevel):
         title = tk.Label(self.cuerpo_principal, text="Operaciones de inversión", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
         title.grid(row=0, column=1, sticky="nsew")
 
+        
 
         texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
-        acciones = ["AAPL.NAS", "ADS.ETR", "NKE.NYSE"]  # Lista de acciones de ejemplo
+        b = bt(1, 3600, "SAN.MAD")  # COMO HACERLO MEJOR??
+        acciones = b.get_trading_data()  # Lista de acciones
+        #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
+        #self.combo_acciones.set(acciones[0])
+        # Create the combobox
         self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
         self.combo_acciones.set(acciones[0])
+
+        # Function to filter the options
+        def filter_options(event):
+            data = self.combo_acciones.get()
+            filtered_options = [option for option in acciones if option.startswith(data)]
+            self.combo_acciones['values'] = filtered_options
+
+        # Bind the function to the combobox
+        self.combo_acciones.bind('<KeyRelease>', filter_options)
+
 
 
         texto_acciones.grid(row=2, column=0, padx=10, pady=10)

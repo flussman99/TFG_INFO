@@ -116,8 +116,10 @@ class Bot:
             # display trading account data in the form of a list
             print("Show account_info()._asdict():")
             account_info_dict = mt5.account_info()._asdict()
+
             for prop in account_info_dict:
                 print("  {}={}".format(prop, account_info_dict[prop]))
+
         else:
             print("failed to connect at account #{}, error code: {}".format(usr, mt5.last_error()))
             return False
@@ -140,3 +142,18 @@ class Bot:
         input()
         self.kill_threads()
         mt5.shutdown()
+
+    def get_trading_data(self):
+        # Function to get the trading data.
+
+        # Initialize an empty list to store the names of the symbols
+        trading_data = []
+
+        # Get the list of all available symbols
+        symbols = mt5.symbols_get()
+
+        # Add the name of each symbol to the list
+        for symbol in symbols:
+            trading_data.append(symbol.name)
+
+        return trading_data
