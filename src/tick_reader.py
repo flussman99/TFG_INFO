@@ -43,7 +43,7 @@ def calcular_rentabilidad(symbol: str, start_date: dt.datetime, end_date: dt.dat
         return None
     
 
-def thread_tick_reader(pill2kill, ticks: list, trading_data: dict):
+def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, fin_txt):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -57,7 +57,7 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict):
     print("[THREAD - tick_reader] - Working")
 
     # Filling the list with previos ticks
-    load_ticks(ticks, trading_data['market'], trading_data['time_period'])
+    load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
     
     print("[THREAD - tick_reader] - Ticks loaded")
    
@@ -81,10 +81,6 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict):
         ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
         i += 1
 
-
-
-
-
 def load_ticks(ticks: list, market: str, time_period: int):
     """Function to load into a list, previous ticks.
 
@@ -105,11 +101,9 @@ def load_ticks(ticks: list, market: str, time_period: int):
         yesterday = today - dt.timedelta(days=1)
 
     # Loading data
-    TIMEZONE = pytz.timezone("Etc/UTC")
-    utc_from = dt.datetime(2023, 11,28, tzinfo=TIMEZONE)
-    utc_to = dt.datetime(2023, 11,29, tzinfo=TIMEZONE)
-    #rango de fechas del que cojo los ticks
-    
+    timezone = pytz.timezone("Etc/UTC")
+    utc_from = dt.datetime(2023, 11,28, tzinfo=timezone)
+    utc_to = dt.datetime(2023, 11,29, tzinfo=timezone)
     #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
     #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
@@ -219,4 +213,14 @@ def store_tick(ticks: list, market: str):#primera forma
     if len(ticks) >= MAX_TICKS_LEN:
         del ticks[0]
 
+def txt_to_int_fecha(fecha):
+    """Function that converts a string date to a int date.
 
+    Args:
+        fecha (str): String date to be converted.
+
+    Returns:
+        int: Int date.
+    """
+    fecha = fecha.split("/")
+    return int(fecha[2]), int(fecha[1]), int(fecha[0])

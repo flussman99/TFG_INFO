@@ -52,11 +52,11 @@ class Bot:
         """
         return self.ticks
     
-    def thread_tick_reader(self):
+    def thread_tick_reader(self, inicio_txt, fin_txt):
         """Function to launch the tick reader thread.
         """
         t = threading.Thread(target=tr.thread_tick_reader, 
-                             args=(self.pill2kill, self.ticks, self.trading_data,))
+                             args=(self.pill2kill, self.ticks, self.trading_data, inicio_txt, fin_txt))
         self.threads.append(t)
         t.start()
         print('Thread - tick_reader. LAUNCHED')

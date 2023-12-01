@@ -25,9 +25,10 @@ class FormularioLoginDesign(tk.Toplevel):
         #Parte de Usuario
         etiqueta_usuario =tk.Label(self.cuerpo_principal, text="Usuario", font=('Times', 14),fg="#666a88",bg='#fcfcfc', anchor="w")
         etiqueta_usuario.pack(fill=tk.X, padx=20,pady=5)
-        self.usuario = ttk.Entry(self.cuerpo_principal, textvariable="51468408",font=('Times', 14))
-        self.usuario.insert(0, "51468408")  # Insertar el usuario predeterminado
+        self.usuario = ttk.Entry(self.cuerpo_principal, font=('Times', 14))
         self.usuario.pack(fill=tk.X, padx=20,pady=10)
+        self.usuario.insert(0, "51468408")  # Insertar el usuario predeterminado
+        
 
         #Parte de Contraseña
         etiqueta_password = tk.Label(self.cuerpo_principal, text="Contraseña", font=('Times', 14),fg="#666a88",bg='#fcfcfc', anchor="w")
@@ -58,24 +59,6 @@ class FormularioLoginDesign(tk.Toplevel):
             #cada 3600 segundos cogemos un tick
             if not b.mt5_login(int(usr),key,server):
                 quit()
-
-            b.thread_tick_reader()
-            b.wait()
-            lista_segundos = b.get_ticks()
-            xAxis = []
-            yAxis = []
-            i = 1
-            print("Ticks received:",len(lista_segundos))
-
-            print("Display obtained ticks 'as is'")
-            count = 0
-            for tick in lista_segundos:
-                count+=1
-                print(tick)
-                if count >= 10:
-                    break
-            ticks_frame = pd.DataFrame(lista_segundos)
-            print(ticks_frame.head(10))
           
             #FormularioMaestroDesign()
            
