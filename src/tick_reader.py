@@ -147,6 +147,7 @@ def calcular_mediamovil(market: str, prices: list):
     prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
      # Lista para almacenar las decisiones
     decisiones = []
+    rentabilidad=[]
     posicion_abierta=False
 
     # Iterar sobre las filas del DataFrame
@@ -154,12 +155,11 @@ def calcular_mediamovil(market: str, prices: list):
         media_movil_cp = row['mediaMovil_CP']
         media_movil_lp = row['mediaMovil_LP']
         precioCompra= row['price']
-        guardar=0
         # Comparar las medias móviles
         if media_movil_cp > media_movil_lp and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            prices_frame['Rentabilidad']=calcular_rentabilidad(market,guardar,row['price'])
+            rentabilidad.append(calcular_rentabilidad(market,guardar,row['price']))
         elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
             decisiones.append("NO PA")#VENDO
         elif media_movil_cp < media_movil_lp and posicion_abierta == False:
@@ -173,6 +173,7 @@ def calcular_mediamovil(market: str, prices: list):
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
+    prices_frame['Rentabilidad']= rentabilidad
 
 
     print(prices_frame)
