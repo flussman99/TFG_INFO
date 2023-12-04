@@ -68,9 +68,8 @@ class FormularioMaestroDesign(tk.Tk):
 
         #Etiqueta de información --> Cambiar cuando consigamos logearnos por el usuario que corresponda
         self.labelTitulo = tk.Label(
-            self.barra_superior, text="Usuario No Registrado")
-        self.labelTitulo.config(fg='#fff', font=(
-            "Roboto", 10), bg=COLOR_BARRA_SUPERIOR, padx=10, width=20)
+            self.barra_superior, text="Usuario No Registrado", font=("Roboto", 10), bg=COLOR_BARRA_SUPERIOR, padx=10, width=20)
+        self.labelTitulo.config(fg='#fff', font=("Roboto", 10), bg=COLOR_BARRA_SUPERIOR, padx=10, width=20)
         self.labelTitulo.pack(side=tk.RIGHT)
 
     def controles_menu_lateral(self):
@@ -142,7 +141,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.abrir_panel_inversiones)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)
