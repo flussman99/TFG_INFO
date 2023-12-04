@@ -34,6 +34,7 @@ Cuando esté descargado, nos metemos en la carpeta otfs, y ahí abrimos el archi
 pip install pandas
 pip instal openpyxl
 pip install Pillow      (Para que se vean las imagenes)
+pip install ta (importar indicadores)
 
 
 Instalar
