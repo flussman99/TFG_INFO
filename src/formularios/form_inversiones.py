@@ -52,23 +52,58 @@ class FormularioInversiones(tk.Toplevel):
             # Schedule a new job
             filter_options.job = self.cuerpo_principal.after(2000, combobox.event_generate, '<Down>')
 
+        def filter_acciones(event):
+            # Get selected market
+            selected_market = self.combo_mercados.get()
+
+            if selected_market == 'DIVISES':
+                selected_market = ''
+                filtered_acciones = [accion for accion in acciones if '.' not in accion]
+            else:
+                filtered_acciones = [accion for accion in acciones if accion.endswith(selected_market)]
+
+            # Update combo_acciones options
+            self.combo_acciones['values'] = filtered_acciones
+            self.combo_acciones.set(filtered_acciones[0])
+
+        def reload_options(event):
+            # Get the combobox that triggered the event
+            combobox = event.widget
+
+            # Reset the values of the combobox
+            if combobox == self.combo_acciones:
+                combobox['values'] = self.original_acciones
+            elif combobox == self.combo_mercados:
+                combobox['values'] = self.original_mercados  
+            elif combobox == self.combo_frecuencia:
+                combobox['values'] = self.original_frecuencia 
+
 
         texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
         b = bt(1, 3600, "SAN.MAD")  # COMO HACERLO MEJOR??
-        acciones = b.get_trading_data()  # Lista de acciones
+        acciones, mercados = b.get_trading_data()  # Lista de acciones
         #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
         #self.combo_acciones.set(acciones[0])
         # Create the combobox
         self.acciones_var = tk.StringVar(value=acciones)
+        self.mercados_var = tk.StringVar(value=mercados)
         self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
+        self.combo_mercados = ttk.Combobox(self.cuerpo_principal, textvariable=self.mercados_var, values=mercados)
         self.combo_acciones.set(acciones[0])
+        self.combo_mercados.set(list(mercados)[0])
+
+        self.original_acciones = acciones
+        self.original_mercados = mercados
 
         self.combo_acciones.bind('<KeyRelease>', filter_options)
+        self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
+        self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
 
 
         texto_acciones.grid(row=2, column=0, padx=10, pady=10)
         self.combo_acciones.grid(row=2, column=1, padx=10, pady=10)
-     
+        self.combo_mercados.grid(row=2, column=2, padx=10, pady=10)
+    
 
         fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY/MM/DD):")
         self.fecha_inicio_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
@@ -80,13 +115,14 @@ class FormularioInversiones(tk.Toplevel):
 
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia:")
         frecuencia = ["1M", "2M", "3M", "4M", "5M", "6M", "10M", "12M", "15M", "20M", "30M", "1H", "2H", "3H", "4H", "6H", "8H", "12H", "Daily", "Weekly", "Monthly"]  # Lista de frecuencias de ejemplo
-        
+        self.original_frecuencia = frecuencia
 
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.set(frecuencia[0])
 
         self.combo_frecuencia.bind('<KeyRelease>', filter_options)
+        self.combo_frecuencia.bind('<<ComboboxSelected>>', reload_options)
 
 
         texto_tiempos.grid(row=3, column=0, padx=10, pady=10)

@@ -120,8 +120,12 @@ class Bot:
         # Get the list of all available symbols
         symbols = mt5.symbols_get()
 
+        exchanges = set(symbol.name.split('.')[1] for symbol in symbols if '.' in symbol.name)
+        exchanges_list = list(exchanges)
+        exchanges_list.insert(0, 'DIVISES')
+
         # Add the name of each symbol to the list
         for symbol in symbols:
             trading_data.append(symbol.name)
 
-        return trading_data
+        return trading_data, exchanges_list
