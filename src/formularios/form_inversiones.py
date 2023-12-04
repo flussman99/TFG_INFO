@@ -37,6 +37,13 @@ class FormularioInversiones(tk.Toplevel):
             options = combobox.cget('values')
             data = combobox.get()
 
+            if combobox == self.combo_acciones:
+                options = self.original_acciones
+            elif combobox == self.combo_mercados:
+                options = self.original_mercados  
+            elif combobox == self.combo_frecuencia:
+                options = self.original_frecuencia 
+
             if data:
                 # Filter the options
                 filtered_options = [option for option in options if option.startswith(data)]
@@ -114,7 +121,7 @@ class FormularioInversiones(tk.Toplevel):
 
 
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia:")
-        frecuencia = ["1M", "2M", "3M", "4M", "5M", "6M", "10M", "12M", "15M", "20M", "30M", "1H", "2H", "3H", "4H", "6H", "8H", "12H", "Daily", "Weekly", "Monthly"]  # Lista de frecuencias de ejemplo
+        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.original_frecuencia = frecuencia
 
         self.frecuencia_var = tk.StringVar(value=frecuencia)
