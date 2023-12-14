@@ -5,6 +5,10 @@ import pandas as pd
 import sys
 from bot import Bot as bt
 from tkcalendar import DateEntry
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from datetime import datetime
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
@@ -139,7 +143,8 @@ class FormularioInversiones(tk.Toplevel):
 
         resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
 
-        ticks_button = ttk.Button(self.cuerpo_principal, text="Sacar nº ticks", command=self.coger_ticks)
+        ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
+
 
 
         fecha_inicio_label.grid(row=4, column=0, padx=10, pady=10)
@@ -166,7 +171,7 @@ class FormularioInversiones(tk.Toplevel):
 
         frec = self.calcular_frecuencia(frecuencia_txt)
 
-        b = bt(1, frec, accion_txt)  # Cambiar esta acción por una lista que podamos elegir
+        b = bt(1, frec, accion_txt) 
 
         b.thread_tick_reader(inicio_txt, fin_txt)
         #b.wait()
@@ -185,6 +190,35 @@ class FormularioInversiones(tk.Toplevel):
                 break
         ticks_frame = pd.DataFrame(lista_segundos)
         print(ticks_frame.head(10))
+
+        # Prepare data for plotting
+        xAxis = list(range(len(lista_segundos)))
+        #yAxis = [tick.price for tick in lista_segundos]
+        yAxis = lista_segundos
+
+        for tick in lista_segundos:
+
+            datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
+
+            xAxis.append(datetime_obj)
+            yAxis.append(tick[1])
+
+        # Create a new figure
+        fig.clear()
+        
+        fig = Figure(figsize=(5, 4), dpi=100)
+
+        # Add a subplot to the figure
+        ax = fig.add_subplot(111)
+
+        # Plot data
+        ax.plot(xAxis, yAxis)
+
+        # Create a canvas and add it to your Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
+
 
 
     def calcular_frecuencia(self, frecuencia_txt):
