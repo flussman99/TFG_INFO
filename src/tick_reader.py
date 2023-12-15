@@ -93,6 +93,7 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     timezone = pytz.timezone("Etc/UTC")
     fecha_inicio = txt_to_int_fecha(inicio_txt)
     fecha_fin = txt_to_int_fecha(fin_txt)
+
     utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
     #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
@@ -162,14 +163,18 @@ def calcular_mediamovil(market: str, prices: list):
             rentabilidad.append(calcular_rentabilidad(market,guardar,row['price']))
         elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
             decisiones.append("NO PA")#VENDO
+            rentabilidad.append(None)
         elif media_movil_cp < media_movil_lp and posicion_abierta == False:
             decisiones.append("1")#COMPRO
+            rentabilidad.append(None)
             posicion_abierta=True
             guardar=precioCompra
         elif media_movil_cp < media_movil_lp and posicion_abierta == True:
             decisiones.append("POSICION ABIERTA")#COMPRO
+            rentabilidad.append(None)
         else:
             decisiones.append("NO HAY MEDIA MOVILES")#COMPRO
+            rentabilidad.append(None)
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
@@ -184,8 +189,6 @@ def calcular_mediamovil(market: str, prices: list):
 
 
 def moving_average_crossover_strategy(prices, short_window, long_window):
-
-    
 
     signals = pd.DataFrame(index=prices.index)
     signals['signal'] = 0.0
