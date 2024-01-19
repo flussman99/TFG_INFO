@@ -1,11 +1,14 @@
 import MetaTrader5 as mt5
 import datetime as dt
+import ordenes as orden
+import src.Rsi_Macd as Rsi_Macd
 import pytz
 import openpyxl
 import pandas as pd
 import numpy as np
 from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
+from ta.trend import MACD
 
 # Global variables
 MAX_TICKS_LEN = 200
@@ -109,11 +112,11 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     ticks_frame = pd.DataFrame(loaded_ticks)
     # convert time in seconds into the datetime format
     ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
-        # Nombre del archivo Excel de salida
-    excel_filename = 'ticks_data.xlsx'
+    # Nombre del archivo Excel de salida
+    #excel_filename = 'ticks_data.xlsx'
 
     # Exportar el DataFrame a Excel
-    ticks_frame.to_excel(excel_filename, index=False)
+    #ticks_frame.to_excel(excel_filename, index=False)
 
     # display data
     print("\nDisplay dataframe with ticks")
@@ -126,10 +129,10 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
         if tick[0] > second_to_include + time_period:
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             second_to_include = tick[0]
-
+#hay que usar javascript para coger los ticks en directo uando queramos revisar las compras
 
     #calcular_mediamovil(market,ticks)
-    est_RSI(market,ticks)
+    Rsi_Macd.backtesting(market,ticks)
 
     ticks.clear()
 
@@ -138,46 +141,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     if not_needed_ticks > 0:
         for i in range(not_needed_ticks):
             del ticks[0]
-
-
-def est_RSI(market: str, prices: list):
-    # Crear un DataFrame de la lista prices
-    prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
-    rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-    stochRSI=StochRSIIndicator(prices_frame["price"], smooth1= 3, smooth2= 3,window=14, fillna=False)
-    
-    prices_frame["RSI"] = rsi.rsi()
-    prices_frame["StochRSI"] = stochRSI.stochrsi()
-    decisiones = []
-    rentabilidad=[]
-    posicion_abierta=False
-
-    for index, row in prices_frame.iterrows():
-        rsi = row['RSI']
-        precioCompra= row['price']
-        # Comparar las medias móviles
-        if rsi > 65 and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
-            posicion_abierta=False
-            rentabilidad.append(calcular_rentabilidad(market,guardar,row['price']))
-        elif rsi < 30 and posicion_abierta == False:
-            decisiones.append("1")#COMPRO
-            rentabilidad.append(None)
-            posicion_abierta=True
-            guardar=precioCompra
-        else:
-            decisiones.append("NO SE REALIZA OPERACION")#COMPRO
-            rentabilidad.append(None)
-
-    # Agregar la lista de decisiones como una nueva columna al DataFrame
-    prices_frame['Decision'] = decisiones
-    prices_frame['Rentabilidad']= rentabilidad
-
-    print(prices_frame)
-    excel_filename = 'media.xlsx'
-    # Exportar el DataFrame a Excel
-    prices_frame.to_excel(excel_filename, index=False)
-    
 
 
 def calcular_mediamovil(market: str, prices: list):

@@ -1,4 +1,4 @@
-import MACD, RSI, time
+import Rsi_Macd, MediaMovil,time
 import datetime as date
 import MetaTrader5 as mt5
 
@@ -209,7 +209,9 @@ def check_buy() -> bool:
     Returns:
         bool: True if we can, false if not.
     """
-    return MACD.check_buy() and RSI.check_buy()
+#if para elegir que estrategia quiero que me compruebe si es momento de compra o no elegir mediante un desplegables
+
+    return Rsi_Macd.check_buy() 
 
 
 def check_sell() -> bool:
@@ -218,7 +220,7 @@ def check_sell() -> bool:
     Returns:
         bool: True if we can, false if not.
     """
-    return MACD.check_sell() and RSI.check_sell()
+    return Rsi_Macd.check_sell() 
 
 
 def thread_orders(pill2kill, trading_data: dict):

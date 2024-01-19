@@ -1,8 +1,9 @@
 import threading
 import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
 import tick_reader as tr
+import ordenes as orders
 #importslope_abs_rel, orders
-#import MACD, RSI
+import Rsi_Macd, MediaMovil
 
 class Bot:
     
@@ -71,27 +72,29 @@ class Bot:
         #t.start()
         print('Thread - slope_abs_rel. LAUNCHED')
     
-    def thread_MACD(self):
+    def thread_RSI_MACD(self):
         """Function to launch the thread for calculating the MACD.
         """
-        #t = threading.Thread(target=MACD.thread_macd, 
-         #                    args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
-        #self.threads.append(t)
-        #t.start()
-        print('Thread - MACD. LAUNCHED')
+        t = threading.Thread(target=Rsi_Macd.thread_rsi_macd, 
+                            args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - RSI_MACD. LAUNCHED')
     
-    def thread_RSI(self):
-        #t = threading.Thread(target=RSI.thread_RSI, 
-        #                     args=(self.pill2kill, self.ticks, self.indicators))
-        #self.threads.append(t)
-        #t.start()
-        print('Thread - RSI. LAUNCHED')
+    def thread_MediaMovil(self):
+        """Function to launch the thread for calculating the MACD.
+        """
+        t = threading.Thread(target=MediaMovil.MediaMovil, 
+                            args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - MediaMovil. LAUNCHED')
     
     def thread_orders(self):
-        #t = threading.Thread(target=orders.thread_orders, 
-         #                    args=(self.pill2kill, self.trading_data))
-        #self.threads.append(t)
-        #t.start()
+        t = threading.Thread(target=orders.thread_orders, 
+                             args=(self.pill2kill, self.trading_data))
+        self.threads.append(t)
+        t.start()
         print('Thread - orders. LAUNCHED')
     
     def kill_threads(self):

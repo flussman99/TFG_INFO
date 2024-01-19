@@ -43,3 +43,7 @@ pip install openpyxl
 pip install pandas  
 
 pip install tkcalendar
+
+
+
+A nivel de interfaz incluir ventana para estudio y ventana para abrir operaciones donde podremos abrir varias y establecer valores de stop loss o el profit -->IMPORTANTE

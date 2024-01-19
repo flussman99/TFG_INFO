@@ -172,8 +172,14 @@ class FormularioInversiones(tk.Toplevel):
         frec = self.calcular_frecuencia(frecuencia_txt)
 
         b = bt(1, frec, accion_txt) 
-
+#if parte backtestin
         b.thread_tick_reader(inicio_txt, fin_txt)
+ #if abrir operacion       
+        b.thread_orders(self)
+#if elegir tipo de operacion
+        b.thread_RSI_MACD(self)
+
+
         #b.wait()
         lista_segundos = b.get_ticks()
         xAxis = []
