@@ -4,6 +4,8 @@ import pytz
 import openpyxl
 import pandas as pd
 import numpy as np
+from ta.momentum import RSIIndicator
+from ta.momentum import StochRSIIndicator
 
 # Global variables
 MAX_TICKS_LEN = 200
@@ -11,7 +13,7 @@ MAX_LEN_SPREAD = 20
 spread_list = []
 TIMEZONE=pytz.timezone("Etc/UTC")
 
-def calcular_rentabilidad(symbol: str,precio_apertura: int,precio_cierre: int):
+def calcular_rentabilidad(market: str,precio_apertura: int,precio_cierre: int):
     """
     Calculate the profitability of a symbol between two dates.
 
@@ -126,7 +128,8 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
             second_to_include = tick[0]
 
 
-    calcular_mediamovil(market,ticks)
+    #calcular_mediamovil(market,ticks)
+    est_RSI(market,ticks)
 
     ticks.clear()
 
@@ -137,6 +140,44 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
             del ticks[0]
 
 
+def est_RSI(market: str, prices: list):
+    # Crear un DataFrame de la lista prices
+    prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
+    rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+    stochRSI=StochRSIIndicator(prices_frame["price"], smooth1= 3, smooth2= 3,window=14, fillna=False)
+    
+    prices_frame["RSI"] = rsi.rsi()
+    prices_frame["StochRSI"] = stochRSI.stochrsi()
+    decisiones = []
+    rentabilidad=[]
+    posicion_abierta=False
+
+    for index, row in prices_frame.iterrows():
+        rsi = row['RSI']
+        precioCompra= row['price']
+        # Comparar las medias móviles
+        if rsi > 65 and posicion_abierta == True:
+            decisiones.append("-1")#VENDO
+            posicion_abierta=False
+            rentabilidad.append(calcular_rentabilidad(market,guardar,row['price']))
+        elif rsi < 30 and posicion_abierta == False:
+            decisiones.append("1")#COMPRO
+            rentabilidad.append(None)
+            posicion_abierta=True
+            guardar=precioCompra
+        else:
+            decisiones.append("NO SE REALIZA OPERACION")#COMPRO
+            rentabilidad.append(None)
+
+    # Agregar la lista de decisiones como una nueva columna al DataFrame
+    prices_frame['Decision'] = decisiones
+    prices_frame['Rentabilidad']= rentabilidad
+
+    print(prices_frame)
+    excel_filename = 'media.xlsx'
+    # Exportar el DataFrame a Excel
+    prices_frame.to_excel(excel_filename, index=False)
+    
 
 
 def calcular_mediamovil(market: str, prices: list):
