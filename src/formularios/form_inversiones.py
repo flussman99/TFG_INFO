@@ -141,7 +141,7 @@ class FormularioInversiones(tk.Toplevel):
 
         calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
 
-        resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
+        self.resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
 
@@ -158,7 +158,7 @@ class FormularioInversiones(tk.Toplevel):
 
         ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
 
-        resultado_label.grid(row=8, column=0, columnspan=2, pady=10)
+        self.resultado_label.grid(row=8, column=0, columnspan=2, pady=10)
 
         #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
 
@@ -278,20 +278,20 @@ class FormularioInversiones(tk.Toplevel):
 
     def calcular_rentabilidad(self):
         # Obtener valores de los widgets
-        accion = self.accion_combobox.get()
+        accion = self.combo_acciones.get()
         fecha_inicio_str = self.fecha_inicio_entry.get()
         fecha_fin_str = self.fecha_fin_entry.get()
 
         # Validar las fechas (puedes agregar más validaciones según tus necesidades)
-        try:
-            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d")
-            fecha_fin = datetime.strptime(fecha_fin_str, "%Y-%m-%d")
+        """try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y/%m/%d")
+            fecha_fin = datetime.strptime(fecha_fin_str, "%Y/%m/%d")
         except ValueError:
             self.resultado_label.config(text="Fechas inválidas")
-            return
+            return"""
 
         # Llamar a la función que realiza el cálculo de rentabilidad (debes implementarla)
-        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio, fecha_fin)
+        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str, "Diaria")
 
         # Actualizar la etiqueta de resultado
         if rentabilidad is not None:
@@ -299,7 +299,20 @@ class FormularioInversiones(tk.Toplevel):
         else:
             self.resultado_label.config(text="Error al calcular la rentabilidad")
 
-    def realizar_calculo_de_rentabilidad(self, accion, fecha_inicio, fecha_fin):
+    def realizar_calculo_de_rentabilidad(self, accion, fecha_inicio, fecha_fin, frecuencia_rentabilidad):
+        if(frecuencia_rentabilidad == "Diaria"):
+            frec = 86400
+        elif(frecuencia_rentabilidad == "Semanal"):
+            frec = 604800
+        elif(frecuencia_rentabilidad == "Mensual"):
+            frec = 2592000
+        else:
+            frec = 2592000 * 12
+        
+        b = bt(1, frec, accion) 
+#if parte backtestin
+        b.thread_tick_reader(fecha_inicio, fecha_fin)
+        frec = 0
         # Esta función debería realizar el cálculo de rentabilidad y devolver el resultado
         # Debes implementarla según tus necesidades
         # Retorna un valor de ejemplo (reemplázalo)
