@@ -152,8 +152,9 @@ class FormularioMaestroDesign(tk.Tk):
         FormularioPagInformacion(self.cuerpo_principal, self.imgconstruccion)
 
     def abrir_panel_inversiones(self):
-        self.limpiar_panel(self.cuerpo_principal)
-        FormularioInversiones(self.cuerpo_principal)
+        if not self.labelTitulo.cget("text") == "Usuario No Registrado":
+            self.limpiar_panel(self.cuerpo_principal)
+            FormularioInversiones(self.cuerpo_principal)
 
 
     #Esta función lo que hace es limpiar el Label que había antes en lo que vayamos a modificar

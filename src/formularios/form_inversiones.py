@@ -47,6 +47,8 @@ class FormularioInversiones(tk.Toplevel):
                 options = self.original_mercados  
             elif combobox == self.combo_frecuencia:
                 options = self.original_frecuencia 
+            elif combobox == self.combo_estrategia:
+                options = self.original_estrategia 
 
             if data:
                 # Filter the options
@@ -88,6 +90,8 @@ class FormularioInversiones(tk.Toplevel):
                 combobox['values'] = self.original_mercados  
             elif combobox == self.combo_frecuencia:
                 combobox['values'] = self.original_frecuencia 
+            elif combobox == self.combo_estrategia:
+                combobox['values'] = self.original_estrategia
 
 
         texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
@@ -124,20 +128,30 @@ class FormularioInversiones(tk.Toplevel):
         self.fecha_fin_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
 
 
-        texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia:")
+        texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia y una estrategia de inversión:")
         frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.original_frecuencia = frecuencia
+        estrategia = ['RSI', 'Media Movil']
+        self.original_estrategia = estrategia
 
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.set(frecuencia[0])
 
+        self.estrategia_var = tk.StringVar(value=estrategia)
+        self.combo_estrategia = ttk.Combobox(self.cuerpo_principal, textvariable=self.estrategia_var, values=estrategia)
+        self.combo_estrategia.set(estrategia[0])
+        
         self.combo_frecuencia.bind('<KeyRelease>', filter_options)
         self.combo_frecuencia.bind('<<ComboboxSelected>>', reload_options)
+
+        self.combo_estrategia.bind('<KeyRelease>', filter_options)
+        self.combo_estrategia.bind('<<ComboboxSelected>>', reload_options)
 
 
         texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
         self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
+        self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
 
         calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
 
@@ -168,6 +182,7 @@ class FormularioInversiones(tk.Toplevel):
         accion_txt = self.combo_acciones.get()
         inicio_txt = self.fecha_inicio_entry.get()
         fin_txt = self.fecha_fin_entry.get()
+        estrategia_txt = self.combo_estrategia.get()
 
         frec = self.calcular_frecuencia(frecuencia_txt)
 
@@ -177,7 +192,10 @@ class FormularioInversiones(tk.Toplevel):
  #if abrir operacion       
         b.thread_orders(self)
 #if elegir tipo de operacion
-        b.thread_RSI_MACD(self)
+        if estrategia_txt == 'RSI':
+            b.thread_RSI_MACD(self)
+        elif estrategia_txt == 'Media Movil':
+            b.thread_MediaMovil(self)
 
 
         #b.wait()
