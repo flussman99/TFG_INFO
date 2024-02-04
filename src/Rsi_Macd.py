@@ -66,7 +66,7 @@ def backtesting(market: str, prices: list):
     prices_frame.to_excel(excel_filename, index=False)
     
 
-def thread_rsi_macd(pill2kill, ticks: list, indicators: dict, trading_data: dict):
+def thread_rsi_macd(pill2kill, ticks: list, time_period: int,indicators: dict, trading_data: dict):
     """Function executed by a thread that calculates
     the  RSI and MACD and the SIGNAL.
 
@@ -249,16 +249,16 @@ def EMA(ticks: list, n: int):
     return ema
 
 
-def MACD(ticks):
-    """Function that computes the MACD.
+# def MACD(ticks):
+#     """Function that computes the MACD.
 
-    Args:
-        ticks (list): List with prices of the ticks
+#     Args:
+#         ticks (list): List with prices of the ticks
 
-    Returns:
-        float: Value of the MACD.
-    """
-    return EMA(ticks[-12:], 12) - EMA(ticks[-26:], 26)
+#     Returns:
+#         float: Value of the MACD.
+#     """
+#     return EMA(ticks[-12:], 12) - EMA(ticks[-26:], 26)
 
 
 def SIGNAL(values_list):

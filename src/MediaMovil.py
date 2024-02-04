@@ -24,47 +24,53 @@ MAX_LEN = 9
 
 
 def backtesting(market: str, prices: list):
+
     # Crear un DataFrame de la lista prices
     prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
-    rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-    macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
-    
-    prices_frame['macd'] = macd.macd()
-    prices_frame['macd_signal'] = macd.macd_signal()
-    
-    prices_frame["RSI"] = rsi.rsi()
+    # Puedes ajustar el tamaño de la ventana según tus necesidades
+    prices_frame['mediaMovil_CP'] = prices_frame['price'].rolling(window=30).mean()
+    prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
+     # Lista para almacenar las decisiones
     decisiones = []
     rentabilidad=[]
     posicion_abierta=False
 
+    # Iterar sobre las filas del DataFrame
     for index, row in prices_frame.iterrows():
-        rsi = row['RSI']
-        macd_fila=row['macd']
-        macd_si=row['macd_signal']
+        media_movil_cp = row['mediaMovil_CP']
+        media_movil_lp = row['mediaMovil_LP']
         precioCompra= row['price']
         # Comparar las medias móviles
-        if rsi > 65 and macd_fila < macd_si and posicion_abierta == True:
+        if media_movil_cp > media_movil_lp and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(market,guardar,row['price']))
-        elif rsi < 35 and macd_fila > macd_si and posicion_abierta == False:
+        elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
+            decisiones.append("NO PA")#VENDO
+            rentabilidad.append(None)
+        elif media_movil_cp < media_movil_lp and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             posicion_abierta=True
             guardar=precioCompra
+        elif media_movil_cp < media_movil_lp and posicion_abierta == True:
+            decisiones.append("POSICION ABIERTA")#COMPRO
+            rentabilidad.append(None)
         else:
-            decisiones.append("NO SE REALIZA OPERACION")#COMPRO
+            decisiones.append("NO HAY MEDIA MOVILES")#COMPRO
             rentabilidad.append(None)
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
     prices_frame['Rentabilidad']= rentabilidad
 
+
     print(prices_frame)
     excel_filename = 'media.xlsx'
     # Exportar el DataFrame a Excel
     prices_frame.to_excel(excel_filename, index=False)
-    
+   # rest of your code
+
 
 def check_buy() -> bool:
     """Function to check if the MACD indicator

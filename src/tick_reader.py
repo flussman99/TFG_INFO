@@ -1,7 +1,8 @@
 import MetaTrader5 as mt5
 import datetime as dt
 import ordenes as orden
-import src.Rsi_Macd as Rsi_Macd
+import Rsi_Macd 
+import MediaMovil 
 import pytz
 import openpyxl
 import pandas as pd
@@ -45,33 +46,37 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, f
         ticks (list): List of ticks to fill.
         trading_data (dict): Trading data needed for loading ticks.
     """
-    global spread_list
+    # global spread_list
+    print("Show symbol_info")
+    symbol_info_dict = mt5.symbol_info(trading_data['market'])._asdict()
+    for prop in symbol_info_dict:
+        print("  {}={}".format(prop, symbol_info_dict[prop]))
 
     print("[THREAD - tick_reader] - Working")
 
     # Filling the list with previos ticks
     load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
-    
+
     print("[THREAD - tick_reader] - Ticks loaded")
    
-    # Filling the list with actual ticks
+    # Coger tcks en directo
     print("[THREAD - tick_reader] - Taking ticks")
     i = 1
     while not pill2kill.wait(1):
         
         # Every trading_data['time_period'] seconds we add a tick to the list
-        if i % trading_data['time_period'] == 0:
-            store_tick(ticks, trading_data['market'])
+        if i % 5 == 0:
+            ticks_actuales(ticks, trading_data['market'])
             i = 0
         
-        # Computing the average spread
-        spread_list.append(mt5.symbol_info(trading_data['market']).spread)
-        if len(spread_list) >= MAX_LEN_SPREAD:
-            trading_data['avg_spread'] = sum(spread_list) / len(spread_list)
-            del spread_list[0]
+        # # Computing the average spread
+        # spread_list.append(mt5.symbol_info(trading_data['market']).spread)
+        # if len(spread_list) >= MAX_LEN_SPREAD:
+        #     trading_data['avg_spread'] = sum(spread_list) / len(spread_list)
+        #     del spread_list[0]
                 
         # The last tick is going to be changed all the time with the actual one
-        ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
+        # ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
         i += 1
 
 
@@ -84,15 +89,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
         time_period (int): Time period in which we want to operate.
         1 minute, 15 minutes... (in seconds)
     """
-    # Checking if we are on the weekend (we include the friday),
-    # if so, we take ticks from an earlier date.
-    today = dt.datetime.utcnow().date()#fecha actual
-    if today.weekday() == 0: #lunes
-        yesterday = today - dt.timedelta(days=3)
-    elif today.weekday() == 6:#domingo
-        yesterday = today - dt.timedelta(days=2)
-    else:#resto dias dia anterior
-        yesterday = today - dt.timedelta(days=1)
 
     # Loading data
     timezone = pytz.timezone("Etc/UTC")
@@ -101,8 +97,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 
     utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
-    #utc_from = datetime.datetime(int(yesterday.year), int(yesterday.month), int(yesterday.day), tzinfo=timezone)
-    #loaded_ticks = mt5.copy_ticks_from(market, utc_from, 100000, mt5.COPY_TICKS_ALL)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
     if loaded_ticks is None:
         print("Error loading the ticks")
@@ -112,15 +106,12 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     ticks_frame = pd.DataFrame(loaded_ticks)
     # convert time in seconds into the datetime format
     ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
-    # Nombre del archivo Excel de salida
-    #excel_filename = 'ticks_data.xlsx'
-
-    # Exportar el DataFrame a Excel
-    #ticks_frame.to_excel(excel_filename, index=False)
 
     # display data
     print("\nDisplay dataframe with ticks")
     print(ticks_frame)
+
+  
 
     # Filling the list
     second_to_include = 0
@@ -129,9 +120,10 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
         if tick[0] > second_to_include + time_period:
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             second_to_include = tick[0]
-#hay que usar javascript para coger los ticks en directo uando queramos revisar las compras
+    #hay que usar javascript para coger los ticks en directo uando queramos revisar las compras
 
     #calcular_mediamovil(market,ticks)
+    MediaMovil.backtesting(market,ticks)
     Rsi_Macd.backtesting(market,ticks)
 
     ticks.clear()
@@ -143,53 +135,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
             del ticks[0]
 
 
-def calcular_mediamovil(market: str, prices: list):
-
-    # Crear un DataFrame de la lista prices
-    prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
-    # Puedes ajustar el tamaño de la ventana según tus necesidades
-    prices_frame['mediaMovil_CP'] = prices_frame['price'].rolling(window=30).mean()
-    prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
-     # Lista para almacenar las decisiones
-    decisiones = []
-    rentabilidad=[]
-    posicion_abierta=False
-
-    # Iterar sobre las filas del DataFrame
-    for index, row in prices_frame.iterrows():
-        media_movil_cp = row['mediaMovil_CP']
-        media_movil_lp = row['mediaMovil_LP']
-        precioCompra= row['price']
-        # Comparar las medias móviles
-        if media_movil_cp > media_movil_lp and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
-            posicion_abierta=False
-            rentabilidad.append(calcular_rentabilidad(market,guardar,row['price']))
-        elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
-            decisiones.append("NO PA")#VENDO
-            rentabilidad.append(None)
-        elif media_movil_cp < media_movil_lp and posicion_abierta == False:
-            decisiones.append("1")#COMPRO
-            rentabilidad.append(None)
-            posicion_abierta=True
-            guardar=precioCompra
-        elif media_movil_cp < media_movil_lp and posicion_abierta == True:
-            decisiones.append("POSICION ABIERTA")#COMPRO
-            rentabilidad.append(None)
-        else:
-            decisiones.append("NO HAY MEDIA MOVILES")#COMPRO
-            rentabilidad.append(None)
-
-    # Agregar la lista de decisiones como una nueva columna al DataFrame
-    prices_frame['Decision'] = decisiones
-    prices_frame['Rentabilidad']= rentabilidad
-
-
-    print(prices_frame)
-    excel_filename = 'media.xlsx'
-    # Exportar el DataFrame a Excel
-    prices_frame.to_excel(excel_filename, index=False)
-   # rest of your code
 
 
 def moving_average_crossover_strategy(prices, short_window, long_window):
@@ -210,16 +155,10 @@ def moving_average_crossover_strategy(prices, short_window, long_window):
 
     return signals
 
-def store_tick(ticks: list, market: str):#primera forma
-    """Function that stores a tick into the given list,
-    and also it checks if the list is full to remove a value.
+def ticks_actuales(ticks: list, market: str):#primera forma
 
-    Args:
-        ticks (list): List to be filled
-        market (str): Market to be taken
-    """
     tick = mt5.symbol_info_tick(market)#esta funcion tenemos los precios
-    ticks.append(tick.ask)
+    ticks.append(tick)
     
     # If the list is full (MAX_TICKS_LEN), 
     # we delete the first value
