@@ -58,6 +58,17 @@ class Bot:
         """
         return self.ticks
     
+    def get_profit(self, inicio_txt, fin_txt):
+        tr.txt_to_int_fecha(inicio_txt)
+        tr.txt_to_int_fecha(fin_txt)
+
+        # PROBAR AQUI ESTA FUNCION PARA SACAR MARGEN DE BENEFICIO
+
+        # mt5.order_calc_profit(ORDER_TYPE_SELL, self.trading_data['market'], 1, precio_inicio, precio_fin)
+        
+        # https://www.mql5.com/en/docs/python_metatrader5/mt5ordercalcprofit_py
+        
+
     def thread_tick_reader(self, inicio_txt, fin_txt):
         """Function to launch the tick reader thread.
         """

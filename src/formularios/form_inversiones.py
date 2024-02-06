@@ -120,11 +120,8 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_mercados.grid(row=2, column=2, padx=10, pady=10)
     
 
-        fecha_inicio_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio (YYYY/MM/DD):")
+        self.fecha_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio y fin (YYYY/MM/DD):")
         self.fecha_inicio_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
-        
-
-        fecha_fin_label = ttk.Label(self.cuerpo_principal, text="Fecha de fin (YYYY/MM/DD):")
         self.fecha_fin_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
 
 
@@ -161,18 +158,16 @@ class FormularioInversiones(tk.Toplevel):
 
 
 
-        fecha_inicio_label.grid(row=4, column=0, padx=10, pady=10)
+        self.fecha_label.grid(row=4, column=0, padx=10, pady=10)
         self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
-
-        fecha_fin_label.grid(row=5, column=0, padx=10, pady=10)
-        self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=10)
+        self.fecha_fin_entry.grid(row=4, column=2, padx=10, pady=10)
 
 
-        calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
+        calcular_button.grid(row=5, column=0, columnspan=2, pady=10)
 
-        ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
+        ticks_button.grid(row=6, column=0, columnspan=2, pady=10)
 
-        self.resultado_label.grid(row=8, column=0, columnspan=2, pady=10)
+        self.resultado_label.grid(row=5, column=1, columnspan=2, pady=10)
 
         #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
 
@@ -299,17 +294,13 @@ class FormularioInversiones(tk.Toplevel):
         accion = self.combo_acciones.get()
         fecha_inicio_str = self.fecha_inicio_entry.get()
         fecha_fin_str = self.fecha_fin_entry.get()
+        frec_str = self.combo_frecuencia.get()
+        frec = self.calcular_frecuencia(frec_str)
 
-        # Validar las fechas (puedes agregar más validaciones según tus necesidades)
-        """try:
-            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y/%m/%d")
-            fecha_fin = datetime.strptime(fecha_fin_str, "%Y/%m/%d")
-        except ValueError:
-            self.resultado_label.config(text="Fechas inválidas")
-            return"""
+        self.b.set_info(frec, accion) 
 
         # Llamar a la función que realiza el cálculo de rentabilidad (debes implementarla)
-        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str, "Diaria")
+        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str, frec)
 
         # Actualizar la etiqueta de resultado
         if rentabilidad is not None:
@@ -317,20 +308,12 @@ class FormularioInversiones(tk.Toplevel):
         else:
             self.resultado_label.config(text="Error al calcular la rentabilidad")
 
-    def realizar_calculo_de_rentabilidad(self, accion, fecha_inicio, fecha_fin, frecuencia_rentabilidad):
-        if(frecuencia_rentabilidad == "Diaria"):
-            frec = 86400
-        elif(frecuencia_rentabilidad == "Semanal"):
-            frec = 604800
-        elif(frecuencia_rentabilidad == "Mensual"):
-            frec = 2592000
-        else:
-            frec = 2592000 * 12
-        
-        self.b.set_info(frec, accion) 
+
+    def realizar_calculo_de_rentabilidad(self, accion, fecha_inicio, fecha_fin):
+
 #if parte backtestin
         self.b.thread_tick_reader(fecha_inicio, fecha_fin)
-        frec = 0
+        self.b.get_profit(accion, fecha_inicio, fecha_fin)
         # Esta función debería realizar el cálculo de rentabilidad y devolver el resultado
         # Debes implementarla según tus necesidades
         # Retorna un valor de ejemplo (reemplázalo)
