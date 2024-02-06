@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
+from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
@@ -29,8 +30,9 @@ class FormularioInversiones(tk.Toplevel):
         panel_principal.grid_columnconfigure(0, weight=1)  
         
 
-        title = tk.Label(self.cuerpo_principal, text="Operaciones de inversión", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
-        title.grid(row=0, column=1, sticky="nsew")
+        self.labelTitulo = tk.Label(self.barra_superior, text="Operaciones de inversión")
+        self.labelTitulo.config(fg="#222d33", font=("Roboto", 30), bg=COLOR_CUERPO_PRINCIPAL)
+        self.labelTitulo.grid(row=1, column=0, padx=10, pady=10)
 
               
               
@@ -185,12 +187,12 @@ class FormularioInversiones(tk.Toplevel):
 #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt)
  #if abrir operacion       
-        self.b.thread_orders(self)
+        self.b.thread_orders()
 #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
-            self.b.thread_RSI_MACD(self)
+            self.b.thread_RSI_MACD()
         elif estrategia_txt == 'Media Movil':
-            self.b.thread_MediaMovil(self)
+            self.b.thread_MediaMovil()
 
 
         #b.wait()
@@ -300,7 +302,7 @@ class FormularioInversiones(tk.Toplevel):
         self.b.set_info(frec, accion) 
 
         # Llamar a la función que realiza el cálculo de rentabilidad (debes implementarla)
-        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str, frec)
+        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str)
 
         # Actualizar la etiqueta de resultado
         if rentabilidad is not None:

@@ -7,6 +7,7 @@ from formularios.form_login import FormularioLoginDesign
 from formularios.form_pagina_construccion import FormularioPagConstruccion
 from formularios.form_pagina_informacion import FormularioPagInformacion
 from formularios.form_inversiones import FormularioInversiones
+from formularios.form_ajustes import FormularioAjustes
 
 
 class FormularioMaestroDesign(tk.Tk):
@@ -94,8 +95,8 @@ class FormularioMaestroDesign(tk.Tk):
             ("Inicio", "\uf109", self.botonPanel, self.abrir_panel_inicio),
             ("Perfil", "\uf007", self.botonPerfil, self.abrir_panel_perfil),
             ("Inversiones", "\uf03e", self.botonInversiones, self.abrir_panel_inversiones),
-            ("Información", "\uf129", self.botonInfo,self.abrir_panel_pag_informacion),
-            ("Ajustes", "\uf013", self.botonAjustes,self.abrir_panel_pag_construccion)
+            ("Información", "\uf129", self.botonInfo,self.abrir_panel_informacion),
+            ("Ajustes", "\uf013", self.botonAjustes,self.abrir_panel_ajustes)
         ]
 
         for text, icon, button, comando in botones_info:
@@ -147,7 +148,7 @@ class FormularioMaestroDesign(tk.Tk):
         self.limpiar_panel(self.cuerpo_principal)
         FormularioPagConstruccion(self.cuerpo_principal, self.imgconstruccion)
 
-    def abrir_panel_pag_informacion(self):
+    def abrir_panel_informacion(self):
         self.limpiar_panel(self.cuerpo_principal)
         FormularioPagInformacion(self.cuerpo_principal)
 
@@ -155,6 +156,9 @@ class FormularioMaestroDesign(tk.Tk):
         self.limpiar_panel(self.cuerpo_principal)
         FormularioInversiones(self.cuerpo_principal)
 
+    def abrir_panel_ajustes(self):
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioAjustes(self.cuerpo_principal)
 
     #Esta función lo que hace es limpiar el Label que había antes en lo que vayamos a modificar
     #porque si no se estarían sobreponiendo hasta el infinito
