@@ -86,7 +86,7 @@ class FormularioMaestroDesign(tk.Tk):
         #Botones del menú lateral
         self.botonPanel = tk.Button(self.menu_lateral)
         self.botonPerfil = tk.Button(self.menu_lateral)
-        self.botonInversiones = tk.Button(self.menu_lateral)
+        self.botonInversiones = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.botonInfo = tk.Button(self.menu_lateral)
         self.botonAjustes = tk.Button(self.menu_lateral)
 
@@ -141,7 +141,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.abrir_panel_inversiones)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.abrir_panel_inversiones, self.botonInversiones)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)
@@ -149,12 +149,11 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_pag_informacion(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioPagInformacion(self.cuerpo_principal, self.imgconstruccion)
+        FormularioPagInformacion(self.cuerpo_principal)
 
     def abrir_panel_inversiones(self):
-        if not self.labelTitulo.cget("text") == "Usuario No Registrado":
-            self.limpiar_panel(self.cuerpo_principal)
-            FormularioInversiones(self.cuerpo_principal)
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioInversiones(self.cuerpo_principal)
 
 
     #Esta función lo que hace es limpiar el Label que había antes en lo que vayamos a modificar

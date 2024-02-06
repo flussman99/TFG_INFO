@@ -4,7 +4,7 @@ from config import COLOR_CUERPO_PRINCIPAL
 
 class FormularioPagInformacion(tk.Toplevel):
     
-    def __init__(self, panel_principal, logo):
+    def __init__(self, panel_principal):
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.pack(side=tk.TOP, fill=tk.X, expand=False)
 

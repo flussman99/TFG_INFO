@@ -19,14 +19,14 @@ class FormularioInversiones(tk.Toplevel):
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
 
-        panel_principal.grid_rowconfigure(0, weight=1)  # Add this line
-        panel_principal.grid_columnconfigure(0, weight=1)  # Add this line
+        panel_principal.grid_rowconfigure(0, weight=1)
+        panel_principal.grid_columnconfigure(0, weight=1) 
 
         self.cuerpo_principal = tk.Frame(panel_principal, width=500, height=500)
         self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
-        panel_principal.grid_rowconfigure(1, weight=1)  # Add this line
-        panel_principal.grid_columnconfigure(0, weight=1)  # Add this line
+        panel_principal.grid_rowconfigure(1, weight=1)  
+        panel_principal.grid_columnconfigure(0, weight=1)  
         
 
         title = tk.Label(self.cuerpo_principal, text="Operaciones de inversión", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
@@ -95,8 +95,8 @@ class FormularioInversiones(tk.Toplevel):
 
 
         texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
-        b = bt(1, 3600, "SAN.MAD")  # COMO HACERLO MEJOR??
-        acciones, mercados = b.get_trading_data()  # Lista de acciones
+        self.b = bt(1)  # COMO HACERLO MEJOR??
+        acciones, mercados = self.b.get_trading_data()  # Lista de acciones
         #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
         #self.combo_acciones.set(acciones[0])
         # Create the combobox
@@ -186,20 +186,20 @@ class FormularioInversiones(tk.Toplevel):
 
         frec = self.calcular_frecuencia(frecuencia_txt)
 
-        b = bt(1, frec, accion_txt) 
+        self.b.set_info(frec, accion_txt) 
 #if parte backtestin
-        b.thread_tick_reader(inicio_txt, fin_txt)
+        self.b.thread_tick_reader(inicio_txt, fin_txt)
  #if abrir operacion       
-        b.thread_orders(self)
+        self.b.thread_orders(self)
 #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
-            b.thread_RSI_MACD(self)
+            self.b.thread_RSI_MACD(self)
         elif estrategia_txt == 'Media Movil':
-            b.thread_MediaMovil(self)
+            self.b.thread_MediaMovil(self)
 
 
         #b.wait()
-        lista_segundos = b.get_ticks()
+        lista_segundos = self.b.get_ticks()
         xAxis = []
         yAxis = []
         i = 1
@@ -327,9 +327,9 @@ class FormularioInversiones(tk.Toplevel):
         else:
             frec = 2592000 * 12
         
-        b = bt(1, frec, accion) 
+        self.b.set_info(frec, accion) 
 #if parte backtestin
-        b.thread_tick_reader(fecha_inicio, fecha_fin)
+        self.b.thread_tick_reader(fecha_inicio, fecha_fin)
         frec = 0
         # Esta función debería realizar el cálculo de rentabilidad y devolver el resultado
         # Debes implementarla según tus necesidades

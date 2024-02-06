@@ -32,18 +32,23 @@ class Bot:
     }
     
     # Methods
-    def __init__(self, lotage: float, time_period: int, market: str):
+    def __init__(self, lotage: float):
         """Constructor of the bot. It justs fills the needed informartion for the bot.
 
         Args:
             lotage (float): Lotage to be used by the bot.
+        """
+        self.trading_data['lotage'] = lotage
+        self.trading_data['avg_spread'] = 0
+
+    def set_info(self, time_period: int, market: str):
+        """
+        Args:
             time_period (int): Time period of the bot, 24h * 3600 (in seconds)
             market (str): Market to operate in.
         """
-        self.trading_data['lotage'] = lotage
         self.trading_data['time_period'] = time_period
         self.trading_data['market'] = market
-        self.trading_data['avg_spread'] = 0
     
     def get_ticks(self) -> list:
         """Method to get the ticks.
