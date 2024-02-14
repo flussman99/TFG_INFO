@@ -8,6 +8,7 @@ from tkcalendar import DateEntry
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import matplotlib.dates as mdates
 from datetime import datetime
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
@@ -154,6 +155,7 @@ class FormularioInversiones(tk.Toplevel):
         texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
         self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
         self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
+
         opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Mensual']
         self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
         self.combo_calculo_label = ttk.Label(self.cuerpo_principal, text="Elige la opción de cálculo de rentabilidad:")
@@ -327,6 +329,34 @@ class FormularioInversiones(tk.Toplevel):
             print(df['price'].shift(1))
             print(df['price'])
             print(df)
+
+
+            # Crear una nueva figura
+            self.figura = Figure(figsize=(6, 2), dpi=100)
+            ax = self.figura.add_subplot(111)
+
+            
+            # Graficar la rentabilidad a lo largo del tiempo con suavizado exponencial
+            ax.plot(df['time'], df['Rentabilidad'], marker='o', linestyle='-', alpha=0.5)  # Añade alpha para hacer las líneas más transparentes
+            ax.plot(df['time'], df['Rentabilidad'].ewm(span=50).mean(), color='red', label='Suavizado Exponencial')
+            ax.set_title('Rentabilidad a lo largo del tiempo')
+            ax.set_xlabel('Fecha')
+            ax.set_ylabel('Rentabilidad')
+            ax.grid(True)
+
+            # Establecer el locator de fechas en días y ajustar el formato de fecha
+            ax.xaxis.set_major_locator(mdates.DayLocator())
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+            # Rotar las etiquetas del eje x 
+            #ax.tick_params(axis='x', rotation=45)
+
+            # Crear un widget de Tkinter para la figura
+            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
+            canvas.draw()
+            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
+            
+
             
         elif self.combo_calculo.get() == 'Rentabilidad Mensual':
             # Cálculo de rentabilidad mensual
@@ -341,8 +371,7 @@ class FormularioInversiones(tk.Toplevel):
             self.resultado_label.config(text="Error al calcular la rentabilidad")
 
         #Guardar el df
-        df.to_excel('media.xlsx') 
-
+        df.to_excel('media.xlsx', index=False)
 
     
 
