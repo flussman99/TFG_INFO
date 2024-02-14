@@ -147,10 +147,18 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_estrategia.bind('<KeyRelease>', filter_options)
         self.combo_estrategia.bind('<<ComboboxSelected>>', reload_options)
 
+        self.fecha_label.grid(row=4, column=0, padx=10, pady=10)
+        self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.fecha_fin_entry.grid(row=4, column=2, padx=10, pady=10)
 
         texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
         self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
         self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
+        opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Mensual']
+        self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
+        self.combo_calculo_label = ttk.Label(self.cuerpo_principal, text="Elige la opción de cálculo de rentabilidad:")
+        self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
+        self.combo_calculo.set(opciones_calculo[0])
 
         calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
 
@@ -158,20 +166,17 @@ class FormularioInversiones(tk.Toplevel):
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
 
+        self.combo_calculo_label.grid(row=5, column=0, padx=10, pady=10)
+        self.combo_calculo.grid(row=5, column=1, padx=10, pady=10)
+        calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
 
+        ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
 
-        self.fecha_label.grid(row=4, column=0, padx=10, pady=10)
-        self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
-        self.fecha_fin_entry.grid(row=4, column=2, padx=10, pady=10)
-
-
-        calcular_button.grid(row=5, column=0, columnspan=2, pady=10)
-
-        ticks_button.grid(row=6, column=0, columnspan=2, pady=10)
-
-        self.resultado_label.grid(row=5, column=1, columnspan=2, pady=10)
+        self.resultado_label.grid(row=6, column=1, columnspan=2, pady=10)
 
         #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
+
+        
 
     def coger_ticks(self):
         
@@ -301,8 +306,33 @@ class FormularioInversiones(tk.Toplevel):
 
         self.b.set_info(frec, accion) 
 
-        # Llamar a la función que realiza el cálculo de rentabilidad (debes implementarla)
-        rentabilidad = self.realizar_calculo_de_rentabilidad(accion, fecha_inicio_str, fecha_fin_str)
+
+        df = pd.read_excel('media.xlsx')
+
+        # Obtener el primer y último precio de la columna 'price'
+        primer_precio = df['price'].iloc[0]
+        ultimo_precio = df['price'].iloc[-1]
+
+        # Calcular la rentabilidad
+        rentabilidad = (ultimo_precio - primer_precio) / primer_precio * 100
+
+        # Imprimir el resultado
+        print(f'Rentabilidad: {rentabilidad:.4f}%')
+
+        if self.combo_calculo.get() == 'Rentabilidad Diaria':
+            # Cálculo de rentabilidad diaria
+            df['Rentabilidad'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
+
+            print("ESTO ES UNA PRUEBOTA")
+            print(df['price'].shift(1))
+            print(df['price'])
+            print(df)
+            
+        elif self.combo_calculo.get() == 'Rentabilidad Mensual':
+            # Cálculo de rentabilidad mensual
+            pass
+        else:
+           pass
 
         # Actualizar la etiqueta de resultado
         if rentabilidad is not None:
@@ -310,16 +340,11 @@ class FormularioInversiones(tk.Toplevel):
         else:
             self.resultado_label.config(text="Error al calcular la rentabilidad")
 
+        #Guardar el df
+        df.to_excel('media.xlsx') 
 
-    def realizar_calculo_de_rentabilidad(self, accion, fecha_inicio, fecha_fin):
 
-#if parte backtestin
-        self.b.thread_tick_reader(fecha_inicio, fecha_fin)
-        self.b.get_profit(accion, fecha_inicio, fecha_fin)
-        # Esta función debería realizar el cálculo de rentabilidad y devolver el resultado
-        # Debes implementarla según tus necesidades
-        # Retorna un valor de ejemplo (reemplázalo)
-        return 0
+    
 
 
 # Crear la ventana principal
