@@ -156,7 +156,7 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
         self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
 
-        opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Mensual']
+        opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Acumulada', 'Rentabilidad media Geometrica']
         self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
         self.combo_calculo_label = ttk.Label(self.cuerpo_principal, text="Elige la opción de cálculo de rentabilidad:")
         self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
@@ -318,12 +318,26 @@ class FormularioInversiones(tk.Toplevel):
         # Calcular la rentabilidad
         rentabilidad = (ultimo_precio - primer_precio) / primer_precio * 100
 
+        #calcular la rentabilidad diaria
+        df['Rentabilidad'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
+
+        # Cálculo de rentabilidad acumulada
+        df['Rentabilidad Acumulada'] = (1 + df['Rentabilidad'] / 100).cumprod() * 100
+
+        # Cálculo de rentabilidad acumulada 2
+        #df['Rentabilidad Acumulada2'] = df['Rentabilidad'].cumsum()
+
+        # Cálculo de rentabilidad acumulada 3
+        #df['Rentabilidad Acumulada3'] = (df['price'] - df['price'].iloc[0]) / df['price'].iloc[0] * 100
+
+        
+        
+
         # Imprimir el resultado
         print(f'Rentabilidad: {rentabilidad:.4f}%')
 
         if self.combo_calculo.get() == 'Rentabilidad Diaria':
             # Cálculo de rentabilidad diaria
-            df['Rentabilidad'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
 
             print("ESTO ES UNA PRUEBOTA")
             print(df['price'].shift(1))
@@ -358,9 +372,36 @@ class FormularioInversiones(tk.Toplevel):
             
 
             
-        elif self.combo_calculo.get() == 'Rentabilidad Mensual':
-            # Cálculo de rentabilidad mensual
-            pass
+        elif self.combo_calculo.get() == 'Rentabilidad Acumulada':
+            
+            # Crear una nueva figura
+            self.figura = Figure(figsize=(6, 2), dpi=100)
+            ax = self.figura.add_subplot(111)
+
+            # Graficar la rentabilidad acumulada
+            ax.plot(df['time'], df['Rentabilidad Acumulada'], marker='o', linestyle='-', color='green')
+            ax.set_title('Rentabilidad Acumulada')
+            ax.set_xlabel('Fecha')
+            ax.set_ylabel('Rentabilidad Acumulada')
+            ax.grid(True)
+
+            # Establecer el locator de fechas en días y ajustar el formato de fecha
+            ax.xaxis.set_major_locator(mdates.DayLocator())
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+            # Rotar las etiquetas del eje x 
+            #ax.tick_params(axis='x', rotation=45)
+
+            # Crear un widget de Tkinter para la figura
+            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
+            canvas.draw()
+            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
+
+        elif self.combo_calculo.get() == 'Rentabilidad media Geometrica':
+            # Cálculo de rentabilidad media geométrica
+            rentabilidad_media_geom = (df['Rentabilidad'] / 100 + 1).prod() ** (1 / len(df)) - 1
+            print(f'Rentabilidad media geométrica: {rentabilidad_media_geom:.4f}%')
+
         else:
            pass
 
