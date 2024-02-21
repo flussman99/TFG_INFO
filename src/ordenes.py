@@ -11,7 +11,7 @@ STOPLOSS = 100
 TAKEPROFIT = 100
 
 
-def handle_buy(buy, market):
+def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
 
     Args:
@@ -45,20 +45,22 @@ def handle_buy(buy, market):
         time.sleep(0.1)
 
 
-def handle_sell(sell, market: str):
+def handle_sell(sell, market: str):#modificar venta
     """Function to handle a sell operation.
 
     Args:
         sell : Sell operation.
         market (str): Market where the operation was openned.
     """
-    position=mt5.positions_get(symbol=market)[-1].ticket
+    position=mt5.positions_get(symbol=market)[-1].ticket # esta funcion te devuelve una lista de las posiciones abiertas
+    #como solo quiero una pongo la -1 porque solo tengo una posicion abierta
     point = mt5.symbol_info(market).point
-    GOAL = sell['price']-point*THRESHOLD
+    GOAL = sell['price']-point*THRESHOLD #trailing stop
     while True:
         tick = mt5.symbol_info_tick(market)
         if tick.bid <= GOAL:
             # Modifying the stop loss
+            #
             request = {
                 "action": mt5.TRADE_ACTION_SLTP,
                 "symbol": market,
@@ -69,7 +71,7 @@ def handle_sell(sell, market: str):
                 "comment": "python script open",
                 "type_time": mt5.ORDER_TIME_GTC,
                 "type_filling": mt5.ORDER_FILLING_RETURN,
-                "position": position
+                "position": position # el toicket que quiero modificar
             }
             GOAL = tick.bid - 1 * point
             mt5.order_send(request)
@@ -115,7 +117,7 @@ def open_buy(trading_data: dict):
             return None
 
     point = mt5.symbol_info(trading_data['market']).point
-    price = mt5.symbol_info_tick(trading_data['market']).ask
+    price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
     deviation = 20
     buy = {
         "action": mt5.TRADE_ACTION_DEAL,
@@ -125,8 +127,8 @@ def open_buy(trading_data: dict):
         "price": price,
         "sl": price - STOPLOSS * point,
         "tp": price + TAKEPROFIT * point,
-        "deviation": deviation,
-        "magic": 234000,
+        "deviation": deviation, #no sabemos q es
+        "magic": 234000,#no sabemos q es
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
@@ -223,7 +225,7 @@ def check_sell() -> bool:
     return Rsi_Macd.check_sell() 
 
 
-def thread_orders(pill2kill, trading_data: dict):
+def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operacion al mismo tiempo
     """Function executed by a thread. It opens and handles operations.
 
     Args:

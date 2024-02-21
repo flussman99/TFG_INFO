@@ -131,7 +131,7 @@ class Bot:
         mt5.shutdown()
 
     def get_trading_data(self):
-        # Function to get the trading data.
+        # Function to get the .
 
         # Initialize an empty list to store the names of the symbols
         trading_data = []

@@ -62,12 +62,13 @@ def thread_tick_reader(pill2kill, ticks: list, trading_data: dict, inicio_txt, f
     # Coger tcks en directo
     print("[THREAD - tick_reader] - Taking ticks")
     i = 1
+    
     while not pill2kill.wait(1):
         
         # Every trading_data['time_period'] seconds we add a tick to the list
-        if i % 5 == 0:
-            ticks_actuales(ticks, trading_data['market'])
-            i = 0
+        if i % trading_data['time_period'] == 0:
+         ticks_actuales(ticks, trading_data['market'])
+         print("Nuevo tick añadido:", ticks[-1])
         
         # # Computing the average spread
         # spread_list.append(mt5.symbol_info(trading_data['market']).spread)
@@ -111,31 +112,38 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     print("\nDisplay dataframe with ticks")
     print(ticks_frame)
 
-  
-
-    # Filling the list
+    # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
     second_to_include = 0
     for tick in loaded_ticks:
         # Every X seconds we add a value to the list
         if tick[0] > second_to_include + time_period:
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             second_to_include = tick[0]
-    #hay que usar javascript para coger los ticks en directo uando queramos revisar las compras
-
+   
     #calcular_mediamovil(market,ticks)
     MediaMovil.backtesting(market,ticks)
     Rsi_Macd.backtesting(market,ticks)
 
-    ticks.clear()
+    #ticks.clear()
+   
+    
 
-    # Removing the ticks that we do not need
-    not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-    if not_needed_ticks > 0:
-        for i in range(not_needed_ticks):
-            del ticks[0]
+    # # Removing the ticks that we do not need
+    # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
+    # if not_needed_ticks > 0:
+    #     for i in range(not_needed_ticks):
+    #         del ticks[0]
 
 
+def ticks_actuales(ticks: list, market: str):#primera forma
 
+    tick = mt5.symbol_info_tick(market)#esta funcion tenemos los precios
+    ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+    
+    # If the list is full (MAX_TICKS_LEN), 
+    # we delete the first value
+    # if len(ticks) >= MAX_TICKS_LEN:
+    #     del ticks[0]
 
 def moving_average_crossover_strategy(prices, short_window, long_window):
 
@@ -155,15 +163,7 @@ def moving_average_crossover_strategy(prices, short_window, long_window):
 
     return signals
 
-def ticks_actuales(ticks: list, market: str):#primera forma
 
-    tick = mt5.symbol_info_tick(market)#esta funcion tenemos los precios
-    ticks.append(tick)
-    
-    # If the list is full (MAX_TICKS_LEN), 
-    # we delete the first value
-    if len(ticks) >= MAX_TICKS_LEN:
-        del ticks[0]
 
 def txt_to_int_fecha(fecha):
     """Function that converts a string date to a int date.

@@ -4,6 +4,7 @@ from ta.momentum import RSIIndicator
 from ta.trend import MACD
 import tick_reader as tr
 import pandas as pd
+import ordenes as ord
 
 
 
@@ -34,6 +35,8 @@ def backtesting(market: str, prices: list):
     decisiones = []
     rentabilidad=[]
     posicion_abierta=False
+
+
 
     # Iterar sobre las filas del DataFrame
     for index, row in prices_frame.iterrows():
@@ -81,13 +84,13 @@ def check_buy() -> bool:
     """
 
     
-    if CUR_SIGNAL == None or CUR_MACD == None \
-        or PREV_SIGNAL == None or PREV_MACD == None:
-        return False
-    if PREV_SIGNAL >= PREV_MACD:
-        if CUR_SIGNAL <= CUR_MACD:
-            return True
-    return False
+    # if CUR_SIGNAL == None or CUR_MACD == None \
+    #     or PREV_SIGNAL == None or PREV_MACD == None:
+    #     return False
+    # if PREV_SIGNAL >= PREV_MACD:
+    #     if CUR_SIGNAL <= CUR_MACD:
+    #         return True
+    # return False
 
 
 
