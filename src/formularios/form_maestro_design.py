@@ -153,6 +153,7 @@ class FormularioMaestroDesign(tk.Tk):
         #Imagen en el cuerpo principal
         label = tk.Label(self.cuerpo_principal, image=self.logo,bg=COLOR_CUERPO_PRINCIPAL)
         label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.abrir_panel_inicio()
 
 
 

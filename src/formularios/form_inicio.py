@@ -43,7 +43,7 @@ class FormularioInicioDesign(tk.Toplevel):
             image=image_image_2
         )
 
-        #self.cuerpo_principal.resizable(False, False)
+        self.cuerpo_principal.mainloop()
 
         # self.title('Metatrader')
         # self.iconbitmap("./src/imagenes/favicon.ico")

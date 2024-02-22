@@ -145,7 +145,7 @@ class FormularioLoginDesign(tk.Toplevel):
             height=32.0
         )
 
-        #self.cuerpo_principal.resizable(False, False)
+        self.cuerpo_principal.mainloop()
         #Hay que hacer que pueda logarse cualquier otro usuario
 
 
