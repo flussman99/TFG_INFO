@@ -192,60 +192,64 @@ class FormularioInversiones(tk.Toplevel):
 
         self.b.set_info(frec, accion_txt) 
 #if parte backtestin
-        self.b.thread_tick_reader(inicio_txt, fin_txt)
- #if abrir operacion       
-        self.b.thread_orders()
-#if elegir tipo de operacion
-        if estrategia_txt == 'RSI':
-            self.b.thread_RSI_MACD()
-        elif estrategia_txt == 'Media Movil':
-            self.b.thread_MediaMovil()
+        self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
+        # self.b.ticks_directo()
+# #if parte en directo abrir operacion       
+#         self.b.thread_orders()
+# #if elegir tipo de operacion en directo 
+#         if estrategia_txt == 'RSI':
+#             self.b.thread_RSI_MACD()
+#         elif estrategia_txt == 'Media Movil':
+#             self.b.thread_MediaMovil()
 
 
-        #b.wait()
-        lista_segundos = self.b.get_ticks()
-        xAxis = []
-        yAxis = []
-        i = 1
-        print("Ticks received:",len(lista_segundos))
+        #b.wait() esto yo no utilizo para nada
 
-        print("Display obtained ticks 'as is'")
-        count = 0
-        for tick in lista_segundos:
-            count+=1
-            print(tick)
-            if count >= frec:
-                break
-        ticks_frame = pd.DataFrame(lista_segundos)
-        print(ticks_frame.head(10))
+        #a partir de aqui comento
 
-        # Prepare data for plotting
-        xAxis = list(range(len(lista_segundos)))
-        #yAxis = [tick.price for tick in lista_segundos]
-        yAxis = lista_segundos
+        # lista_segundos = self.b.get_ticks()
+        # xAxis = []
+        # yAxis = []
+        # i = 1
+        # print("Ticks received:",len(lista_segundos))
 
-        for tick in lista_segundos:
+        # print("Display obtained ticks 'as is'")
+        # count = 0
+        # for tick in lista_segundos:
+        #     count+=1
+        #     print(tick)
+        #     if count >= frec:
+        #         break
+        # ticks_frame = pd.DataFrame(lista_segundos)
+        # print(ticks_frame.head(10))
 
-            datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
+        # # Prepare data for plotting
+        # xAxis = list(range(len(lista_segundos)))
+        # #yAxis = [tick.price for tick in lista_segundos]
+        # yAxis = lista_segundos
 
-            xAxis.append(datetime_obj)
-            yAxis.append(tick[1])
+        # for tick in lista_segundos:
 
-        # Create a new figure
-        fig.clear()
+        #     datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
+
+        #     xAxis.append(datetime_obj)
+        #     yAxis.append(tick[1])
+
+        # # Create a new figure
+        # fig.clear()
         
-        fig = Figure(figsize=(5, 4), dpi=100)
+        # fig = Figure(figsize=(5, 4), dpi=100)
 
-        # Add a subplot to the figure
-        ax = fig.add_subplot(111)
+        # # Add a subplot to the figure
+        # ax = fig.add_subplot(111)
 
-        # Plot data
-        ax.plot(xAxis, yAxis)
+        # # Plot data
+        # ax.plot(xAxis, yAxis)
 
-        # Create a canvas and add it to your Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
+        # # Create a canvas and add it to your Tkinter window
+        # canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
+        # canvas.draw()
+        # canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
 
 
 

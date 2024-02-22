@@ -69,14 +69,25 @@ class Bot:
         # https://www.mql5.com/en/docs/python_metatrader5/mt5ordercalcprofit_py
         
 
-    def thread_tick_reader(self, inicio_txt, fin_txt):
+    def thread_tick_reader(self, inicio_txt, fin_txt,estrategia_txt):
         """Function to launch the tick reader thread.
         """
         t = threading.Thread(target=tr.thread_tick_reader, 
-                             args=(self.pill2kill, self.ticks, self.trading_data, inicio_txt, fin_txt))
+                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt))
         self.threads.append(t)
         t.start()
         print('Thread - tick_reader. LAUNCHED')
+    
+
+    def ticks_directo(self):
+        """Function to launch the tick reader thread.
+        """
+        t = threading.Thread(target=tr.ticks_directo, 
+                             args=(self.pill2kill, self.ticks, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - tick_reader. LAUNCHED')
+
     
     def thread_slope_abs_rel(self):
         """Function to launch the thread for calculating the slope
