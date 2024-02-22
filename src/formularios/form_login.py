@@ -12,10 +12,9 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 class FormularioLoginDesign(tk.Toplevel):
 
    
-    def __init__(self, panel_principal, label_usuario, abrir_panel_inversiones, boton_inversiones):
+    def __init__(self, panel_principal, label_usuario, boton_inversiones):
         
         self.labelUsuario = label_usuario
-        self.abrir_inv = abrir_panel_inversiones
         self.boton_inv = boton_inversiones
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.pack(side=tk.TOP, fill=tk.X, expand=False)
@@ -65,7 +64,7 @@ class FormularioLoginDesign(tk.Toplevel):
             else:
                 self.labelUsuario.config(text=f"Usuario: {usu}")
                 self.boton_inv["state"] = tk.NORMAL
-                self.abrir_inv()
+
             #FormularioMaestroDesign()
 
     def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
