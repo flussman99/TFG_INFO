@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from datetime import datetime
 import pandas as pd
 import sys
@@ -24,404 +24,427 @@ class FormularioOperaciones(tk.Toplevel):
         panel_principal.grid_rowconfigure(0, weight=1)
         panel_principal.grid_columnconfigure(0, weight=1) 
 
-        self.cuerpo_principal = tk.Frame(panel_principal, width=500, height=500)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=798, height=553)
         self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
         panel_principal.grid_rowconfigure(1, weight=1)  
-        panel_principal.grid_columnconfigure(0, weight=1)  
-        
-        
-        self.labelTitulo = tk.Label(self.barra_superior, text="Operaciones de inversión")
-        self.labelTitulo.config(fg="#222d33", font=("Roboto", 30), bg=COLOR_CUERPO_PRINCIPAL)
-        self.labelTitulo.grid(row=1, column=0, padx=10, pady=10)
-
-              
-              
-        # Function to filter the options
-        def filter_options(event):
-
-            combobox = event.widget
-            options = combobox.cget('values')
-            data = combobox.get()
-
-            if combobox == self.combo_acciones:
-                options = self.original_acciones
-            elif combobox == self.combo_mercados:
-                options = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                options = self.original_frecuencia 
-            elif combobox == self.combo_estrategia:
-                options = self.original_estrategia 
-
-            if data:
-                # Filter the options
-                filtered_options = [option for option in options if option.startswith(data)]
-            else:
-                # If the data is empty, reset the options to the original list
-                filtered_options = options
-
-            combobox['values'] = filtered_options
-
-            if hasattr(filter_options, 'job'):
-                self.cuerpo_principal.after_cancel(filter_options.job)
-
-            # Schedule a new job
-            filter_options.job = self.cuerpo_principal.after(2000, combobox.event_generate, '<Down>')
-
-        def filter_acciones(event):
-            # Get selected market
-            selected_market = self.combo_mercados.get()
-
-            if selected_market == 'DIVISES':
-                selected_market = ''
-                filtered_acciones = [accion for accion in acciones if '.' not in accion]
-            else:
-                filtered_acciones = [accion for accion in acciones if accion.endswith(selected_market)]
-
-            # Update combo_acciones options
-            self.combo_acciones['values'] = filtered_acciones
-            self.combo_acciones.set(filtered_acciones[0])
-
-        def reload_options(event):
-            # Get the combobox that triggered the event
-            combobox = event.widget
-
-            # Reset the values of the combobox
-            if combobox == self.combo_acciones:
-                combobox['values'] = self.original_acciones
-            elif combobox == self.combo_mercados:
-                combobox['values'] = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                combobox['values'] = self.original_frecuencia 
-            elif combobox == self.combo_estrategia:
-                combobox['values'] = self.original_estrategia
-
-
-        texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
-        self.b = bt(1)  # COMO HACERLO MEJOR??
-        acciones, mercados = self.b.get_trading_data()  # Lista de acciones
-        #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
-        #self.combo_acciones.set(acciones[0])
-        # Create the combobox
-        self.acciones_var = tk.StringVar(value=acciones)
-        self.mercados_var = tk.StringVar(value=mercados)
-        self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
-        self.combo_mercados = ttk.Combobox(self.cuerpo_principal, textvariable=self.mercados_var, values=mercados)
-        self.combo_acciones.set(acciones[0])
-        self.combo_mercados.set(list(mercados)[0])
-
-        self.original_acciones = acciones
-        self.original_mercados = mercados
-
-        self.combo_acciones.bind('<KeyRelease>', filter_options)
-        self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
-        self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
-
-
-        texto_acciones.grid(row=2, column=0, padx=10, pady=10)
-        self.combo_acciones.grid(row=2, column=1, padx=10, pady=10)
-        self.combo_mercados.grid(row=2, column=2, padx=10, pady=10)
-    
-
-        self.fecha_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio y fin (YYYY/MM/DD):")
-        self.fecha_inicio_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
-        self.fecha_fin_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
-
-
-        texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia y una estrategia de inversión:")
-        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
-        self.original_frecuencia = frecuencia
-        estrategia = ['RSI', 'Media Movil']
-        self.original_estrategia = estrategia
-
-        self.frecuencia_var = tk.StringVar(value=frecuencia)
-        self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
-        self.combo_frecuencia.set(frecuencia[0])
-
-        self.estrategia_var = tk.StringVar(value=estrategia)
-        self.combo_estrategia = ttk.Combobox(self.cuerpo_principal, textvariable=self.estrategia_var, values=estrategia)
-        self.combo_estrategia.set(estrategia[0])
-        
-        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
-        self.combo_frecuencia.bind('<<ComboboxSelected>>', reload_options)
-
-        self.combo_estrategia.bind('<KeyRelease>', filter_options)
-        self.combo_estrategia.bind('<<ComboboxSelected>>', reload_options)
-
-        self.fecha_label.grid(row=4, column=0, padx=10, pady=10)
-        self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
-        self.fecha_fin_entry.grid(row=4, column=2, padx=10, pady=10)
-
-        texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
-        self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
-        self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
-
-        opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Acumulada', 'Rentabilidad media Geometrica']
-        self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
-        self.combo_calculo_label = ttk.Label(self.cuerpo_principal, text="Elige la opción de cálculo de rentabilidad:")
-        self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
-        self.combo_calculo.set(opciones_calculo[0])
-
-        calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
-
-        self.resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
-
-        ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
-
-        self.combo_calculo_label.grid(row=5, column=0, padx=10, pady=10)
-        self.combo_calculo.grid(row=5, column=1, padx=10, pady=10)
-        calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
-
-        ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
-
-        self.resultado_label.grid(row=6, column=1, columnspan=2, pady=10)
-
-        #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
-
-        
-
-    def coger_ticks(self):
-        
-        frecuencia_txt = self.combo_frecuencia.get()
-        accion_txt = self.combo_acciones.get()
-        inicio_txt = self.fecha_inicio_entry.get()
-        fin_txt = self.fecha_fin_entry.get()
-        estrategia_txt = self.combo_estrategia.get()
-
-        frec = self.calcular_frecuencia(frecuencia_txt)
-
-        self.b.set_info(frec, accion_txt) 
-#if parte backtestin
-        self.b.thread_tick_reader(inicio_txt, fin_txt)
- #if abrir operacion       
-        self.b.thread_orders()
-#if elegir tipo de operacion
-        if estrategia_txt == 'RSI':
-            self.b.thread_RSI_MACD()
-        elif estrategia_txt == 'Media Movil':
-            self.b.thread_MediaMovil()
-
-
-        #b.wait()
-        lista_segundos = self.b.get_ticks()
-        xAxis = []
-        yAxis = []
-        i = 1
-        print("Ticks received:",len(lista_segundos))
-
-        print("Display obtained ticks 'as is'")
-        count = 0
-        for tick in lista_segundos:
-            count+=1
-            print(tick)
-            if count >= frec:
-                break
-        ticks_frame = pd.DataFrame(lista_segundos)
-        print(ticks_frame.head(10))
-
-        # Prepare data for plotting
-        xAxis = list(range(len(lista_segundos)))
-        #yAxis = [tick.price for tick in lista_segundos]
-        yAxis = lista_segundos
-
-        for tick in lista_segundos:
-
-            datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
-
-            xAxis.append(datetime_obj)
-            yAxis.append(tick[1])
-
-        # Create a new figure
-        fig.clear()
-        
-        fig = Figure(figsize=(5, 4), dpi=100)
-
-        # Add a subplot to the figure
-        ax = fig.add_subplot(111)
-
-        # Plot data
-        ax.plot(xAxis, yAxis)
-
-        # Create a canvas and add it to your Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
-
-
-
-    def calcular_frecuencia(self, frecuencia_txt):
-        # Obtener valores de la frecuencia en segundos
-        if frecuencia_txt == "1M":
-            frecuencia = 60
-        elif frecuencia_txt == "2M":
-            frecuencia = 120
-        elif frecuencia_txt == "3M":
-            frecuencia = 180
-        elif frecuencia_txt == "4M":
-            frecuencia = 240
-        elif frecuencia_txt == "5M":
-            frecuencia = 300
-        elif frecuencia_txt == "6M":
-            frecuencia = 360
-        elif frecuencia_txt == "10M":
-            frecuencia = 600
-        elif frecuencia_txt == "12M":
-            frecuencia = 720
-        elif frecuencia_txt == "15M":
-            frecuencia = 900
-        elif frecuencia_txt == "20M":
-            frecuencia = 1200
-        elif frecuencia_txt == "30M":
-            frecuencia = 1800
-        elif frecuencia_txt == "1H":
-            frecuencia = 3600
-        elif frecuencia_txt == "2H":
-            frecuencia = 7200
-        elif frecuencia_txt == "3H":
-            frecuencia = 10800
-        elif frecuencia_txt == "4H":
-            frecuencia = 14400
-        elif frecuencia_txt == "6H":
-            frecuencia = 21600
-        elif frecuencia_txt == "8H":
-            frecuencia = 28800
-        elif frecuencia_txt == "12H":
-            frecuencia = 43200
-        elif frecuencia_txt == "Daily":
-            frecuencia = 86400
-        elif frecuencia_txt == "Weekly":
-            frecuencia = 604800
-        elif frecuencia_txt == "Monthly":
-            frecuencia = 2592000
-        else:
-            frecuencia = 0
-        return frecuencia
-
-
-    def calcular_rentabilidad(self):
-        # Obtener valores de los widgets
-        accion = self.combo_acciones.get()
-        fecha_inicio_str = self.fecha_inicio_entry.get()
-        fecha_fin_str = self.fecha_fin_entry.get()
-        frec_str = self.combo_frecuencia.get()
-        frec = self.calcular_frecuencia(frec_str)
-
-        self.b.set_info(frec, accion) 
-
-
-        df = pd.read_excel('media.xlsx')
-
-        # Obtener el primer y último precio de la columna 'price'
-        primer_precio = df['price'].iloc[0]
-        ultimo_precio = df['price'].iloc[-1]
-
-        # Calcular la rentabilidad
-        rentabilidad = (ultimo_precio - primer_precio) / primer_precio * 100
-
-        #calcular la rentabilidad diaria
-        df['Rentabilidad'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
-
-        # Cálculo de rentabilidad acumulada
-        df['Rentabilidad Acumulada'] = (1 + df['Rentabilidad'] / 100).cumprod() * 100
-
-        # Cálculo de rentabilidad acumulada 2
-        #df['Rentabilidad Acumulada2'] = df['Rentabilidad'].cumsum()
-
-        # Cálculo de rentabilidad acumulada 3
-        #df['Rentabilidad Acumulada3'] = (df['price'] - df['price'].iloc[0]) / df['price'].iloc[0] * 100
-
-        
-        
-
-        # Imprimir el resultado
-        print(f'Rentabilidad: {rentabilidad:.4f}%')
-
-        if self.combo_calculo.get() == 'Rentabilidad Diaria':
-            # Cálculo de rentabilidad diaria
-
-            print("ESTO ES UNA PRUEBOTA")
-            print(df['price'].shift(1))
-            print(df['price'])
-            print(df)
-
-
-            # Crear una nueva figura
-            self.figura = Figure(figsize=(6, 2), dpi=100)
-            ax = self.figura.add_subplot(111)
-
-            
-            # Graficar la rentabilidad a lo largo del tiempo con suavizado exponencial
-            ax.plot(df['time'], df['Rentabilidad'], marker='o', linestyle='-', alpha=0.5)  # Añade alpha para hacer las líneas más transparentes
-            ax.plot(df['time'], df['Rentabilidad'].ewm(span=50).mean(), color='red', label='Suavizado Exponencial')
-            ax.set_title('Rentabilidad a lo largo del tiempo')
-            ax.set_xlabel('Fecha')
-            ax.set_ylabel('Rentabilidad')
-            ax.grid(True)
-
-            # Establecer el locator de fechas en días y ajustar el formato de fecha
-            ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-            # Rotar las etiquetas del eje x 
-            #ax.tick_params(axis='x', rotation=45)
-
-            # Crear un widget de Tkinter para la figura
-            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
-            canvas.draw()
-            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
-            
-
-            
-        elif self.combo_calculo.get() == 'Rentabilidad Acumulada':
-            
-            # Crear una nueva figura
-            self.figura = Figure(figsize=(6, 2), dpi=100)
-            ax = self.figura.add_subplot(111)
-
-            # Graficar la rentabilidad acumulada
-            ax.plot(df['time'], df['Rentabilidad Acumulada'], marker='o', linestyle='-', color='green')
-            ax.set_title('Rentabilidad Acumulada')
-            ax.set_xlabel('Fecha')
-            ax.set_ylabel('Rentabilidad Acumulada')
-            ax.grid(True)
-
-            # Establecer el locator de fechas en días y ajustar el formato de fecha
-            ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-            # Rotar las etiquetas del eje x 
-            #ax.tick_params(axis='x', rotation=45)
-
-            # Crear un widget de Tkinter para la figura
-            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
-            canvas.draw()
-            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
-
-        elif self.combo_calculo.get() == 'Rentabilidad media Geometrica':
-            # Cálculo de rentabilidad media geométrica
-            rentabilidad_media_geom = (df['Rentabilidad'] / 100 + 1).prod() ** (1 / len(df)) - 1
-            print(f'Rentabilidad media geométrica: {rentabilidad_media_geom:.4f}%')
-
-        else:
-           pass
-
-        # Actualizar la etiqueta de resultado
-        if rentabilidad is not None:
-            self.resultado_label.config(text=f"Rentabilidad: {rentabilidad:.2f}%")
-        else:
-            self.resultado_label.config(text="Error al calcular la rentabilidad")
-
-        #Guardar el df
-        df.to_excel('media.xlsx', index=False)
-
-    
-
-
-# Crear la ventana principal
-#ventana = tk.Tk()
-
-# Crear la instancia de la clase FormularioInversiones
-#formulario = FormularioInversiones(ventana)
-
-# Iniciar el bucle de eventos
-#ventana.mainloop()
+        panel_principal.grid_columnconfigure(0, weight=1)
+
+
+        canvas = Canvas(
+            self.cuerpo_principal,
+            bg = "#FFFFFF",
+            height = 553,
+            width = 798,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
+
+        canvas.place(x = 0, y = 0)
+        image_image_1 = PhotoImage(
+            file="src/imagenes/assets/fondo.png")
+        image_1 = canvas.create_image(
+            399.0,
+            276.0,
+            image=image_image_1
+        )
+
+        button_image_1 = PhotoImage(
+            file="src/imagenes/assets/boton_mercado_operaciones.png")
+        button_1 = Button(
+            canvas,
+            image=button_image_1,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_1 clicked"),
+            relief="flat"
+        )
+        button_1.place(
+            x=20.0,
+            y=16.0,
+            width=758.0,
+            height=32.0
+        )
+
+        button_image_2 = PhotoImage(
+            file="src/imagenes/assets/boton_grafico_operaciones.png")
+        button_2 = Button(
+            canvas,
+            image=button_image_2,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_2 clicked"),
+            relief="flat"
+        )
+        button_2.place(
+            x=20.0,
+            y=279.0,
+            width=758.0,
+            height=258.0
+        )
+
+        entry_image_1 = PhotoImage(
+            file="src/imagenes/assets/entry_fondo_operaciones.png")
+        entry_bg_1 = canvas.create_image(
+            399.0,
+            250.0,
+            image=entry_image_1
+        )
+        entry_1 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_1.place(
+            x=28.0,
+            y=237.0,
+            width=742.0,
+            height=24.0
+        )
+
+        entry_image_2 = PhotoImage(
+            file="src/imagenes/assets/entry_cartera_operaciones.png")
+        entry_bg_2 = canvas.create_image(
+            98.5,
+            250.0,
+            image=entry_image_2
+        )
+        entry_2 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_2.place(
+            x=28.0,
+            y=237.0,
+            width=141.0,
+            height=24.0
+        )
+
+        entry_image_3 = PhotoImage(
+            file="src/imagenes/assets/entry_gran_latente_operaciones.png")
+        entry_bg_3 = canvas.create_image(
+            266.5,
+            250.0,
+            image=entry_image_3
+        )
+        entry_3 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_3.place(
+            x=185.0,
+            y=237.0,
+            width=163.0,
+            height=24.0
+        )
+
+        entry_image_4 = PhotoImage(
+            file="src/imagenes/assets/entry_gran_dia_operaciones.png")
+        entry_bg_4 = canvas.create_image(
+            428.5,
+            250.0,
+            image=entry_image_4
+        )
+        entry_4 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_4.place(
+            x=364.0,
+            y=237.0,
+            width=129.0,
+            height=24.0
+        )
+
+        entry_image_5 = PhotoImage(
+            file="src/imagenes/assets/entry_ordenes_operaciones.png")
+        entry_bg_5 = canvas.create_image(
+            566.5,
+            250.0,
+            image=entry_image_5
+        )
+        entry_5 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_5.place(
+            x=509.0,
+            y=237.0,
+            width=115.0,
+            height=24.0
+        )
+
+        entry_image_6 = PhotoImage(
+            file="src/imagenes/assets/entry_gran_dia_operaciones.png")
+        entry_bg_6 = canvas.create_image(
+            705.0,
+            250.0,
+            image=entry_image_6
+        )
+        entry_6 = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0
+        )
+        entry_6.place(
+            x=640.0,
+            y=237.0,
+            width=130.0,
+            height=24.0
+        )
+
+        button_image_3 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_acciones_tiempo.png")
+        button_3 = Button(
+            canvas,
+            image=button_image_3,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_3 clicked"),
+            relief="flat"
+        )
+        button_3.place(
+            x=20.0,
+            y=86.0,
+            width=151.0,
+            height=32.0
+        )
+
+        button_image_4 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
+        button_4 = Button(
+            canvas,
+            image=button_image_4,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_4 clicked"),
+            relief="flat"
+        )
+        button_4.place(
+            x=204.0,
+            y=86.0,
+            width=55.0,
+            height=32.0
+        )
+
+        button_image_5 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
+        button_5 = Button(
+            canvas,
+            image=button_image_5,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_5 clicked"),
+            relief="flat"
+        )
+        button_5.place(
+            x=292.0,
+            y=86.0,
+            width=55.0,
+            height=32.0
+        )
+
+        button_image_6 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_mkt.png")
+        button_6 = Button(
+            canvas,
+            image=button_image_6,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_6 clicked"),
+            relief="flat"
+        )
+        button_6.place(
+            x=380.0,
+            y=86.0,
+            width=115.0,
+            height=32.0
+        )
+
+        button_image_7 = PhotoImage(
+            file="src/imagenes/assets/boton_cantidad_operaciones.png")
+        button_7 = Button(
+            canvas,
+            image=button_image_7,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_7 clicked"),
+            relief="flat"
+        )
+        button_7.place(
+            x=528.0,
+            y=86.0,
+            width=178.0,
+            height=32.0
+        )
+
+        button_image_8 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_mkt.png")
+        button_8 = Button(
+            canvas,
+            image=button_image_8,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_8 clicked"),
+            relief="flat"
+        )
+        button_8.place(
+            x=380.0,
+            y=156.0,
+            width=115.0,
+            height=32.0
+        )
+
+        button_image_9 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
+        button_9 = Button(
+            canvas,
+            image=button_image_9,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_9 clicked"),
+            relief="flat"
+        )
+        button_9.place(
+            x=204.0,
+            y=156.0,
+            width=55.0,
+            height=32.0
+        )
+
+        button_image_10 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
+        button_10 = Button(
+            canvas,
+            image=button_image_10,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_10 clicked"),
+            relief="flat"
+        )
+        button_10.place(
+            x=292.0,
+            y=156.0,
+            width=55.0,
+            height=32.0
+        )
+
+        button_image_11 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_numS_numO.png")
+        button_11 = Button(
+            canvas,
+            image=button_image_11,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_11 clicked"),
+            relief="flat"
+        )
+        button_11.place(
+            x=569.0,
+            y=156.0,
+            width=67.0,
+            height=32.0
+        )
+
+        button_image_12 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_numS_numO.png")
+        button_12 = Button(
+            canvas,
+            image=button_image_12,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_12 clicked"),
+            relief="flat"
+        )
+        button_12.place(
+            x=711.0,
+            y=156.0,
+            width=67.0,
+            height=32.0
+        )
+
+        button_image_13 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_S_O.png")
+        button_13 = Button(
+            canvas,
+            image=button_image_13,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_13 clicked"),
+            relief="flat"
+        )
+        button_13.place(
+            x=528.0,
+            y=156.0,
+            width=28.0,
+            height=32.0
+        )
+
+        button_image_14 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_S_O.png")
+        button_14 = Button(
+            canvas,
+            image=button_image_14,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_14 clicked"),
+            relief="flat"
+        )
+        button_14.place(
+            x=669.0,
+            y=156.0,
+            width=28.0,
+            height=32.0
+        )
+
+        button_image_15 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_acciones_tiempo.png")
+        button_15 = Button(
+            canvas,
+            image=button_image_15,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_15 clicked"),
+            relief="flat"
+        )
+        button_15.place(
+            x=20.0,
+            y=156.0,
+            width=151.0,
+            height=32.0
+        )
+
+        button_image_16 = PhotoImage(
+            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
+        button_16 = Button(
+            canvas,
+            image=button_image_16,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_16 clicked"),
+            relief="flat"
+        )
+        button_16.place(
+            x=721.0,
+            y=86.0,
+            width=57.0,
+            height=32.0
+        )
+        self.cuerpo_principal.mainloop()

@@ -47,7 +47,7 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         image_image_2 = PhotoImage(
-            file="src/imagenes/assets/image_2.png")
+            file="src/imagenes/assets/logo_pequeño.png")
         image_2 = canvas.create_image(
             399.0,
             112.0,
@@ -73,7 +73,7 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         entry_image_1 = PhotoImage(
-            file="src/imagenes/assets/entry_1.png")
+            file="src/imagenes/assets/entry_usuario.png")
         entry_bg_1 = canvas.create_image(
             399.0,
             285.0,
@@ -99,7 +99,7 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         entry_image_2 = PhotoImage(
-            file="src/imagenes/assets/entry_2.png")
+            file="src/imagenes/assets/entry_contraseña.png")
         entry_bg_2 = canvas.create_image(
             399.0,
             388.0,
@@ -126,7 +126,7 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         button_image_1 = PhotoImage(
-            file="src/imagenes/assets/button_1.png")
+            file="src/imagenes/assets/boton_login.png")
         self.inicio = Button(
             canvas,
             image=button_image_1,
