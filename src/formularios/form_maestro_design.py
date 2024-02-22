@@ -160,7 +160,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.abrir_panel_inicio)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)
