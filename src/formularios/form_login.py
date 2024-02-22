@@ -39,7 +39,7 @@ class FormularioLoginDesign(tk.Toplevel):
 
         canvas.place(x = 0, y = 0)
         image_image_1 = PhotoImage(
-            file="src/imagenes/assets/image_1.png")
+            file="src/imagenes/assets/fondo.png")
         image_1 = canvas.create_image(
             399.0,
             276.0,
@@ -145,7 +145,7 @@ class FormularioLoginDesign(tk.Toplevel):
             height=32.0
         )
 
-        self.cuerpo_principal.resizable(False, False)
+        #self.cuerpo_principal.resizable(False, False)
         #Hay que hacer que pueda logarse cualquier otro usuario
 
 

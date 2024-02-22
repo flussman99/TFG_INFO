@@ -8,6 +8,7 @@ from formularios.form_pagina_construccion import FormularioPagConstruccion
 from formularios.form_pagina_informacion import FormularioPagInformacion
 from formularios.form_inversiones import FormularioInversiones
 from formularios.form_operaciones import FormularioOperaciones
+from src.formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
 
 
@@ -154,9 +155,10 @@ class FormularioMaestroDesign(tk.Tk):
         label.place(x=0, y=0, relwidth=1, relheight=1)
 
 
+
     def abrir_panel_inicio(self):
         self.limpiar_panel(self.cuerpo_principal)
-        self.controles_cuerpo()
+        FormularioInicioDesign(self.cuerpo_principal)
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
