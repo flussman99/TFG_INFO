@@ -36,8 +36,6 @@ def backtesting(market: str, prices: list):
     rentabilidad=[]
     posicion_abierta=False
 
-
-
     # Iterar sobre las filas del DataFrame
     for index, row in prices_frame.iterrows():
         media_movil_cp = row['mediaMovil_CP']
@@ -47,7 +45,7 @@ def backtesting(market: str, prices: list):
         if media_movil_cp > media_movil_lp and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            rentabilidad.append(tr.calcular_rentabilidad(market,guardar,row['price']))
+            rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
         elif media_movil_cp > media_movil_lp and  posicion_abierta == False:
             decisiones.append("NO PA")#VENDO
             rentabilidad.append(None)
@@ -67,12 +65,10 @@ def backtesting(market: str, prices: list):
     prices_frame['Decision'] = decisiones
     prices_frame['Rentabilidad']= rentabilidad
 
-
     print(prices_frame)
-    excel_filename = 'media.xlsx'
-    # Exportar el DataFrame a Excel
-    prices_frame.to_excel(excel_filename, index=False)
-   # rest of your code
+    
+    tr.rentabilidad_total( prices_frame['Rentabilidad'])
+    tr.frameToExcel(prices_frame,'MediaMovil.xlsx')
 
 
 def check_buy() -> bool:

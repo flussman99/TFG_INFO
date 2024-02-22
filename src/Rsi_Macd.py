@@ -46,7 +46,7 @@ def backtesting(market: str, prices: list):
         if rsi > 65 and macd_fila < macd_si and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            rentabilidad.append(tr.calcular_rentabilidad(market,guardar,row['price']))
+            rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
         elif rsi < 35 and macd_fila > macd_si and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
@@ -58,13 +58,13 @@ def backtesting(market: str, prices: list):
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
-    prices_frame['Rentabilidad']= rentabilidad
+    prices_frame['Rentabilidad'] = rentabilidad
 
     print(prices_frame)
-    excel_filename = 'media.xlsx'
-    # Exportar el DataFrame a Excel
-    prices_frame.to_excel(excel_filename, index=False)
-    
+
+    tr.rentabilidad_total( prices_frame['Rentabilidad'])
+    tr.frameToExcel(prices_frame,'RSI.xlsx')
+
 
 def thread_rsi_macd(pill2kill, ticks: list, time_period: int,indicators: dict, trading_data: dict):
     """Function executed by a thread that calculates
