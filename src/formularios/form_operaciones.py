@@ -50,22 +50,56 @@ class FormularioOperaciones(tk.Toplevel):
             image=image_image_1
         )
 
+        # button_image_1 = PhotoImage(
+        #     file="src/imagenes/assets/boton_mercado_operaciones.png")
+        # boton_mercado = Button(
+        #     canvas,
+        #     image=button_image_1,
+        #     borderwidth=0,
+        #     highlightthickness=0,
+        #     command=self.seleccionarMercado(),
+        #     relief="flat"
+        # )
+        # boton_mercado.place(
+        #     x=20.0,
+        #     y=16.0,
+        #     width=758.0,
+        #     height=32.0
+        # )
+
+        # style = ttk.Style()
+        # style.configure(
+        #     "Custom.TCombobox",
+        #     background="#30A4B4",  # Color de fondo
+        #     foreground="#FFFFFF",  # Color del texto
+        #     font=("Calistoga Regular", 12),     # Fuente de letra
+        #     fieldbackground=[('readonly', 'transparent')]
+        # )  
+
+        self.b = bt(1) #como mejorarlo?
+        # Lista de opciones para el ComboBox
+        acciones, mercados = self.b.get_trading_data()
+
+        # Crear el ComboBox
         button_image_1 = PhotoImage(
-            file="src/imagenes/assets/boton_mercado_operaciones.png")
-        button_1 = Button(
-            canvas,
-            image=button_image_1,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: print("button_1 clicked"),
-            relief="flat"
-        )
-        button_1.place(
-            x=20.0,
-            y=16.0,
-            width=758.0,
-            height=32.0
-        )
+        file="src/imagenes/assets/boton_mercado_operaciones.png")
+        
+        self.mercados_var = tk.StringVar(value=mercados)
+        self.combo_mercados = ttk.Combobox(canvas, textvariable=self.mercados_var, values=mercados)
+        self.combo_mercados.place(x=20.0, y=16.0, width=758, height=32.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_mercados.current(0)  # Establece la opción por defecto
+        self.combo_mercados.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+
+
+        # Función para manejar la selección en el ComboBox
+        def seleccionar_mercado(event):
+            selected_item = self.mercados_var.get()
+            print("Opción seleccionada:", selected_item)
+            self.combo_mercados.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+            # hay que hacer que se muestre la info del mercado seleccionado
+
+        self.combo_mercados.bind("<<ComboboxSelected>>", seleccionar_mercado)  # Asocia la función al evento de selección del ComboBox
+
 
         button_image_2 = PhotoImage(
             file="src/imagenes/assets/boton_grafico_operaciones.png")
