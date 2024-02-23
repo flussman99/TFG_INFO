@@ -44,11 +44,11 @@ def backtesting(market: str, prices: list):
         D=row['%D']
         precioCompra= row['price']
         # Comparar las medias móviles
-        if K > D and posicion_abierta == True:
+        if K < D and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
-        elif K < D and posicion_abierta == False:
+        elif K > D and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             posicion_abierta=True
