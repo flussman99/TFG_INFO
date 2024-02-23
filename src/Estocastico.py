@@ -1,5 +1,5 @@
 
-from ta.volatility import BollingerBands
+from ta.momentum import StochasticOscillator
 import tick_reader as tr
 import pandas as pd
 import MetaTrader5 as mt5
@@ -22,26 +22,33 @@ MAX_LEN = 9
 
 
 def backtesting(market: str, prices: list):
-    # Crear un DataFrame de la lista prices
+   
+
     prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
-    bb = BollingerBands(prices_frame['price'], window=20, window_dev=2)
-    prices_frame['bb_upper'] = bb.bollinger_hband()
-    prices_frame['bb_lower'] = bb.bollinger_lband()
+    
+    stoch = StochasticOscillator(prices_frame['price'], prices_frame['price'], prices_frame['price'], window=14, smooth_window=3)
+    stoch_values = stoch.stoch()
+
+    stoch_values_d = stoch_values.rolling(window=3).mean()
+
+    prices_frame['%K'] = stoch_values
+    prices_frame['%D'] = stoch_values_d
 
     decisiones = []
     rentabilidad=[]
     posicion_abierta=False
 
+
     for index, row in prices_frame.iterrows():
-        upper = row['bb_upper']
-        lower=row['bb_lower']
+        K = row['%K']
+        D=row['%D']
         precioCompra= row['price']
         # Comparar las medias móviles
-        if  upper < precioCompra and posicion_abierta == True:
+        if K > D and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
-        elif lower > precioCompra and posicion_abierta == False:
+        elif K < D and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             posicion_abierta=True
