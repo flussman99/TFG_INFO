@@ -168,11 +168,14 @@ class FormularioInversiones(tk.Toplevel):
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
 
+        guardar = ttk.Button(self.cuerpo_principal, text="Guardar", command=self.guardar_excell)
+
         self.combo_calculo_label.grid(row=5, column=0, padx=10, pady=10)
         self.combo_calculo.grid(row=5, column=1, padx=10, pady=10)
         calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
 
         ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
+        guardar.grid(row=7, column=1, columnspan=2, pady=10)
 
         self.resultado_label.grid(row=6, column=1, columnspan=2, pady=10)
 
