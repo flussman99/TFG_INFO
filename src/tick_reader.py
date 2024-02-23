@@ -3,6 +3,8 @@ import datetime as dt
 import ordenes as orden
 import Rsi_Macd 
 import MediaMovil 
+import Bandas_Bollinger
+import Estocastico
 import pytz
 import openpyxl
 import pandas as pd
@@ -129,6 +131,14 @@ def estrategias(ticks: list, market: str,nombre:str):
     elif nombre == 'Media Movil':
         MediaMovil.backtesting(market,ticks)
         ticks.clear()
+    elif nombre == 'Bandas':
+        Bandas_Bollinger.backtesting(market,ticks)
+        ticks.clear()
+    elif nombre == 'Estocastico':
+        Estocastico.backtesting(market,ticks)
+        ticks.clear()
+    
+    
 
 
 

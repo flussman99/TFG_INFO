@@ -8,7 +8,7 @@ from formularios.form_pagina_construccion import FormularioPagConstruccion
 from formularios.form_pagina_informacion import FormularioPagInformacion
 from formularios.form_inversiones import FormularioInversiones
 from formularios.form_operaciones import FormularioOperaciones
-from src.formularios.form_inicio import FormularioInicioDesign
+from formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
 
 

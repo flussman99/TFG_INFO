@@ -131,7 +131,7 @@ class FormularioInversiones(tk.Toplevel):
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia y una estrategia de inversión:")
         frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.original_frecuencia = frecuencia
-        estrategia = ['RSI', 'Media Movil']
+        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
         self.original_estrategia = estrategia
 
         self.frecuencia_var = tk.StringVar(value=frecuencia)
