@@ -3,6 +3,8 @@ from ta.momentum import StochasticOscillator
 import tick_reader as tr
 import pandas as pd
 import MetaTrader5 as mt5
+from ta.momentum import RSIIndicator
+
 
 
 
@@ -27,12 +29,16 @@ def backtesting(market: str, prices: list):
     prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
     
     stoch = StochasticOscillator(prices_frame['price'], prices_frame['price'], prices_frame['price'], window=14, smooth_window=3)
+    rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+
     stoch_values = stoch.stoch()
 
     stoch_values_d = stoch_values.rolling(window=3).mean()
 
     prices_frame['%K'] = stoch_values
     prices_frame['%D'] = stoch_values_d
+    prices_frame["RSI"] = rsi.rsi()
+
 
     decisiones = []
     rentabilidad=[]
@@ -42,13 +48,15 @@ def backtesting(market: str, prices: list):
     for index, row in prices_frame.iterrows():
         K = row['%K']
         D=row['%D']
+        rsi = row['RSI']
+
         precioCompra= row['price']
         # Comparar las medias móviles
-        if K < D and posicion_abierta == True:
+        if K < D and  rsi > 60 and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
-        elif K > D and posicion_abierta == False:
+        elif K > D and rsi < 35 and posicion_abierta == False:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             posicion_abierta=True
