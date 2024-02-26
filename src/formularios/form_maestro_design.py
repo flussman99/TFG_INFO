@@ -7,6 +7,8 @@ from formularios.form_login import FormularioLoginDesign
 from formularios.form_pagina_construccion import FormularioPagConstruccion
 from formularios.form_pagina_informacion import FormularioPagInformacion
 from formularios.form_inversiones import FormularioInversiones
+from formularios.form_operaciones import FormularioOperaciones
+from formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
 
 
@@ -73,6 +75,11 @@ class FormularioMaestroDesign(tk.Tk):
         self.labelTitulo.config(fg='#fff', font=("Roboto", 10), bg=COLOR_BARRA_SUPERIOR, padx=10, width=20)
         self.labelTitulo.pack(side=tk.RIGHT)
 
+
+    def mostrar_submenu(self):
+        self.submenu.post(self.botonInversiones.winfo_rootx(), self.botonInversiones.winfo_rooty() + self.botonInversiones.winfo_height())
+
+
     def controles_menu_lateral(self):
         #Configuración del menú lateral
         ancho_menu = 20
@@ -83,6 +90,18 @@ class FormularioMaestroDesign(tk.Tk):
         self.labelPerfil = tk.Label(
             self.menu_lateral, image=self.perfil, bg=COLOR_MENU_LATERAL)
         self.labelPerfil.pack(side=tk.TOP, pady=10)
+        self.menuOfMenuLateral = tk.Menu(self.menu_lateral, tearoff=0)
+
+
+        # Crear el menú Inversiones (submenú)
+        self.submenu = tk.Menu(self.menuOfMenuLateral, tearoff=0)
+        self.submenu.add_command(label="Backtesting", command=self.abrir_panel_inversiones)
+        self.submenu.add_command(label="Operaciones futuras", command=self.abrir_panel_operaciones)
+
+
+        # Agregar el menú Inversiones al menú principal
+        self.menuOfMenuLateral.add_cascade(label="Inversiones", menu=self.submenu)
+
 
         #Botones del menú lateral
         self.botonPanel = tk.Button(self.menu_lateral)
@@ -94,9 +113,9 @@ class FormularioMaestroDesign(tk.Tk):
         botones_info = [
             ("Inicio", "\uf109", self.botonPanel, self.abrir_panel_inicio),
             ("Perfil", "\uf007", self.botonPerfil, self.abrir_panel_perfil),
-            ("Inversiones", "\uf03e", self.botonInversiones, self.abrir_panel_inversiones),
-            ("Información", "\uf129", self.botonInfo,self.abrir_panel_informacion),
-            ("Ajustes", "\uf013", self.botonAjustes,self.abrir_panel_ajustes)
+            ("Inversiones", "\uf03e", self.botonInversiones, self.mostrar_submenu),
+            ("Información", "\uf129", self.botonInfo, self.abrir_panel_informacion),
+            ("Ajustes", "\uf013", self.botonAjustes, self.abrir_panel_ajustes)
         ]
 
         for text, icon, button, comando in botones_info:
@@ -134,15 +153,17 @@ class FormularioMaestroDesign(tk.Tk):
         #Imagen en el cuerpo principal
         label = tk.Label(self.cuerpo_principal, image=self.logo,bg=COLOR_CUERPO_PRINCIPAL)
         label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.abrir_panel_inicio()
+
 
 
     def abrir_panel_inicio(self):
         self.limpiar_panel(self.cuerpo_principal)
-        self.controles_cuerpo()
+        FormularioInicioDesign(self.cuerpo_principal)
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.abrir_panel_inversiones, self.botonInversiones)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.abrir_panel_inicio)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)
@@ -155,6 +176,11 @@ class FormularioMaestroDesign(tk.Tk):
     def abrir_panel_inversiones(self):
         self.limpiar_panel(self.cuerpo_principal)
         FormularioInversiones(self.cuerpo_principal)
+
+    def abrir_panel_operaciones(self):
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioOperaciones(self.cuerpo_principal)
+
 
     def abrir_panel_ajustes(self):
         self.limpiar_panel(self.cuerpo_principal)

@@ -1,7 +1,7 @@
 
 import tkinter as tk
 import matplotlib.pyplot as plt
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from tkinter.font import BOLD
 import pandas as pd
 import sys 
@@ -12,42 +12,143 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 class FormularioLoginDesign(tk.Toplevel):
 
    
-    def __init__(self, panel_principal, label_usuario, abrir_panel_inversiones, boton_inversiones):
-        
+    def __init__(self, panel_principal, label_usuario, boton_inversiones, abrir_panel_inicio):
+
+
+        self.panel_inicio = abrir_panel_inicio
         self.labelUsuario = label_usuario
-        self.abrir_inv = abrir_panel_inversiones
         self.boton_inv = boton_inversiones
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.pack(side=tk.TOP, fill=tk.X, expand=False)
 
-        self.cuerpo_principal = tk.Frame(panel_principal)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=798, height=553)
         self.cuerpo_principal.pack(side=tk.RIGHT, fill='both', expand=True)
 
+        self.cuerpo_principal.configure(bg = "#FFFFFF")
 
-        title = tk.Label(self.cuerpo_principal, text="Inicio de sesion", font=('Times',30), fg="#666a88", bg='#fcfcfc', pady=50)
-        title.pack(expand=tk.YES, fill=tk.BOTH)
 
-        #Parte de Usuario
-        etiqueta_usuario =tk.Label(self.cuerpo_principal, text="Usuario", font=('Times', 14),fg="#666a88",bg='#fcfcfc', anchor="w")
-        etiqueta_usuario.pack(fill=tk.X, padx=20,pady=5)
-        self.usuario = ttk.Entry(self.cuerpo_principal, font=('Times', 14))
-        self.usuario.pack(fill=tk.X, padx=20,pady=10)
-        self.usuario.insert(0, "51468408")  # Insertar el usuario predeterminado
-        
+        canvas = Canvas(
+            self.cuerpo_principal,
+            bg = "#FFFFFF",
+            height = 553,
+            width = 798,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
 
-        #Parte de Contraseña
-        etiqueta_password = tk.Label(self.cuerpo_principal, text="Contraseña", font=('Times', 14),fg="#666a88",bg='#fcfcfc', anchor="w")
-        etiqueta_password.pack(fill=tk.X, padx=20, pady=5)
-        self.password = ttk.Entry(self.cuerpo_principal, font=('Times', 14))
-        self.password.pack(fill=tk.X, padx=20, pady=10)
+        canvas.place(x = 0, y = 0)
+        image_image_1 = PhotoImage(
+            file="src/imagenes/assets/fondo.png")
+        image_1 = canvas.create_image(
+            399.0,
+            276.0,
+            image=image_image_1
+        )
+
+        image_image_2 = PhotoImage(
+            file="src/imagenes/assets/logo_pequeño.png")
+        image_2 = canvas.create_image(
+            399.0,
+            112.0,
+            image=image_image_2
+        )
+
+        canvas.create_text(
+            198.0,
+            224.0,
+            anchor="nw",
+            text="Usuario:",
+            fill="#FFFFFF",
+            font=("Calistoga Regular", 20 * -1)
+        )
+
+        canvas.create_text(
+            198.0,
+            326.0,
+            anchor="nw",
+            text="Contraseña:",
+            fill="#FFFFFF",
+            font=("Calistoga Regular", 20 * -1)
+        )
+
+        entry_image_1 = PhotoImage(
+            file="src/imagenes/assets/entry_usuario.png")
+        entry_bg_1 = canvas.create_image(
+            399.0,
+            285.0,
+            image=entry_image_1
+        )
+
+        self.usuario = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0,
+            font=("Calistoga Regular", 20 * -1)
+        )
+        canvas.create_window(199, 263, window=self.usuario)
+        self.usuario.insert(0, "51468408")
+
+        self.usuario.place(
+            x=199.0,
+            y=263.0,
+            width=400.0,
+            height=42.0
+        )
+
+        entry_image_2 = PhotoImage(
+            file="src/imagenes/assets/entry_contraseña.png")
+        entry_bg_2 = canvas.create_image(
+            399.0,
+            388.0,
+            image=entry_image_2
+        )
+
+        self.password = Entry(
+            canvas,
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            highlightthickness=0,
+            font=("Calistoga Regular", 20 * -1)
+        )
+        canvas.create_window(199, 366, window=self.password)
         self.password.insert(0, "YHPuThmy")
         self.password.config(show="*")
 
-        #Botón de Iniciar Sesión
-        inicio = tk.Button(self.cuerpo_principal, text="Iniciar sesion",font=('Times', 15, BOLD), bg='#3a7ff6', bd=0,fg="#fff", command=self.verificar)
-        inicio.pack(fill=tk.X, padx=20, pady=20)
-        inicio.bind("<Return>", (lambda event: self.verificar()))
- #De momento verificamos únicamente a nuestra cuenta de MetaTrader
+        self.password.place(
+            x=199.0,
+            y=366.0,
+            width=400.0,
+            height=42.0
+        )
+
+        button_image_1 = PhotoImage(
+            file="src/imagenes/assets/boton_login.png")
+        self.inicio = Button(
+            canvas,
+            image=button_image_1,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.verificar,
+            relief="flat"
+        )
+        canvas.create_window(348, 438, window=self.inicio)
+        self.inicio.bind("<Return>", (lambda event: self.verificar()))
+
+        self.inicio.place(
+            x=348.0,
+            y=438.0,
+            width=102.0,
+            height=32.0
+        )
+
+        self.cuerpo_principal.mainloop()
+        #Hay que hacer que pueda logarse cualquier otro usuario
+
+
     def verificar(self):
         usu = self.usuario.get()
         password = self.password.get()
@@ -65,7 +166,8 @@ class FormularioLoginDesign(tk.Toplevel):
             else:
                 self.labelUsuario.config(text=f"Usuario: {usu}")
                 self.boton_inv["state"] = tk.NORMAL
-                self.abrir_inv()
+                self.panel_inicio()
+
             #FormularioMaestroDesign()
 
     def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
@@ -98,5 +200,4 @@ class FormularioLoginDesign(tk.Toplevel):
             print("failed to connect at account #{}, error code: {}".format(usr, mt5.last_error()))
             return False
 
-        return True
-           
+        return True 

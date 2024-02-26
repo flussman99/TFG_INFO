@@ -131,7 +131,7 @@ class FormularioInversiones(tk.Toplevel):
         texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia y una estrategia de inversión:")
         frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.original_frecuencia = frecuencia
-        estrategia = ['RSI', 'Media Movil']
+        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
         self.original_estrategia = estrategia
 
         self.frecuencia_var = tk.StringVar(value=frecuencia)
@@ -168,11 +168,14 @@ class FormularioInversiones(tk.Toplevel):
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
 
+        guardar = ttk.Button(self.cuerpo_principal, text="Guardar", command=self.guardar_excell)
+
         self.combo_calculo_label.grid(row=5, column=0, padx=10, pady=10)
         self.combo_calculo.grid(row=5, column=1, padx=10, pady=10)
         calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
 
         ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
+        guardar.grid(row=7, column=1, columnspan=2, pady=10)
 
         self.resultado_label.grid(row=6, column=1, columnspan=2, pady=10)
 
@@ -194,7 +197,7 @@ class FormularioInversiones(tk.Toplevel):
 #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt)
  #if abrir operacion       
-        self.b.thread_orders()#solo para abrir ordenes
+        self.b.thread_orders()
 #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
             self.b.thread_RSI_MACD()
@@ -202,50 +205,53 @@ class FormularioInversiones(tk.Toplevel):
             self.b.thread_MediaMovil()
 
 
-        #b.wait()
-        lista_segundos = self.b.get_ticks()
-        xAxis = []
-        yAxis = []
-        i = 1
-        print("Ticks received:",len(lista_segundos))
+        #b.wait() esto yo no utilizo para nada
 
-        print("Display obtained ticks 'as is'")
-        count = 0
-        for tick in lista_segundos:
-            count+=1
-            print(tick)
-            if count >= frec:
-                break
-        ticks_frame = pd.DataFrame(lista_segundos)
-        print(ticks_frame.head(10))
+        #a partir de aqui comento
 
-        # Prepare data for plotting
-        xAxis = list(range(len(lista_segundos)))
-        #yAxis = [tick.price for tick in lista_segundos]
-        yAxis = lista_segundos
+        # lista_segundos = self.b.get_ticks()
+        # xAxis = []
+        # yAxis = []
+        # i = 1
+        # print("Ticks received:",len(lista_segundos))
 
-        for tick in lista_segundos:
+        # print("Display obtained ticks 'as is'")
+        # count = 0
+        # for tick in lista_segundos:
+        #     count+=1
+        #     print(tick)
+        #     if count >= frec:
+        #         break
+        # ticks_frame = pd.DataFrame(lista_segundos)
+        # print(ticks_frame.head(10))
 
-            datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
+        # # Prepare data for plotting
+        # xAxis = list(range(len(lista_segundos)))
+        # #yAxis = [tick.price for tick in lista_segundos]
+        # yAxis = lista_segundos
 
-            xAxis.append(datetime_obj)
-            yAxis.append(tick[1])
+        # for tick in lista_segundos:
 
-        # Create a new figure
-        fig.clear()
+        #     datetime_obj = tick[0].strftime('%Y-%m-%d %H:%M:%S')
+
+        #     xAxis.append(datetime_obj)
+        #     yAxis.append(tick[1])
+
+        # # Create a new figure
+        # fig.clear()
         
-        fig = Figure(figsize=(5, 4), dpi=100)
+        # fig = Figure(figsize=(5, 4), dpi=100)
 
-        # Add a subplot to the figure
-        ax = fig.add_subplot(111)
+        # # Add a subplot to the figure
+        # ax = fig.add_subplot(111)
 
-        # Plot data
-        ax.plot(xAxis, yAxis)
+        # # Plot data
+        # ax.plot(xAxis, yAxis)
 
-        # Create a canvas and add it to your Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
+        # # Create a canvas and add it to your Tkinter window
+        # canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)  # 'self.cuerpo_principal' should be the parent widget
+        # canvas.draw()
+        # canvas.get_tk_widget().grid(row=9, column=0)  # Adjust grid parameters as needed
 
 
 
