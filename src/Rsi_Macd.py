@@ -23,7 +23,7 @@ PREV_EMA26 = None
 MAX_LEN = 9
 
 
-def backtesting(market: str, prices: list):
+def backtesting(nombre:str, prices: list):
     # Crear un DataFrame de la lista prices
     prices_frame = pd.DataFrame(prices, columns=['time', 'price'])
     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
@@ -63,7 +63,7 @@ def backtesting(market: str, prices: list):
     print(prices_frame)
 
     tr.rentabilidad_total( prices_frame['Rentabilidad'])
-    tr.frameToExcel(prices_frame,'RSI.xlsx')
+    tr.frameToExcel(prices_frame, nombre + '.xlsx') 
 
 
 def thread_rsi_macd(pill2kill, ticks: list, time_period: int,indicators: dict, trading_data: dict):

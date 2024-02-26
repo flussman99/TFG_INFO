@@ -182,6 +182,9 @@ class FormularioInversiones(tk.Toplevel):
         #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
 
         
+    def guardar_excell(self):
+        estrategia_txt = self.combo_estrategia.get()
+        self.b.guar_excell(estrategia_txt)
 
     def coger_ticks(self):
         
@@ -195,7 +198,7 @@ class FormularioInversiones(tk.Toplevel):
 
         self.b.set_info(frec, accion_txt) 
 #if parte backtestin
-        self.b.thread_tick_reader(inicio_txt, fin_txt)
+        self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
  #if abrir operacion       
         self.b.thread_orders()
 #if elegir tipo de operacion
