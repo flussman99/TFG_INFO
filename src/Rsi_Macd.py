@@ -58,7 +58,7 @@ def backtesting(market: str, prices: list):
 
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
-    prices_frame['Rentabilidad']= rentabilidad
+    prices_frame['Rentabilidad Estrategia']= rentabilidad
 
     print(prices_frame)
     excel_filename = 'media.xlsx'

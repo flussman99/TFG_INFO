@@ -194,7 +194,7 @@ class FormularioInversiones(tk.Toplevel):
 #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt)
  #if abrir operacion       
-        self.b.thread_orders()
+        self.b.thread_orders()#solo para abrir ordenes
 #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
             self.b.thread_RSI_MACD()
