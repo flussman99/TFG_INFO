@@ -126,16 +126,16 @@ def ticks_directo(pill2kill, ticks: list, trading_data: dict):#primera forma
 def estrategias(ticks: list, market: str,nombre:str):
     #Escoger estrategia a aplicar
     if nombre == 'RSI':
-        Rsi_Macd.backtesting(market,ticks)
+        Rsi_Macd.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Media Movil':
-        MediaMovil.backtesting(market,ticks)
+        MediaMovil.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Bandas':
-        Bandas_Bollinger.backtesting(market,ticks)
+        Bandas_Bollinger.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Estocastico':
-        Estocastico.backtesting(market,ticks)
+        Estocastico.backtesting(nombre,ticks)
         ticks.clear()
     
     
@@ -157,7 +157,7 @@ def rentabilidad_total(rentabilidades):
      # Mostrar la rentabilidad total
     suma_rentabilidades = rentabilidades.sum()
     print("La suma de rentabilidades es:", suma_rentabilidades)
-    
+
 def frameToExcel(prices_frame, excel_filename):
     """
     Exporta un DataFrame a un archivo Excel."""

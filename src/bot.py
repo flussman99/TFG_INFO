@@ -4,6 +4,8 @@ import tick_reader as tr
 import ordenes as orders
 #importslope_abs_rel, orders
 import Rsi_Macd, MediaMovil
+import pandas as pd
+import os
 
 class Bot:
     
@@ -40,6 +42,25 @@ class Bot:
         """
         self.trading_data['lotage'] = lotage
         self.trading_data['avg_spread'] = 0
+
+    import os
+
+    def guar_excell(self, nombre_estrategia: str):
+        try:
+            # Verificar si el archivo Excel existe
+            if os.path.isfile(f'{nombre_estrategia}.xlsx'):
+                # Leer el archivo Excel existente
+                df = pd.read_excel(f'{nombre_estrategia}.xlsx')
+
+                # Guardar una copia del DataFrame en un nuevo archivo Excel con el nombre proporcionado
+                df.to_excel(f'{nombre_estrategia}_copia.xlsx', index=False)
+                print(f"Copia del archivo Excel generada correctamente como '{nombre_estrategia}_copia.xlsx'.")
+            else:
+                print(f"No se encontró el archivo '{nombre_estrategia}.xlsx'.")
+        except Exception as e:
+            print("Error al generar la copia del archivo Excel:", str(e))
+
+
 
     def set_info(self, time_period: int, market: str):
         """
