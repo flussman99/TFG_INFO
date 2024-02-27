@@ -12,7 +12,7 @@ import numpy as np
 from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
-
+import time
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
@@ -90,36 +90,17 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 
 
 def ticks_directo(pill2kill, ticks: list, trading_data: dict):#primera forma
-
     # Coger tcks en directo
     print("[THREAD - tick_reader] - Taking ticks")
-    i = 1
-    tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-
+    
     while not pill2kill.wait(1):
         # Every trading_data['time_period'] seconds we add a tick to the list
-        if i % trading_data['time_period'] == 0:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-            print("Nuevo tick añadido:", ticks[-1])
-        
-        # # Computing the average spread
-        # spread_list.append(mt5.symbol_info(trading_data['market']).spread)
-        # if len(spread_list) >= MAX_LEN_SPREAD:
-        #     trading_data['avg_spread'] = sum(spread_list) / len(spread_list)
-        #     del spread_list[0]
-                
-        # The last tick is going to be changed all the time with the actual one
-        # ticks[-1] = mt5.symbol_info_tick(trading_data['market']).ask
-        i += 1
+        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
+        print(tick)
+        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+        print("Nuevo tick añadido:", ticks[-1])
+        time.sleep(trading_data['time_period'])
    
-    # If the list is full (MAX_TICKS_LEN), 
-    # we delete the first value
-    # if len(ticks) >= MAX_TICKS_LEN:
-    #     del ticks[0]
-
-
-
-
                                     #FUNCIONES DE APOYO
         
 
@@ -137,7 +118,7 @@ def estrategias(ticks: list, market: str,nombre:str):
     elif nombre == 'Estocastico':
         Estocastico.backtesting(nombre,ticks)
         ticks.clear()
-    
+   
     
 
 

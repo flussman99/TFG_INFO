@@ -162,7 +162,7 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
         self.combo_calculo.set(opciones_calculo[0])
 
-        calcular_button = ttk.Button(self.cuerpo_principal, text="Calcular Rentabilidad", command=self.calcular_rentabilidad)
+        calcular_button = ttk.Button(self.cuerpo_principal, text="Ticks en directo", command=self.tickdirecto)
 
         self.resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
 
@@ -186,6 +186,14 @@ class FormularioInversiones(tk.Toplevel):
         estrategia_txt = self.combo_estrategia.get()
         self.b.guar_excell(estrategia_txt)
 
+
+    def tickdirecto(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        frec = self.calcular_frecuencia(frecuencia_txt)
+        self.b.set_info(frec, accion_txt) 
+        self.b.thread_RSI_MACD()
+
     def coger_ticks(self):
         
         frecuencia_txt = self.combo_frecuencia.get()
@@ -201,6 +209,7 @@ class FormularioInversiones(tk.Toplevel):
         self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
  #if abrir operacion       
         self.b.thread_orders()
+
 #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
             self.b.thread_RSI_MACD()

@@ -124,7 +124,7 @@ class Bot:
         """Function to launch the thread for calculating the MACD.
         """
         t = threading.Thread(target=Rsi_Macd.thread_rsi_macd, 
-                            args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
+                            args=(self.pill2kill, self.ticks, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - RSI_MACD. LAUNCHED')
