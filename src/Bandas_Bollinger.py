@@ -114,7 +114,7 @@ def thread_rsi_macd(pill2kill, ticks: list, time_period: int,indicators: dict, t
     while not pill2kill.wait(1):
         # Computing the MACD
         PREV_MACD = CUR_MACD
-        CUR_MACD = MACD(ticks[-26:])
+        #CUR_MACD = MACD(ticks[-26:])
         
         # Only append a MACD value every time period
         if i >= trading_data['time_period']:
