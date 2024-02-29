@@ -25,7 +25,7 @@ class FormularioOperaciones(tk.Toplevel):
         panel_principal.grid_rowconfigure(0, weight=1)
         panel_principal.grid_columnconfigure(0, weight=1) 
 
-        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=663)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=667)
         self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
         panel_principal.grid_rowconfigure(1, weight=1)  

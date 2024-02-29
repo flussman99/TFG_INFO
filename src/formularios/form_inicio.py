@@ -10,7 +10,7 @@ class FormularioInicioDesign(tk.Toplevel):
     def __init__(self, panel_principal):
 
         #Configuración inicial de la ventana
-        self.cuerpo_principal = tk.Frame(panel_principal, width=798, height=553)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=667)
         self.cuerpo_principal.pack(side=tk.RIGHT, fill='both', expand=True)
         
         self.cuerpo_principal.configure(bg = "#FFFFFF")
@@ -19,8 +19,8 @@ class FormularioInicioDesign(tk.Toplevel):
         canvas = Canvas(
             self.cuerpo_principal,
             bg = "#FFFFFF",
-            height = 553,
-            width = 798,
+            height = 667,
+            width = 1366,
             bd = 0,
             highlightthickness = 0,
             relief = "ridge"
@@ -30,16 +30,16 @@ class FormularioInicioDesign(tk.Toplevel):
         image_image_1 = PhotoImage(
             file="src/imagenes/assets/fondo.png")
         image_1 = canvas.create_image(
-            399.0,
-            276.0,
+            683.0,
+            333.0,
             image=image_image_1
         )
 
         image_image_2 = PhotoImage(
             file="src/imagenes/assets/logo_grande.png")
         image_2 = canvas.create_image(
-            399.0,
-            277.0,
+            683.0,
+            333.0,
             image=image_image_2
         )
 

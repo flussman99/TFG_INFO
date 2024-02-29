@@ -22,7 +22,7 @@ class FormularioLoginDesign(tk.Toplevel):
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.pack(side=tk.TOP, fill=tk.X, expand=False)
 
-        self.cuerpo_principal = tk.Frame(panel_principal, width=798, height=553)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=667)
         self.cuerpo_principal.pack(side=tk.RIGHT, fill='both', expand=True)
 
         self.cuerpo_principal.configure(bg = "#FFFFFF")
@@ -31,8 +31,8 @@ class FormularioLoginDesign(tk.Toplevel):
         canvas = Canvas(
             self.cuerpo_principal,
             bg = "#FFFFFF",
-            height = 553,
-            width = 798,
+            height = 667,
+            width = 1366,
             bd = 0,
             highlightthickness = 0,
             relief = "ridge"
@@ -42,22 +42,22 @@ class FormularioLoginDesign(tk.Toplevel):
         image_image_1 = PhotoImage(
             file="src/imagenes/assets/fondo.png")
         image_1 = canvas.create_image(
-            399.0,
-            276.0,
+            683.0,
+            333.0,
             image=image_image_1
         )
 
         image_image_2 = PhotoImage(
             file="src/imagenes/assets/logo_pequeño.png")
         image_2 = canvas.create_image(
-            399.0,
-            112.0,
+            683.0,
+            172.0,
             image=image_image_2
         )
 
         canvas.create_text(
-            198.0,
-            224.0,
+            301.0,
+            284.0,
             anchor="nw",
             text="Usuario:",
             fill="#FFFFFF",
@@ -65,8 +65,8 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         canvas.create_text(
-            198.0,
-            326.0,
+            301.0,
+            410.0,
             anchor="nw",
             text="Contraseña:",
             fill="#FFFFFF",
@@ -74,10 +74,10 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         entry_image_1 = PhotoImage(
-            file="src/imagenes/assets/entry_usuario.png")
+            file="src/imagenes/assets/entry_comun_usr_psswd.png")
         entry_bg_1 = canvas.create_image(
-            399.0,
-            285.0,
+            683.0,
+            359.0,
             image=entry_image_1
         )
 
@@ -89,21 +89,21 @@ class FormularioLoginDesign(tk.Toplevel):
             highlightthickness=0,
             font=("Calistoga Regular", 20 * -1)
         )
-        canvas.create_window(199, 263, window=self.usuario)
+        canvas.create_window(296, 331, window=self.usuario)
         self.usuario.insert(0, "51468408")
 
         self.usuario.place(
-            x=199.0,
-            y=263.0,
-            width=400.0,
-            height=42.0
+            x=296.0,
+            y=331.0,
+            width=774.0,
+            height=52.0
         )
 
         entry_image_2 = PhotoImage(
-            file="src/imagenes/assets/entry_contraseña.png")
+            file="src/imagenes/assets/entry_comun_usr_psswd.png")
         entry_bg_2 = canvas.create_image(
-            399.0,
-            388.0,
+            683.0,
+            487.0,
             image=entry_image_2
         )
 
@@ -115,15 +115,15 @@ class FormularioLoginDesign(tk.Toplevel):
             highlightthickness=0,
             font=("Calistoga Regular", 20 * -1)
         )
-        canvas.create_window(199, 366, window=self.password)
+        canvas.create_window(296, 460, window=self.password)
         self.password.insert(0, "YHPuThmy")
         self.password.config(show="*")
 
         self.password.place(
-            x=199.0,
-            y=366.0,
-            width=400.0,
-            height=42.0
+            x=296.0,
+            y=460.0,
+            width=774.0,
+            height=52.0
         )
 
         button_image_1 = PhotoImage(
@@ -136,14 +136,14 @@ class FormularioLoginDesign(tk.Toplevel):
             command=self.verificar,
             relief="flat"
         )
-        canvas.create_window(348, 438, window=self.inicio)
+        canvas.create_window(609, 577, window=self.inicio)
         self.inicio.bind("<Return>", (lambda event: self.verificar()))
 
         self.inicio.place(
-            x=348.0,
-            y=438.0,
-            width=102.0,
-            height=32.0
+            x=609.0,
+            y=577.0,
+            width=147.0,
+            height=38.0
         )
 
         self.cuerpo_principal.mainloop()
