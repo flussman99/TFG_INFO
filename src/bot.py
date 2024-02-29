@@ -120,6 +120,9 @@ class Bot:
         #t.start()
         print('Thread - slope_abs_rel. LAUNCHED')
     
+
+    #Poner threads para cada estrategia 
+        
     def thread_RSI_MACD(self):
         """Function to launch the thread for calculating the MACD.
         """
