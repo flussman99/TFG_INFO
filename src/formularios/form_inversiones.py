@@ -115,6 +115,7 @@ class FormularioInversiones(tk.Toplevel):
 
         self.combo_acciones.bind('<KeyRelease>', filter_options)
         self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
+        self.combo_mercados.bind('<KeyRelease>', filter_options)
         self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
 
 

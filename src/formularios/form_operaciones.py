@@ -25,7 +25,7 @@ class FormularioOperaciones(tk.Toplevel):
         panel_principal.grid_rowconfigure(0, weight=1)
         panel_principal.grid_columnconfigure(0, weight=1) 
 
-        self.cuerpo_principal = tk.Frame(panel_principal, width=798, height=553)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=663)
         self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
         panel_principal.grid_rowconfigure(1, weight=1)  
@@ -35,8 +35,8 @@ class FormularioOperaciones(tk.Toplevel):
         canvas = Canvas(
             self.cuerpo_principal,
             bg = "#FFFFFF",
-            height = 553,
-            width = 798,
+            height = 663,
+            width = 1366,
             bd = 0,
             highlightthickness = 0,
             relief = "ridge"
@@ -46,8 +46,8 @@ class FormularioOperaciones(tk.Toplevel):
         image_image_1 = PhotoImage(
             file="src/imagenes/assets/fondo.png")
         image_1 = canvas.create_image(
-            399.0,
-            276.0,
+            683.0,
+            331.0,
             image=image_image_1
         )
 
@@ -81,13 +81,85 @@ class FormularioOperaciones(tk.Toplevel):
         # Lista de opciones para el ComboBox
         acciones, mercados = self.b.get_trading_data()
 
-        # Crear el ComboBox
-        button_image_1 = PhotoImage(
-        file="src/imagenes/assets/boton_mercado_operaciones.png")
+
+
+        def filter_options(event):
+
+            combobox = event.widget
+            options = combobox.cget('values')
+            data = combobox.get().upper()
+
+            if combobox == self.combo_acciones:
+                options = self.original_acciones
+            elif combobox == self.combo_mercados:
+                options = self.original_mercados  
+            elif combobox == self.combo_frecuencia:
+                options = self.original_frecuencia 
+            elif combobox == self.combo_velas:
+                options = self.original_velas 
+
+            if data:
+                # Filter the options
+                filtered_options = [option for option in options if option.startswith(data)]
+            else:
+                # If the data is empty, reset the options to the original list
+                filtered_options = options
+
+            combobox['values'] = filtered_options
+
+            if hasattr(filter_options, 'job'):
+                canvas.after_cancel(filter_options.job)
+
+            # Schedule a new job
+            filter_options.job = canvas.after(2000, combobox.event_generate, '<Down>')
+
+
+        def filter_acciones(event):
+            # Get selected market
+            selected_market = self.combo_mercados.get().upper()
+
+            if selected_market == 'DIVISES':
+                selected_market = ''
+                filtered_acciones = [accion for accion in acciones if '.' not in accion]
+            else:
+                filtered_acciones = [accion for accion in acciones if accion.endswith(selected_market)]
+
+            # Update combo_acciones options
+            self.combo_acciones['values'] = filtered_acciones
+            self.combo_acciones.set(filtered_acciones[0])
+
+        def reload_options(event):
+            # Get the combobox that triggered the event
+            combobox = event.widget
+
+            # Reset the values of the combobox
+            if combobox == self.combo_acciones:
+                combobox['values'] = self.original_acciones
+            elif combobox == self.combo_mercados:
+                combobox['values'] = self.original_mercados  
+            elif combobox == self.combo_frecuencia:
+                combobox['values'] = self.original_frecuencia 
+            elif combobox == self.combo_velas:
+                combobox['values'] = self.original_velas
+
 
         def borrar_texto(event):
             text_box = event.widget
             text_box.delete(0, tk.END)
+
+        def reescribir_texto(event):
+            text_box = event.widget
+
+            if text_box.get() == '':
+                if text_box == self.entry_compras:
+                    self.entry_compras.insert(0, self.texto_compras)
+                elif text_box == self.entry_ventas:
+                    self.entry_ventas.insert(0, self.texto_ventas)
+                elif text_box == self.entry_stop:
+                    self.entry_stop.insert(0, self.texto_stop)
+                elif text_box == self.entry_objetivo:
+                    self.entry_objetivo.insert(0, self.texto_objetivo)
+
 
         def checkbox_clicked(check_var):
             if check_var.get() == 1:
@@ -98,19 +170,44 @@ class FormularioOperaciones(tk.Toplevel):
 
         self.mercados_var = tk.StringVar(value=mercados)
         self.combo_mercados = ttk.Combobox(canvas, textvariable=self.mercados_var, values=mercados)
-        self.combo_mercados.place(x=20.0, y=16.0, width=758, height=32.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_mercados.place(x=34.0, y=19.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
         self.combo_mercados.current(0)  # Establece la opción por defecto
-        self.combo_mercados.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+        self.combo_mercados.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+
+        self.original_mercados = mercados
 
 
         # Función para manejar la selección en el ComboBox
         def seleccionar_mercado(event):
             selected_item = self.mercados_var.get()
             print("Opción seleccionada:", selected_item)
-            self.combo_mercados.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+            self.combo_mercados.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
             # hay que hacer que se muestre la info del mercado seleccionado
 
         self.combo_mercados.bind("<<ComboboxSelected>>", seleccionar_mercado)  # Asocia la función al evento de selección del ComboBox
+        self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
+        self.combo_mercados.bind('<KeyRelease>', filter_options)
+
+
+        self.acciones_var = tk.StringVar(value=acciones)
+        self.combo_acciones = ttk.Combobox(canvas, textvariable=self.acciones_var, values=acciones)
+        self.combo_acciones.place(x=684.0, y=19.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_acciones.current(0)  # Establece la opción por defecto
+        self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+
+        self.original_acciones = acciones
+
+        # Función para manejar la selección en el ComboBox
+        def seleccionar_acciones(event):
+            selected_item = self.acciones_var.get()
+            print("Opción seleccionada:", selected_item)
+            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+            # hay que hacer que se muestre la info del mercado seleccionado
+
+        self.combo_acciones.bind('<KeyRelease>', filter_options)
+        #self.combo_acciones.bind('<KeyRelease>', seleccionar_acciones) SI HAY DOS FUNCIONES PETA
+        self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
+
 
 
         button_image_2 = PhotoImage(
@@ -124,10 +221,10 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"
         )
         button_2.place(
-            x=20.0,
-            y=279.0,
-            width=758.0,
-            height=258.0
+            x=34.0,
+            y=334.0,
+            width=1298.0,
+            height=309.0
         )
 
 
@@ -135,38 +232,36 @@ class FormularioOperaciones(tk.Toplevel):
         entry_image_1 = PhotoImage(
             file="src/imagenes/assets/entry_fondo_operaciones.png")
         entry_bg_1 = canvas.create_image(
-            399.0,
-            250.0,
+            683.0,
+            300.0,
             image=entry_image_1
         )
 
-        canvas.create_text(28, 237, anchor="nw", text="Cartera: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(185, 237, anchor="nw", text="Gan. latente: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(364, 237, anchor="nw", text="Gan. día: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(509, 237, anchor="nw", text="Órdenes: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(640, 237, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(42, 284, anchor="nw", text="Cartera: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(310, 284, anchor="nw", text="Gan. latente: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(617, 284, anchor="nw", text="Gan. día: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(865, 284, anchor="nw", text="Órdenes: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
         
 
-        button_image_3 = PhotoImage(
-        file="src/imagenes/assets/boton_comun_acciones_tiempo.png")
-
-        velas = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+        velas = ['10', '20', '50', '100', '200', '500', '1000', '2000', '5000']
         self.velas_var = tk.StringVar(value=velas)
         self.combo_velas = ttk.Combobox(canvas, textvariable=self.velas_var, values=velas)
-        self.combo_velas.place(x=20.0, y=86.0, width=151.0, height=32.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_velas.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
         self.combo_velas.current(0)  # Establece la opción por defecto
-        self.combo_velas.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+        self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
+        self.original_velas = velas
 
         # Función para manejar la selección en el ComboBox
         def seleccionar_velas(event):
             selected_item = self.velas_var.get()
             print("Opción seleccionada:", selected_item)
-            self.combo_velas.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+            self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
             # hay que hacer que se muestre la info del mercado seleccionado
 
         self.combo_velas.bind("<<ComboboxSelected>>", seleccionar_velas)  # Asocia la función al evento de selección del ComboBox
-
+        self.combo_velas.bind('<KeyRelease>', filter_options)
 
         button_image_4 = PhotoImage(
             file="src/imagenes/assets/boton_lim.png")
@@ -179,15 +274,13 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"
         )
         button_4.place(
-            x=204.0,
-            y=86.0,
-            width=55.0,
-            height=32.0
+            x=349.0,
+            y=103.0,
+            width=94.0,
+            height=38.0
         )
 
-        button_image_5 = PhotoImage(
-            file="src/imagenes/assets/boton_comun_lim_stop_key.png")
-        self.button_5 = Entry(
+        self.entry_compras = Entry(
             canvas,            
             bd=0,
             bg="#30a4b4",
@@ -197,15 +290,16 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"
         )
 
-        self.button_5.place(
-            x=292.0,
-            y=86.0,
-            width=55.0,
-            height=32.0
+        self.entry_compras.place(
+            x=500.0,
+            y=103.0,
+            width=94.0,
+            height=38.0
         )
-        texto_compras = "Nº compras"
-        self.button_5.insert(0, texto_compras)
-        self.button_5.bind("<FocusIn>", borrar_texto)
+        self.texto_compras = "Nº compras"
+        self.entry_compras.insert(0, self.texto_compras)
+        self.entry_compras.bind("<FocusIn>", borrar_texto)
+        self.entry_compras.bind("<FocusOut>", reescribir_texto)
 
 
 
@@ -222,7 +316,7 @@ class FormularioOperaciones(tk.Toplevel):
             font=("Calistoga Regular", 12)
         )
 
-        button_window = canvas.create_window(380, 86, anchor='nw', window=button_6, width=115, height=32)
+        button_window = canvas.create_window(650, 103, anchor='nw', window=button_6, width=196, height=38)
         button_6.bind("<Button-1>", lambda event: seleccionar_velas())
 
 
@@ -240,10 +334,10 @@ class FormularioOperaciones(tk.Toplevel):
             font="font_awesome"
         )
         button_7.place(
-            x=528.0,
-            y=86.0,
-            width=178.0,
-            height=32.0
+            x=904.0,
+            y=103.0,
+            width=305.0,
+            height=38.0
         )
 
 
@@ -261,7 +355,7 @@ class FormularioOperaciones(tk.Toplevel):
             font=("Calistoga Regular", 12)
         )
 
-        button_window = canvas.create_window(380, 156, anchor='nw', window=button_8, width=115, height=32)
+        button_window = canvas.create_window(650, 187, anchor='nw', window=button_8, width=197, height=38)
         button_8.bind("<Button-1>", lambda event: seleccionar_velas())
 
 
@@ -277,15 +371,15 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"
         )
         button_9.place(
-            x=204.0,
-            y=156.0,
-            width=55.0,
-            height=32.0
+            x=349.0,
+            y=187.0,
+            width=94.0,
+            height=38.0
         )
 
-        button_image_10 = PhotoImage(
+        entry_ventas_image = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
-        button_10 = Entry(
+        self.entry_ventas = Entry(
             canvas,            
             bd=0,
             bg="#30a4b4",
@@ -294,45 +388,21 @@ class FormularioOperaciones(tk.Toplevel):
             highlightthickness=0,
             relief="flat"
         )
-        button_10.place(
-            x=292.0,
-            y=156.0,
-            width=55.0,
-            height=32.0
+        self.entry_ventas.place(
+            x=500.0,
+            y=187.0,
+            width=94.0,
+            height=38.0
         )
-        texto_ventas = "Nº ventas"
-        button_10.insert(0, texto_ventas)
-        button_10.bind("<FocusIn>", borrar_texto)
+        self.texto_ventas = "Nº ventas"
+        self.entry_ventas.insert(0, self.texto_ventas)
+        self.entry_ventas.bind("<FocusIn>", borrar_texto)
+        self.entry_ventas.bind("<FocusOut>", reescribir_texto)
 
 
 
 
-        button_image_11 = PhotoImage(
-            file="src/imagenes/assets/boton_comun_numS_numO.png")
-        self.button_11 = Entry(
-            canvas,            
-            bd=0,
-            bg="#30a4b4",
-            fg="#FFFFFF",
-            font=('Calistoga Regular', 12),
-            highlightthickness=0,
-            relief="flat"
-        )
-
-        self.button_11.place(
-            x=569.0,
-            y=156.0,
-            width=67.0,
-            height=32.0
-        )
-        texto_stop = "Stop"
-        self.button_11.insert(0, texto_stop)
-        self.button_11.bind("<FocusIn>", borrar_texto)
-
-
-        button_image_12 = PhotoImage(
-            file="src/imagenes/assets/boton_comun_numS_numO.png")
-        self.button_12 = Entry(
+        self.entry_stop = Entry(
             canvas,            
             bd=0,
             bg="#30a4b4",
@@ -342,15 +412,38 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"
         )
 
-        self.button_12.place(
-            x=711.0,
-            y=156.0,
-            width=67.0,
-            height=32.0
+        self.entry_stop.place(
+            x=974.0,
+            y=187.0,
+            width=114.0,
+            height=38.0
         )
-        texto_objetivo = "Objetivo"
-        self.button_12.insert(0, texto_objetivo)
-        self.button_12.bind("<FocusIn>", borrar_texto)
+        self.texto_stop = "Stop"
+        self.entry_stop.insert(0, self.texto_stop)
+        self.entry_stop.bind("<FocusIn>", borrar_texto)
+        self.entry_stop.bind("<FocusOut>", reescribir_texto)
+
+
+        self.entry_objetivo = Entry(
+            canvas,            
+            bd=0,
+            bg="#30a4b4",
+            fg="#FFFFFF",
+            font=('Calistoga Regular', 12),
+            highlightthickness=0,
+            relief="flat"
+        )
+
+        self.entry_objetivo.place(
+            x=1217.0,
+            y=187.0,
+            width=114.0,
+            height=38.0
+        )
+        self.texto_objetivo = "Objetivo"
+        self.entry_objetivo.insert(0, self.texto_objetivo)
+        self.entry_objetivo.bind("<FocusIn>", borrar_texto)
+        self.entry_objetivo.bind("<FocusOut>", reescribir_texto)
 
 
 
@@ -369,10 +462,10 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"  # Tipo de relieve del checkbox
         )
         checkbox_S.place(
-            x=528.0,
-            y=156.0,
-            width=28.0,
-            height=32.0
+            x=904.0,
+            y=187.0,
+            width=48.0,
+            height=38.0
         )
 
 
@@ -391,33 +484,32 @@ class FormularioOperaciones(tk.Toplevel):
             relief="flat"  # Tipo de relieve del checkbox
         )
         checkbox_O.place(
-            x=669.0,
-            y=156.0,
-            width=28.0,
-            height=32.0
+            x=1145.0,
+            y=187.0,
+            width=48.0,
+            height=38.0
         )
 
 
-        button_image_15 = PhotoImage(
-        file="src/imagenes/assets/boton_comun_acciones_tiempo.png")
 
         frecuencia = ['1M', '2M', '5M', '10M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(canvas, textvariable=self.frecuencia_var, values=frecuencia)
-        self.combo_frecuencia.place(x=20.0, y=156.0, width=151.0, height=32.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
         self.combo_frecuencia.current(0)  # Establece la opción por defecto
-        self.combo_frecuencia.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+        self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
+        self.original_frecuencia = frecuencia
 
         # Función para manejar la selección en el ComboBox
         def seleccionar_frecuencia(event):
             selected_item = self.mercados_var.get()
             print("Opción seleccionada:", selected_item)
-            self.combo_frecuencia.configure(background='#30A4B4', foreground='#FFFFFF', font=('Calistoga Regular', 12))
+            self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
             # hay que hacer que se muestre la info del mercado seleccionado
 
         self.combo_frecuencia.bind("<<ComboboxSelected>>", seleccionar_frecuencia)  # Asocia la función al evento de selección del ComboBox
-
+        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
 
         button_image_16 = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
@@ -432,9 +524,9 @@ class FormularioOperaciones(tk.Toplevel):
             font="font_awesome"
         )
         button_16.place(
-            x=721.0,
-            y=86.0,
-            width=57.0,
-            height=32.0
+            x=1234.0,
+            y=103.0,
+            width=98.0,
+            height=38.0
         )
         self.cuerpo_principal.mainloop()
