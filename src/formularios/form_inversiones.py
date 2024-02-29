@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Canvas, Entry, Button, PhotoImage, Checkbutton, IntVar
 from datetime import datetime
 import pandas as pd
 import sys
@@ -24,19 +24,37 @@ class FormularioInversiones(tk.Toplevel):
         panel_principal.grid_rowconfigure(0, weight=1)
         panel_principal.grid_columnconfigure(0, weight=1) 
 
-        self.cuerpo_principal = tk.Frame(panel_principal, width=500, height=500)
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=667)
         self.cuerpo_principal.grid(row=1, column=0, sticky="nsew")
 
         panel_principal.grid_rowconfigure(1, weight=1)  
         panel_principal.grid_columnconfigure(0, weight=1)  
         
+  
+        canvas = Canvas(
+            self.cuerpo_principal,
+            bg = "#FFFFFF",
+            height = 663,
+            width = 1366,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
 
-        self.labelTitulo = tk.Label(self.barra_superior, text="Operaciones de inversión")
-        self.labelTitulo.config(fg="#222d33", font=("Roboto", 30), bg=COLOR_CUERPO_PRINCIPAL)
-        self.labelTitulo.grid(row=1, column=0, padx=10, pady=10)
+        canvas.place(x = 0, y = 0)
+        image_image_1 = PhotoImage(
+            file="src/imagenes/assets/fondo.png")
+        image_1 = canvas.create_image(
+            683.0,
+            331.0,
+            image=image_image_1
+        )       
 
-              
-              
+        self.b = bt(1) #como mejorarlo?
+        # Lista de opciones para el ComboBox
+        acciones, mercados = self.b.get_trading_data()
+
+
         # Function to filter the options
         def filter_options(event):
 
@@ -96,91 +114,208 @@ class FormularioInversiones(tk.Toplevel):
             elif combobox == self.combo_estrategia:
                 combobox['values'] = self.original_estrategia
 
+        def borrar_texto(event):
+            text_box = event.widget
+            text_box.delete(0, tk.END)
 
-        texto_acciones = ttk.Label(self.cuerpo_principal, text="Seleccione una acción:")
-        self.b = bt(1)  # COMO HACERLO MEJOR??
-        acciones, mercados = self.b.get_trading_data()  # Lista de acciones
-        #self.combo_acciones = ttk.Combobox(self.cuerpo_principal, values=acciones)
-        #self.combo_acciones.set(acciones[0])
+        def reescribir_texto(event):
+            text_box = event.widget
+
+            if text_box.get() == '':
+                if text_box == self.entry_compras:
+                    self.entry_compras.insert(0, self.texto_compras)
+                elif text_box == self.entry_ventas:
+                    self.entry_ventas.insert(0, self.texto_ventas)
+                elif text_box == self.entry_stop:
+                    self.entry_stop.insert(0, self.texto_stop)
+                elif text_box == self.entry_objetivo:
+                    self.entry_objetivo.insert(0, self.texto_objetivo)
+
+
+        def checkbox_clicked(check_var):
+            if check_var.get() == 1:
+                print("Checkbox activado")
+            else:
+                print("Checkbox desactivado")
+
+
+
         # Create the combobox
-        self.acciones_var = tk.StringVar(value=acciones)
         self.mercados_var = tk.StringVar(value=mercados)
-        self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
         self.combo_mercados = ttk.Combobox(self.cuerpo_principal, textvariable=self.mercados_var, values=mercados)
-        self.combo_acciones.set(acciones[0])
         self.combo_mercados.set(list(mercados)[0])
 
-        self.original_acciones = acciones
+
+        self.combo_mercados.place(x=34.0, y=19.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_mercados.current(0)  # Establece la opción por defecto
+        self.combo_mercados.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+
         self.original_mercados = mercados
+
+        # Función para manejar la selección en el ComboBox
+        def seleccionar_mercado(event):
+            selected_item = self.mercados_var.get()
+            print("Opción seleccionada:", selected_item)
+            self.combo_mercados.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+            # hay que hacer que se muestre la info del mercado seleccionado
+
+        self.combo_mercados.bind("<<ComboboxSelected>>", seleccionar_mercado)  # Asocia la función al evento de selección del ComboBox
+        self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
+        self.combo_mercados.bind('<KeyRelease>', filter_options)
+
+
+
+        self.acciones_var = tk.StringVar(value=acciones)
+        self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
+        self.combo_acciones.place(x=684.0, y=19.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_acciones.current(0)  # Establece la opción por defecto
+        self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+
+        self.original_acciones = acciones
 
         self.combo_acciones.bind('<KeyRelease>', filter_options)
         self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
-        self.combo_mercados.bind('<KeyRelease>', filter_options)
-        self.combo_mercados.bind('<<ComboboxSelected>>', filter_acciones)
 
 
-        texto_acciones.grid(row=2, column=0, padx=10, pady=10)
-        self.combo_acciones.grid(row=2, column=1, padx=10, pady=10)
-        self.combo_mercados.grid(row=2, column=2, padx=10, pady=10)
-    
 
-        self.fecha_label = ttk.Label(self.cuerpo_principal, text="Fecha de inicio y fin (YYYY/MM/DD):")
-        self.fecha_inicio_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
-        self.fecha_fin_entry = DateEntry(self.cuerpo_principal, date_pattern='yyyy/mm/dd')
+        boton_grafico_acciones_image = PhotoImage(
+            file="src/imagenes/assets/boton_grafico_operaciones.png")
+        boton_grafico_acciones = Button(
+            canvas,
+            image=boton_grafico_acciones_image,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_2 clicked"),
+            relief="flat"
+        )
+        boton_grafico_acciones.place(
+            x=34.0,
+            y=334.0,
+            width=1298.0,
+            height=309.0
+        )
+
+        entry_image_1 = PhotoImage(
+            file="src/imagenes/assets/entry_fondo_operaciones.png")
+        entry_bg_1 = canvas.create_image(
+            683.0,
+            300.0,
+            image=entry_image_1
+        )
+
+        canvas.create_text(42, 284, anchor="nw", text="Cartera: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(310, 284, anchor="nw", text="Gan. latente: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(617, 284, anchor="nw", text="Gan. día: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(865, 284, anchor="nw", text="Órdenes: ", fill="white", font=("Calistoga Regular", 12))
+        canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
 
 
-        texto_tiempos = ttk.Label(self.cuerpo_principal, text="Seleccione una frecuencia y una estrategia de inversión:")
-        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
-        self.original_frecuencia = frecuencia
+
         estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
-        self.original_estrategia = estrategia
-
-        self.frecuencia_var = tk.StringVar(value=frecuencia)
-        self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
-        self.combo_frecuencia.set(frecuencia[0])
-
         self.estrategia_var = tk.StringVar(value=estrategia)
         self.combo_estrategia = ttk.Combobox(self.cuerpo_principal, textvariable=self.estrategia_var, values=estrategia)
-        self.combo_estrategia.set(estrategia[0])
-        
-        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
-        self.combo_frecuencia.bind('<<ComboboxSelected>>', reload_options)
+        self.combo_estrategia.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_estrategia.current(0)  # Establece la opción por defecto
+        self.combo_estrategia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+
+        self.original_estrategia = estrategia
 
         self.combo_estrategia.bind('<KeyRelease>', filter_options)
         self.combo_estrategia.bind('<<ComboboxSelected>>', reload_options)
 
-        self.fecha_label.grid(row=4, column=0, padx=10, pady=10)
-        self.fecha_inicio_entry.grid(row=4, column=1, padx=10, pady=10)
-        self.fecha_fin_entry.grid(row=4, column=2, padx=10, pady=10)
 
-        texto_tiempos.grid(row=3, column=0, padx=10, pady=10)
-        self.combo_frecuencia.grid(row=3, column=1, padx=10, pady=10)
-        self.combo_estrategia.grid(row=3, column=2, padx=10, pady=10)
 
+        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
+        self.frecuencia_var = tk.StringVar(value=frecuencia)
+        self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
+        self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_frecuencia.current(0)  # Establece la opción por defecto
+        self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+                
+        self.original_frecuencia = frecuencia
+
+        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
+        self.combo_frecuencia.bind('<<ComboboxSelected>>', reload_options)
+
+
+
+
+        self.fecha_inicio_entry = DateEntry(
+            canvas, 
+            date_pattern='yyyy/mm/dd',
+            background='darkblue', 
+            foreground='white', 
+            borderwidth=2
+        )
+        self.fecha_inicio_entry.place(
+            x=349.0,
+            y=103.0,
+            width=94.0,
+            height=38.0
+        )
+        
+        self.fecha_fin_entry = DateEntry(
+            canvas, 
+            date_pattern='yyyy/mm/dd',
+            background='darkblue', 
+            foreground='white', 
+            borderwidth=2
+        )
+        self.fecha_fin_entry.place(
+            x=349.0,
+            y=187.0,
+            width=94.0,
+            height=38.0
+        )
+
+       
+        
         opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Acumulada', 'Rentabilidad media Geometrica']
         self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
-        self.combo_calculo_label = ttk.Label(self.cuerpo_principal, text="Elige la opción de cálculo de rentabilidad:")
         self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
-        self.combo_calculo.set(opciones_calculo[0])
+        self.combo_calculo.place(x=500.0, y=103.0, width=94.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_calculo.current(0)  # Establece la opción por defecto
+        self.combo_calculo.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        calcular_button = ttk.Button(self.cuerpo_principal, text="Ticks en directo", command=self.tickdirecto)
+
+
+        calcular_button = ttk.Button(canvas, text="Ticks en directo", command=self.tickdirecto)
+        calcular_button.place(
+            x=500.0,
+            y=187.0,
+            width=94.0,
+            height=38.0
+        )
+
 
         self.resultado_label = ttk.Label(self.cuerpo_principal, text="Resultado:")
+        self.resultado_label.place(
+            x=650.0,
+            y=103.0,
+            width=196.0,
+            height=38.0
+        )
+
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
+        ticks_button.place(
+            x=650.0,
+            y=187.0,
+            width=196.0,
+            height=38.0
+        )
+
 
         guardar = ttk.Button(self.cuerpo_principal, text="Guardar", command=self.guardar_excell)
+        guardar.place(
+            x=904.0,
+            y=103.0,
+            width=305.0,
+            height=38.0
+        )
 
-        self.combo_calculo_label.grid(row=5, column=0, padx=10, pady=10)
-        self.combo_calculo.grid(row=5, column=1, padx=10, pady=10)
-        calcular_button.grid(row=6, column=0, columnspan=2, pady=10)
+        self.cuerpo_principal.mainloop()
 
-        ticks_button.grid(row=7, column=0, columnspan=2, pady=10)
-        guardar.grid(row=7, column=1, columnspan=2, pady=10)
-
-        self.resultado_label.grid(row=6, column=1, columnspan=2, pady=10)
-
-        #self.config(bg=COLOR_CUERPO_PRINCIPAL)  # Ajusta esto según tu configuración
 
         
     def guardar_excell(self):

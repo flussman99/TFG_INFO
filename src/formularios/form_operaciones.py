@@ -50,32 +50,7 @@ class FormularioOperaciones(tk.Toplevel):
             331.0,
             image=image_image_1
         )
-
-        # button_image_1 = PhotoImage(
-        #     file="src/imagenes/assets/boton_mercado_operaciones.png")
-        # boton_mercado = Button(
-        #     canvas,
-        #     image=button_image_1,
-        #     borderwidth=0,
-        #     highlightthickness=0,
-        #     command=self.seleccionarMercado(),
-        #     relief="flat"
-        # )
-        # boton_mercado.place(
-        #     x=20.0,
-        #     y=16.0,
-        #     width=758.0,
-        #     height=32.0
-        # )
-
-        # style = ttk.Style()
-        # style.configure(
-        #     "Custom.TCombobox",
-        #     background="#30A4B4",  # Color de fondo
-        #     foreground="#FFFFFF",  # Color del texto
-        #     font=("Calistoga Regular", 12),     # Fuente de letra
-        #     fieldbackground=[('readonly', 'transparent')]
-        # )  
+ 
 
         self.b = bt(1) #como mejorarlo?
         # Lista de opciones para el ComboBox
