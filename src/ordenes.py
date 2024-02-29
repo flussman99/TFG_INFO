@@ -235,6 +235,8 @@ def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operac
     """
     print("[THREAD - orders] - Working")
     
+    #chequear aqui que la operacione este abierta o no, variable operacion.
+
     last_operation = 0
     print("[THREAD - orders] - Checking operations")
     while not pill2kill.wait(0.1):
