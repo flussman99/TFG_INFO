@@ -1,25 +1,50 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from config import COLOR_CUERPO_PRINCIPAL
+from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 
 class FormularioPagInformacion(tk.Toplevel):
     
     def __init__(self, panel_principal):
-        self.barra_superior = tk.Frame(panel_principal)
-        self.barra_superior.pack(side=tk.TOP, fill=tk.X, expand=False)
 
-        self.barra_inferior = tk.Frame(panel_principal)
-        self.barra_inferior.pack(side=tk.RIGHT, fill='both', expand=True)
+        #Configuración inicial de la ventana
+        self.cuerpo_principal = tk.Frame(panel_principal, width=1366, height=667)
+        self.cuerpo_principal.pack(side=tk.RIGHT, fill='both', expand=True)
+        
+        self.cuerpo_principal.configure(bg = "#FFFFFF")
 
-        self.labelTitulo = tk.Label(self.barra_superior, text="Información del proyecto")
-        self.labelTitulo.config(fg="#222d33", font=("Roboto", 30), bg=COLOR_CUERPO_PRINCIPAL)
-        self.labelTitulo.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
 
-        self.label_descripcion = tk.Label(self.barra_inferior, text="Descripción del proyecto:")
-        self.label_descripcion.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
+        canvas = Canvas(
+            self.cuerpo_principal,
+            bg = "#FFFFFF",
+            height = 667,
+            width = 1366,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
 
-        self.text_descripcion = tk.Text(self.barra_inferior, wrap=tk.WORD, height=10, width=50)
-        self.text_descripcion.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
+        canvas.place(x = 0, y = 0)
+        image_image_1 = PhotoImage(
+            file="src/imagenes/assets/fondo.png")
+        image_1 = canvas.create_image(
+            683.0,
+            333.0,
+            image=image_image_1
+        )
+
+
+        self.titulo_mercado = ttk.Label(self.cuerpo_principal, text="Información del Proyecto:")
+        self.titulo_mercado.place(x=683.0, y=40, width=400, height=38.0, anchor='center')
+        self.titulo_mercado.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 24), anchor='center')
+
+
+        self.titulo_mercado = ttk.Label(self.cuerpo_principal, text="Descripción del Proyecto:")
+        self.titulo_mercado.place(x=35.0, y=100, width=300, height=38.0)
+        self.titulo_mercado.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 18))
+
+        self.text_descripcion = tk.Text(self.cuerpo_principal, wrap=tk.WORD, height=10, width=50)
+        self.text_descripcion.place(x=35.0, y=150, width=1295, height=200)
         self.text_descripcion.insert(tk.END, """
         Trabajo de Fin de Grado: Aplicación de Análisis de Precios de Acciones
 
@@ -37,12 +62,13 @@ class FormularioPagInformacion(tk.Toplevel):
         ¡Explora, analiza y comprende el mundo financiero con nuestra aplicación de Análisis de Precios de Acciones!
         """)
 
-        self.label_participantes = tk.Label(self.barra_inferior, text="Participantes:")
-        self.label_participantes.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
+        self.titulo_mercado = ttk.Label(self.cuerpo_principal, text="Participantes:")
+        self.titulo_mercado.place(x=35.0, y=375, width=175, height=38.0)
+        self.titulo_mercado.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 18))
 
-        self.frame_participantes = tk.Frame(self.barra_inferior)
-        self.frame_participantes.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
-
+        self.frame_participantes = tk.Frame(self.cuerpo_principal)
+        self.frame_participantes.place(x=35.0, y=425, width=750, height=175)
+        
         self.imagenes_participantes = []  # Lista para almacenar las referencias a las imágenes
 
         participantes = [
@@ -52,6 +78,8 @@ class FormularioPagInformacion(tk.Toplevel):
             {"nombre": "Notkero Gomez", "imagen": "src/imagenes/participantes/notkero.png"},
             {"nombre": "Jose Antonio del rio", "imagen": "src/imagenes/participantes/jose.png"},
         ]
+
+        self.imagenes_participantes = []
 
         for i, participante in enumerate(participantes):
             nombre = participante["nombre"]
@@ -72,3 +100,8 @@ class FormularioPagInformacion(tk.Toplevel):
             self.imagenes_participantes.append(imagen_tk)
 
 
+
+
+        
+
+        self.cuerpo_principal.mainloop()

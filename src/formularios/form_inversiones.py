@@ -12,7 +12,7 @@ import matplotlib.dates as mdates
 from datetime import datetime
 from config import COLOR_CUERPO_PRINCIPAL
 import time
-"from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
+"from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
 class FormularioInversiones(tk.Toplevel):
@@ -395,8 +395,8 @@ class FormularioInversiones(tk.Toplevel):
             self.b.thread_Estocastico()
 
 
-        # Esperar 8 segundos
-        time.sleep(8)
+        # Esperar 7 segundos
+        time.sleep(7)
 
 
         self.informacion()
