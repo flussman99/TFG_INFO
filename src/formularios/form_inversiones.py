@@ -312,7 +312,7 @@ class FormularioInversiones(tk.Toplevel):
         self.titulo_rentabilidad.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
         
         
-        opciones_calculo = ['Rentabilidad Simple', 'Rentabilidad Diaria', 'Rentabilidad Acumulada', 'Rentabilidad media Geometrica']
+        opciones_calculo = ['Rentabilidad Diaria', 'Rentabilidad Acumulada', 'Rentabilidad media Geometrica']
         self.opciones_calculo_var = tk.StringVar(value=opciones_calculo)
         self.combo_calculo = ttk.Combobox(self.cuerpo_principal, textvariable=self.opciones_calculo_var, values=opciones_calculo)
         self.combo_calculo.place(x=505.0, y=131.0, width=250.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
@@ -333,7 +333,7 @@ class FormularioInversiones(tk.Toplevel):
 
         ticks_button = ttk.Button(self.cuerpo_principal, text="Mostrar información:", command=self.coger_ticks)
         ticks_button.place(
-            x=500.0,
+            x=505.0,
             y=210.0,
             width=200.0,
             height=38.0
@@ -395,10 +395,8 @@ class FormularioInversiones(tk.Toplevel):
             self.b.thread_Estocastico()
 
 
-        #self.informacion()
-
-        #self.b.wait() 
-        time.sleep(8) #Espera 15 segundos para seguir haciendo cosas
+        # Esperar 8 segundos
+        time.sleep(8)
 
 
         self.informacion()
@@ -409,20 +407,34 @@ class FormularioInversiones(tk.Toplevel):
         estrategia = self.combo_estrategia.get()
         opcion = self.combo_calculo.get()
 
-        df = pd.read_excel('RSI.xlsx')
+
+        if estrategia == 'RSI':
+            df = pd.read_excel('RSI.xlsx')
+
+        elif estrategia == 'Media Movil':
+            df = pd.read_excel('Media Movil.xlsx')
+
+        elif estrategia == 'Bandas':
+            df = pd.read_excel('Bandas.xlsx')
+
+        elif estrategia == 'Estocastico':
+            df = pd.read_excel('Estocastico.xlsx')
 
         # Calcular la rentabilidad de la estrategia, sumar las rentabilidades cuando decision es -1
         rentabilidad_estrategia = df.loc[df['Decision'] == '-1', 'Rentabilidad'].sum()
-
-
+        
         # Obtener el primer y último precio de la columna 'price'
         primer_precio = df['price'].iloc[0]
         ultimo_precio = df['price'].iloc[-1]
 
+        print("----------------------------------------")
+        print(primer_precio, ultimo_precio)
+        print(df)
+
         # Calcular la rentabilidad basica de la accion
         rentabilidad_basica = (ultimo_precio - primer_precio) / primer_precio * 100
 
-        self.resultado_label = ttk.Label(self.cuerpo_principal, text=f"La rentabilidad del periodo es de: {rentabilidad_basica:.2f}%")
+        self.resultado_label = ttk.Label(self.cuerpo_principal, text=f"La rentabilidad del periodo es de: {rentabilidad_basica:.4f}%")
         self.resultado_label.place(x=750.0, y=210.0, width=300.0, height=38.0)
         
 
@@ -450,13 +462,21 @@ class FormularioInversiones(tk.Toplevel):
 
         self.info_rentabilidad_estrategia = tk.Text(self.cuerpo_principal, wrap="word")
         self.info_rentabilidad_estrategia.insert(tk.END, f"En base a la estrategia {estrategia}, la rentabilidad obtenida es de: {rentabilidad_estrategia:.2f}% ")
-        self.info_rentabilidad_estrategia.place(x=50, y=340, width=600, height=30.0)
+        self.info_rentabilidad_estrategia.place(x=50, y=340, width=600, height=40.0)
         self.info_rentabilidad_estrategia.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
 
 
         if opcion == 'Rentabilidad Diaria':
-            # Cálculo de rentabilidad diaria
+
+            df['date'] = pd.to_datetime(df['time'])
+            df = df.set_index('date')
+
+            # Calcular la rentabilidad diaria
             df['RentabilidadDiaria'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
+
+            # Calcular la rentabilidad media diaria
+            rentabilidad_media_diaria = df.groupby(df.index.date)['RentabilidadDiaria'].mean()
+
 
             # Crear una nueva figura
             self.figura = Figure(figsize=(6, 2), dpi=100)
@@ -464,16 +484,15 @@ class FormularioInversiones(tk.Toplevel):
 
             
             # Graficar la rentabilidad a lo largo del tiempo con suavizado exponencial
-            ax.plot(df['time'], df['RentabilidadDiaria'], marker='o', linestyle='-', alpha=0.5)  # Añade alpha para hacer las líneas más transparentes
-            ax.plot(df['time'], df['RentabilidadDiaria'].ewm(span=50).mean(), color='red', label='Suavizado Exponencial')
-            ax.set_title('Rentabilidad a lo largo del tiempo')
+            ax.plot(rentabilidad_media_diaria.index, rentabilidad_media_diaria.values, marker='o', linestyle='-', color='b')
+            ax.set_title('Rentabilidad en función del tiempo')
             ax.set_xlabel('Fecha')
             ax.set_ylabel('Rentabilidad')
             ax.grid(True)
 
             # Establecer el locator de fechas en días y ajustar el formato de fecha
             ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m'))
 
             # Rotar las etiquetas del eje x 
             #ax.tick_params(axis='x', rotation=45)
@@ -486,20 +505,27 @@ class FormularioInversiones(tk.Toplevel):
             canvas_widget.place(x=700, y=380, width=600, height=250)
             
             self.info_rentabilidad_opcion = tk.Text(self.cuerpo_principal, wrap="word")
-            self.info_rentabilidad_opcion.insert(tk.END, f"En base a la siguiente grafica podemos observar la rentabilidad diaria con suavizado exponencial.")
-            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=30.0)
+            self.info_rentabilidad_opcion.insert(tk.END, f"En base a la siguiente grafica podemos observar la rentabilidad diaria.")
+            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=40.0)
             self.info_rentabilidad_opcion.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
             
         elif opcion == 'Rentabilidad Acumulada':
-            # Cálculo de rentabilidad acumulada
-            df['Rentabilidad Acumulada'] = (1 + df['Rentabilidad'] / 100).cumprod() * 100
+            df['date'] = pd.to_datetime(df['time'])
+            df = df.set_index('date')
+
+            # Calcular la rentabilidad diaria
+            df['RentabilidadDiaria'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
+
+            # Calcular la rentabilidad acumulada diaria
+            df['RentabilidadAcumulada'] = (1 + df['RentabilidadDiaria']).cumprod()
+
 
             # Crear una nueva figura
             self.figura = Figure(figsize=(6, 2), dpi=100)
             ax = self.figura.add_subplot(111)
 
             # Graficar la rentabilidad acumulada
-            ax.plot(df['time'], df['Rentabilidad Acumulada'], marker='o', linestyle='-', color='green')
+            ax.plot(df.index, df['RentabilidadAcumulada'], marker='o', linestyle='-', color='r',markersize=2)
             ax.set_title('Rentabilidad Acumulada')
             ax.set_xlabel('Fecha')
             ax.set_ylabel('Rentabilidad Acumulada')
@@ -507,7 +533,7 @@ class FormularioInversiones(tk.Toplevel):
 
             # Establecer el locator de fechas en días y ajustar el formato de fecha
             ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m'))
 
             # Rotar las etiquetas del eje x 
             #ax.tick_params(axis='x', rotation=45)
@@ -519,9 +545,11 @@ class FormularioInversiones(tk.Toplevel):
             # Colocar el widget de canvas en un lugar específico
             canvas_widget.place(x=700, y=380, width=600, height=250)
 
+            rentabilidad_acumulada_final = df['RentabilidadAcumulada'].iloc[-1]
+
             self.info_rentabilidad_opcion = tk.Text(self.cuerpo_principal, wrap="word")
-            self.info_rentabilidad_opcion.insert(tk.END, f"En la siguiente grafica podemos observar la rentabilidad acumulada a lo largo del tiempo.")
-            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=30.0)
+            self.info_rentabilidad_opcion.insert(tk.END, f"En la siguiente grafica podemos observar la rentabilidad acumulada a lo largo del tiempo. La rentabilidad acumulada final es de: {rentabilidad_acumulada_final:.2f}%.")
+            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=40.0)
             self.info_rentabilidad_opcion.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
 
         elif opcion == 'Rentabilidad media Geometrica':
@@ -531,14 +559,10 @@ class FormularioInversiones(tk.Toplevel):
 
             self.info_rentabilidad_opcion = tk.Text(self.cuerpo_principal, wrap="word")
             self.info_rentabilidad_opcion.insert(tk.END, f"La rentabilidad media geométrica es de: {rentabilidad_media_geom:.4f}%")
-            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=30.0)
+            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=40.0)
             self.info_rentabilidad_opcion.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
 
         
-        
-
-
-
 
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos
@@ -587,136 +611,3 @@ class FormularioInversiones(tk.Toplevel):
         else:
             frecuencia = 0
         return frecuencia
-
-
-    def calcular_rentabilidad(self):
-        # Obtener valores de los widgets
-        accion = self.combo_acciones.get()
-        fecha_inicio_str = self.fecha_inicio_entry.get()
-        fecha_fin_str = self.fecha_fin_entry.get()
-        frec_str = self.combo_frecuencia.get()
-        frec = self.calcular_frecuencia(frec_str)
-
-        self.b.set_info(frec, accion) 
-
-
-        df = pd.read_excel('media.xlsx')
-
-        # Obtener el primer y último precio de la columna 'price'
-        primer_precio = df['price'].iloc[0]
-        ultimo_precio = df['price'].iloc[-1]
-
-        # Calcular la rentabilidad
-        rentabilidad = (ultimo_precio - primer_precio) / primer_precio * 100
-
-        #calcular la rentabilidad diaria
-        df['Rentabilidad'] = (df['price'] - df['price'].shift(1)) / df['price'].shift(1) * 100
-
-        # Cálculo de rentabilidad acumulada
-        df['Rentabilidad Acumulada'] = (1 + df['Rentabilidad'] / 100).cumprod() * 100
-
-        # Cálculo de rentabilidad acumulada 2
-        #df['Rentabilidad Acumulada2'] = df['Rentabilidad'].cumsum()
-
-        # Cálculo de rentabilidad acumulada 3
-        #df['Rentabilidad Acumulada3'] = (df['price'] - df['price'].iloc[0]) / df['price'].iloc[0] * 100
-
-        
-        print("ESTO ES UNA PRUEBOTA")
-        print("ESTO ES UNA PRUEBOTA")
-        print("ESTO ES UNA PRUEBOTA")
-
-
-        # Imprimir el resultado
-        print(f'Rentabilidad: {rentabilidad:.4f}%')
-
-        if self.combo_calculo.get() == 'Rentabilidad Diaria':
-            # Cálculo de rentabilidad diaria
-
-            print("ESTO ES UNA PRUEBOTA")
-            print(df['price'].shift(1))
-            print(df['price'])
-            print(df)
-
-
-            # Crear una nueva figura
-            self.figura = Figure(figsize=(6, 2), dpi=100)
-            ax = self.figura.add_subplot(111)
-
-            
-            # Graficar la rentabilidad a lo largo del tiempo con suavizado exponencial
-            ax.plot(df['time'], df['Rentabilidad'], marker='o', linestyle='-', alpha=0.5)  # Añade alpha para hacer las líneas más transparentes
-            ax.plot(df['time'], df['Rentabilidad'].ewm(span=50).mean(), color='red', label='Suavizado Exponencial')
-            ax.set_title('Rentabilidad a lo largo del tiempo')
-            ax.set_xlabel('Fecha')
-            ax.set_ylabel('Rentabilidad')
-            ax.grid(True)
-
-            # Establecer el locator de fechas en días y ajustar el formato de fecha
-            ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-            # Rotar las etiquetas del eje x 
-            #ax.tick_params(axis='x', rotation=45)
-
-            # Crear un widget de Tkinter para la figura
-            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
-            canvas.draw()
-            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
-            
-            
-
-            
-        elif self.combo_calculo.get() == 'Rentabilidad Acumulada':
-            
-            # Crear una nueva figura
-            self.figura = Figure(figsize=(6, 2), dpi=100)
-            ax = self.figura.add_subplot(111)
-
-            # Graficar la rentabilidad acumulada
-            ax.plot(df['time'], df['Rentabilidad Acumulada'], marker='o', linestyle='-', color='green')
-            ax.set_title('Rentabilidad Acumulada')
-            ax.set_xlabel('Fecha')
-            ax.set_ylabel('Rentabilidad Acumulada')
-            ax.grid(True)
-
-            # Establecer el locator de fechas en días y ajustar el formato de fecha
-            ax.xaxis.set_major_locator(mdates.DayLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-            # Rotar las etiquetas del eje x 
-            #ax.tick_params(axis='x', rotation=45)
-
-            # Crear un widget de Tkinter para la figura
-            canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
-            canvas.draw()
-            canvas.get_tk_widget().grid(row=9, column=0, columnspan=2, pady=20)
-
-        elif self.combo_calculo.get() == 'Rentabilidad media Geometrica':
-            # Cálculo de rentabilidad media geométrica
-            rentabilidad_media_geom = (df['Rentabilidad'] / 100 + 1).prod() ** (1 / len(df)) - 1
-            print(f'Rentabilidad media geométrica: {rentabilidad_media_geom:.4f}%')
-
-        else:
-           pass
-
-        # Actualizar la etiqueta de resultado
-        if rentabilidad is not None:
-            self.resultado_label.config(text=f"Rentabilidad: {rentabilidad:.2f}%")
-        else:
-            self.resultado_label.config(text="Error al calcular la rentabilidad")
-
-        #Guardar el df
-        #df.to_excel('media.xlsx', index=False)
-
-    
-
-
-# Crear la ventana principal
-#ventana = tk.Tk()
-
-# Crear la instancia de la clase FormularioInversiones
-#formulario = FormularioInversiones(ventana)
-
-# Iniciar el bucle de eventos
-#ventana.mainloop()
