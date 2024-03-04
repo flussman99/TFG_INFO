@@ -378,6 +378,9 @@ class FormularioInversiones(tk.Toplevel):
         #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
 
+
+        #cambiar a form operaciones
+        
         #if abrir operacion       
         self.b.thread_orders()
 
