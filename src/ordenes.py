@@ -259,4 +259,4 @@ def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operac
                 print("[Thread - orders] Sell open -", dt_string)
                 handle_sell(sell, trading_data['market'])
                 sell = None
-                operacion_abierta==0
+                operacion_abierta=0
