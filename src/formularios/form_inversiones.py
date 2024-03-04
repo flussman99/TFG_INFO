@@ -392,7 +392,7 @@ class FormularioInversiones(tk.Toplevel):
             self.b.thread_bandas()
 
         elif estrategia_txt == 'Estocastico':
-            self.b.thread_Estocastico()
+            self.b.thread_estocastico()
 
 
         # Esperar 7 segundos
