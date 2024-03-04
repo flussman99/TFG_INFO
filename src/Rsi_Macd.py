@@ -121,7 +121,7 @@ def check_buy() -> bool:
     #Poner variable global el rsi y el macd, hacer comprobacion como en backtesting, y luego la 
     #operacion abierta se comprueba en ordenes.
 
-    if CUR_SIGNAL > CUR_MACD and CUR_RSI < 35 :
+    if CUR_SIGNAL >= CUR_MACD and CUR_RSI < 35 :
         return True
     return False
 
@@ -130,7 +130,7 @@ def check_sell() -> bool:
     """Function to check if the MACD indicator
     allows a buy operation"""
 
-    if CUR_SIGNAL < CUR_MACD and CUR_RSI > 65:
+    if CUR_SIGNAL <= CUR_MACD and CUR_RSI > 65:
         return True
     return False
 

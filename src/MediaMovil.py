@@ -65,12 +65,12 @@ def backtesting(market: str, prices: list):
 
 
 def check_buy() -> bool:
-    if CUR_MED_LP > CUR_MED_CP :
+    if CUR_MED_LP >= CUR_MED_CP :
         return True
     return False
    
 def check_sell() -> bool:
-     if CUR_MED_LP < CUR_MED_CP :
+     if CUR_MED_LP <= CUR_MED_CP :
         return True
      return False
 
