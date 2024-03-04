@@ -14,14 +14,10 @@ TIMEZONE=pytz.timezone("Etc/UTC")
 
 # Global variables
 MACDs = []
-PREV_MACD = None
-PREV_SIGNAL = None
 CUR_MACD = None
 CUR_SIGNAL = None
+CUR_RSI = None
 
-PREV_EMA9 = None
-PREV_EMA12 = None
-PREV_EMA26 = None
 
 MAX_LEN = 9
 
@@ -120,40 +116,22 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
 
 def check_buy() -> bool:
     """Function to check if the MACD indicator
-    allows a buy operation.
-
-    Returns:
-        bool: True if it is a buy oportunity, false if not
-    """
+    allows a buy operation"""
 
     #Poner variable global el rsi y el macd, hacer comprobacion como en backtesting, y luego la 
     #operacion abierta se comprueba en ordenes.
 
-    
-    if CUR_SIGNAL == None or CUR_MACD == None \
-        or PREV_SIGNAL == None or PREV_MACD == None:
-        return False
-    if PREV_SIGNAL >= PREV_MACD:
-        if CUR_SIGNAL <= CUR_MACD:
-            return True
+    if CUR_SIGNAL > CUR_MACD and CUR_RSI < 35 :
+        return True
     return False
-
-
 
 
 def check_sell() -> bool:
     """Function to check if the MACD indicator
-    allows a buy operation.
+    allows a buy operation"""
 
-    Returns:
-        bool: True if it is a buy oportunity, false if not
-    """
-    if CUR_SIGNAL == None or CUR_MACD == None \
-        or PREV_SIGNAL == None or PREV_MACD == None:
-        return False
-    if PREV_SIGNAL <= PREV_MACD:
-        if CUR_SIGNAL >= CUR_MACD:
-            return True
+    if CUR_SIGNAL < CUR_MACD and CUR_RSI > 65:
+        return True
     return False
 
 

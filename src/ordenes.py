@@ -237,26 +237,26 @@ def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operac
     
     #chequear aqui que la operacione este abierta o no, variable operacion.
 
-    last_operation = 0
+
     print("[THREAD - orders] - Checking operations")
+    operacion_abierta=0
     while not pill2kill.wait(0.1):
-        if check_buy() and last_operation > TIME_BETWEEN_OPERATIONS:
+        if check_buy() and operacion_abierta==0:
             buy = open_buy(trading_data)
-            last_operation = 0
             if buy is not None:
                 now = date.datetime.now()
                 dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
                 print("[Thread - orders] Buy open -", dt_string)
                 handle_buy(buy, trading_data['market'])
                 buy = None
+                operacion_abierta=1
                
-        if check_sell() and last_operation > TIME_BETWEEN_OPERATIONS:
+        if check_sell() and operacion_abierta==1:
             sell = open_sell(trading_data)
-            last_operation = 0
             if sell is not None:
                 now = date.datetime.now()
                 dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
                 print("[Thread - orders] Sell open -", dt_string)
                 handle_sell(sell, trading_data['market'])
                 sell = None
-        last_operation += 1
+                operacion_abierta==0
