@@ -55,7 +55,7 @@ def backtesting(market: str, prices: list):
     tr.frameToExcel(prices_frame,'Bandas.xlsx')
 
 
-def thread_bandas(pill2kill, ticks: list, time_period: int,indicators: dict, trading_data: dict):
+def thread_bandas(pill2kill, ticks: list,trading_data: dict):
     """Function executed by a thread that calculates
     the  RSI and MACD and the SIGNAL.
 

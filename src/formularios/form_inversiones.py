@@ -389,7 +389,7 @@ class FormularioInversiones(tk.Toplevel):
             self.b.thread_MediaMovil()
 
         elif estrategia_txt == 'Bandas':
-            self.b.thread_Bandas()
+            self.b.thread_bandas()
 
         elif estrategia_txt == 'Estocastico':
             self.b.thread_Estocastico()

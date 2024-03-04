@@ -75,7 +75,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
         indicators (dict): Dictionary where the data is going to be stored.
         trading_data (dict): Dictionary where the data about our bot is stored.
     """
-    global MACDs, CUR_SIGNAL, CUR_MACD, PREV_SIGNAL, PREV_MACD
+    global MACDs, CUR_SIGNAL, CUR_MACD, CUR_RSI
     
     # Wait if there are not enough elements
     #while len(ticks) < 14 and not pill2kill.wait(1.5):

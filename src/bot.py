@@ -3,7 +3,7 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 import tick_reader as tr
 import ordenes as orders
 #importslope_abs_rel, orders
-import Rsi_Macd, MediaMovil
+import Rsi_Macd, MediaMovil,Bandas_Bollinger,Estocastico
 import pandas as pd
 import os
 
@@ -136,10 +136,27 @@ class Bot:
         """Function to launch the thread for calculating the MACD.
         """
         t = threading.Thread(target=MediaMovil.MediaMovil, 
-                            args=(self.pill2kill, self.ticks, self.indicators, self.trading_data))
+                            args=(self.pill2kill, self.ticks, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - MediaMovil. LAUNCHED')
+
+    def thread_bandas(self):
+        
+        t = threading.Thread(target=Bandas_Bollinger.thread_bandas, 
+                            args=(self.pill2kill, self.ticks, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - BandasBollinger. LAUNCHED')
+
+    def thread_estocastico(self):
+        
+        t = threading.Thread(target=Estocastico.thread_estocastico, 
+                            args=(self.pill2kill, self.ticks, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - Estocastico. LAUNCHED')    
+    
     
     def thread_orders(self):
         t = threading.Thread(target=orders.thread_orders, 

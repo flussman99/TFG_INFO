@@ -76,7 +76,7 @@ def check_sell() -> bool:
 
    
 
-def MediaMovil(pill2kill, ticks: list, indicators: dict, trading_data: dict):
+def MediaMovil(pill2kill, ticks: list, trading_data: dict):
     """Function executed by a thread that calculates
     the MACD and the SIGNAL.
 
