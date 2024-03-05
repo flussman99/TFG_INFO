@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from tkinter.font import BOLD
 import pandas as pd
+import psutil
+import os
 import sys 
 from bot import Bot as bt
 import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
@@ -153,22 +155,26 @@ class FormularioLoginDesign(tk.Toplevel):
     def verificar(self):
         usu = self.usuario.get()
         password = self.password.get()
-        with open("login.txt", 'r') as f:
-                lines = f.readlines()
-                usr = lines[0].strip()
-                key = lines[1].strip()
-                server = lines[2].strip()
-        if(usu!=usr or password!=key):
-            messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
-        else: 
+        server = "ICMarketsEU-Demo"
+        # with open("login.txt", 'r') as f:
+        #         lines = f.readlines()
+        #         usr = lines[0].strip()
+        #         key = lines[1].strip()
+        #         server = lines[2].strip()
+        # if(usu!=usr or password!=key):
+        #     messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
+        # else: 
             #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
-            if not self.mt5_login(int(usr),key,server):
-                quit()
-            else:
-                self.labelUsuario.config(text=f"Usuario: {usu}")
-                self.boton_op["state"] = tk.NORMAL
-                self.boton_inv["state"] = tk.NORMAL
-                self.panel_inicio()
+        if not self.mt5_login(int(usu),password,server):
+            messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
+            # quit()
+        else:
+            messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje") 
+            self.labelUsuario.config(text=f"Usuario: {usu}")
+            self.boton_op["state"] = tk.NORMAL
+            self.boton_inv["state"] = tk.NORMAL
+            self.lift()
+            self.panel_inicio()
 
             #FormularioMaestroDesign()
 
@@ -200,6 +206,13 @@ class FormularioLoginDesign(tk.Toplevel):
 
         else:
             print("failed to connect at account #{}, error code: {}".format(usr, mt5.last_error()))
+            self.cerrar_mt5()
             return False
 
         return True 
+    
+    def cerrar_mt5(self):
+        for proc in psutil.process_iter():
+            if "terminal64.exe" in proc.name():  # El nombre del proceso puede variar
+                os.kill(proc.pid, 9)  # Envía la señal SIGKILL para forzar el cierre
+                break

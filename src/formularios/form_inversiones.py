@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, Canvas, Entry, Button, PhotoImage, Checkbutton, IntVar
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import sys
 from bot import Bot as bt
@@ -155,7 +155,7 @@ class FormularioInversiones(tk.Toplevel):
 
 
         self.combo_mercados.place(x=34.0, y=38.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_mercados.current(0)  # Establece la opción por defecto
+        self.combo_mercados.set("NAS")  # Establece la opción por defecto
         self.combo_mercados.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         self.original_mercados = mercados
@@ -178,7 +178,7 @@ class FormularioInversiones(tk.Toplevel):
         self.acciones_var = tk.StringVar(value=acciones)
         self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
         self.combo_acciones.place(x=684.0, y=38.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_acciones.current(0)  # Establece la opción por defecto
+        self.combo_acciones.set("TSLA.NAS")  # Establece la opción por defecto
         self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         self.original_acciones = acciones
@@ -275,12 +275,15 @@ class FormularioInversiones(tk.Toplevel):
         self.titulo_fecha_inicio.place(x=270.0, y=96, width=200, height=38.0)
         self.titulo_fecha_inicio.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
+        fecha_ayer = datetime.now() - timedelta(days = 1)
+
         self.fecha_inicio_entry = DateEntry(
             canvas, 
             date_pattern='yyyy/mm/dd',
             background='darkblue', 
             foreground='white', 
-            borderwidth=2
+            borderwidth=2,
+            maxdate=fecha_ayer
         )
         self.fecha_inicio_entry.place(
             x=270.0,
@@ -298,7 +301,8 @@ class FormularioInversiones(tk.Toplevel):
             date_pattern='yyyy/mm/dd',
             background='darkblue', 
             foreground='white', 
-            borderwidth=2
+            borderwidth=2,
+            maxdate=fecha_ayer
         )
         self.fecha_fin_entry.place(
             x=270.0,
@@ -319,15 +323,6 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_calculo.current(0)  # Establece la opción por defecto
         self.combo_calculo.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-
-
-        calcular_button = ttk.Button(canvas, text="Ticks en directo", command=self.tickdirecto)
-        calcular_button.place(
-            x=900.0,
-            y=150.0,
-            width=300.0,
-            height=38.0
-        )
 
 
 

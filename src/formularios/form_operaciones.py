@@ -300,11 +300,11 @@ class FormularioOperaciones(tk.Toplevel):
             file="src/imagenes/assets/boton_cantidad_operaciones.png")
         button_7 = Button(
             canvas,
-            text="\uf0ad",
+            text="Ticks en directo",
             image=button_image_7,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_7 clicked"),
+            command=self.tickdirecto,
             compound=tk.CENTER,
             font="font_awesome"
         )
@@ -505,3 +505,58 @@ class FormularioOperaciones(tk.Toplevel):
             height=38.0
         )
         self.cuerpo_principal.mainloop()
+    
+    def tickdirecto(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        frec = self.calcular_frecuencia(frecuencia_txt)
+        self.b.set_info(frec, accion_txt) 
+        self.b.thread_RSI_MACD()
+    
+    def calcular_frecuencia(self, frecuencia_txt):
+        # Obtener valores de la frecuencia en segundos
+        if frecuencia_txt == "1M":
+            frecuencia = 60
+        elif frecuencia_txt == "2M":
+            frecuencia = 120
+        elif frecuencia_txt == "3M":
+            frecuencia = 180
+        elif frecuencia_txt == "4M":
+            frecuencia = 240
+        elif frecuencia_txt == "5M":
+            frecuencia = 300
+        elif frecuencia_txt == "6M":
+            frecuencia = 360
+        elif frecuencia_txt == "10M":
+            frecuencia = 600
+        elif frecuencia_txt == "12M":
+            frecuencia = 720
+        elif frecuencia_txt == "15M":
+            frecuencia = 900
+        elif frecuencia_txt == "20M":
+            frecuencia = 1200
+        elif frecuencia_txt == "30M":
+            frecuencia = 1800
+        elif frecuencia_txt == "1H":
+            frecuencia = 3600
+        elif frecuencia_txt == "2H":
+            frecuencia = 7200
+        elif frecuencia_txt == "3H":
+            frecuencia = 10800
+        elif frecuencia_txt == "4H":
+            frecuencia = 14400
+        elif frecuencia_txt == "6H":
+            frecuencia = 21600
+        elif frecuencia_txt == "8H":
+            frecuencia = 28800
+        elif frecuencia_txt == "12H":
+            frecuencia = 43200
+        elif frecuencia_txt == "Daily":
+            frecuencia = 86400
+        elif frecuencia_txt == "Weekly":
+            frecuencia = 604800
+        elif frecuencia_txt == "Monthly":
+            frecuencia = 2592000
+        else:
+            frecuencia = 0
+        return frecuencia
