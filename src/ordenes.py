@@ -118,7 +118,25 @@ def open_buy(trading_data: dict):
 
     point = mt5.symbol_info(trading_data['market']).point
     price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
+
+    
+    account_info = mt5.account_info()
+
+    if account_info is None:
+        print("[Thread - orders] Failed to get account info.")
+        return None
+
+    # Calcular el costo estimado de la operación de compra
+    cost = price * trading_data['lotage']
+
+    # Verificar si tienes suficiente dinero en la cuenta
+    if account_info.balance < cost:
+        print("[Thread - orders] Not enough money in the wallet to open the buy position.")
+        return None
+    
+
     deviation = 20
+    
     buy = {
         "action": mt5.TRADE_ACTION_DEAL,
         "symbol": trading_data['market'],
