@@ -35,13 +35,9 @@ pip install pandas
 pip instal openpyxl
 pip install Pillow      (Para que se vean las imagenes)
 pip install ta (importar indicadores)
-
-
-Instalar
-
+pip install psutil
 pip install openpyxl
 pip install pandas  
-
 pip install tkcalendar
 pip psutil
 
