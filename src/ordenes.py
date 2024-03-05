@@ -1,4 +1,4 @@
-import Rsi_Macd, MediaMovil,time
+import Rsi_Macd, MediaMovil,time,Bandas_Bollinger,Estocastico
 import datetime as date
 import MetaTrader5 as mt5
 
@@ -205,27 +205,38 @@ def open_sell(trading_data: dict):
     return sell
 
 
-def check_buy() -> bool:
+def check_buy(nombre:str) -> bool:
     """Function to check if we can open a buy.
 
     Returns:
         bool: True if we can, false if not.
     """
-#if para elegir que estrategia quiero que me compruebe si es momento de compra o no elegir mediante un desplegables
-
-    return Rsi_Macd.check_buy() 
-
-
-def check_sell() -> bool:
-    """Function to check if we can open a sell.
-
-    Returns:
-        bool: True if we can, false if not.
-    """
-    return Rsi_Macd.check_sell() 
+    if nombre == 'RSI':
+        return Rsi_Macd.check_buy(nombre)
+    elif nombre == 'Media Movil':
+        return MediaMovil.check_buy(nombre)
+    elif nombre == 'Bandas':
+        return Bandas_Bollinger.check_buy(nombre)
+    elif nombre == 'Estocastico':
+        return Estocastico.check_buy(nombre)
 
 
-def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operacion al mismo tiempo
+def check_sell(nombre : str) -> bool:
+    """Function to check if we can open a sell"""
+
+    if nombre == 'RSI':
+        return Rsi_Macd.check_sell(nombre)
+    elif nombre == 'Media Movil':
+        return MediaMovil.check_sell(nombre)
+    elif nombre == 'Bandas':
+        return Bandas_Bollinger.check_sell(nombre)
+    elif nombre == 'Estocastico':
+        return Estocastico.check_sell(nombre)
+   
+    
+
+
+def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot solo abre una operacion al mismo tiempo
     """Function executed by a thread. It opens and handles operations.
 
     Args:
@@ -241,7 +252,7 @@ def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operac
     print("[THREAD - orders] - Checking operations")
     operacion_abierta=0
     while not pill2kill.wait(0.1):
-        if check_buy() and operacion_abierta==0:
+        if check_buy(estrategia_directo) and operacion_abierta==0:
             buy = open_buy(trading_data)
             if buy is not None:
                 now = date.datetime.now()
@@ -251,7 +262,7 @@ def thread_orders(pill2kill, trading_data: dict):# este bot solo abre una operac
                 buy = None
                 operacion_abierta=1
                
-        if check_sell() and operacion_abierta==1:
+        if check_sell(estrategia_directo) and operacion_abierta==1:
             sell = open_sell(trading_data)
             if sell is not None:
                 now = date.datetime.now()

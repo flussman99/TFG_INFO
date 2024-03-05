@@ -72,7 +72,6 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     Args:
         pill2kill (Threading.Event): Event for stopping the thread's execution.
         ticks (list): List with prices.
-        indicators (dict): Dictionary where the data is going to be stored.
         trading_data (dict): Dictionary where the data about our bot is stored.
     """
     global MACDs, CUR_SIGNAL, CUR_MACD, CUR_RSI
@@ -80,9 +79,10 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     # Wait if there are not enough elements
     #while len(ticks) < 14 and not pill2kill.wait(1.5):
      #   print("[THREAD - MACD] - Waiting for ticks")
-    date_from = dt.datetime(2024, 2, 26, tzinfo=TIMEZONE)
-    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,14,mt5.COPY_TICKS_ALL)
-    # print(loaded_ticks)
+    date_from = dt.datetime(dt.datetime.now(), tzinfo=TIMEZONE)
+    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
+
+
     for tick in loaded_ticks:
         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
@@ -94,7 +94,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     #         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
     #         second_to_include = tick[0]
     
-    print("\nDisplay dataframe with ticks")
+    print("\nDisplay RSI THREAD")
     print(prices_frame)
     print("[THREAD - tick_reader] - Taking ticks")
     

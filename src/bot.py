@@ -158,9 +158,9 @@ class Bot:
         print('Thread - Estocastico. LAUNCHED')    
     
     
-    def thread_orders(self):
+    def thread_orders(self,estrategia_directo):
         t = threading.Thread(target=orders.thread_orders, 
-                             args=(self.pill2kill, self.trading_data))
+                             args=(self.pill2kill, self.trading_data,estrategia_directo))
         self.threads.append(t)
         t.start()
         print('Thread - orders. LAUNCHED')
