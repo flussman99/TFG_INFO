@@ -79,13 +79,19 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     # Wait if there are not enough elements
     #while len(ticks) < 14 and not pill2kill.wait(1.5):
      #   print("[THREAD - MACD] - Waiting for ticks")
-    date_from = dt.datetime(dt.datetime.now(), tzinfo=TIMEZONE)
+    #date_from = dt.datetime.now(tz=TIMEZONE)
+
+    date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
+
     loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
 
+    
+    print(loaded_ticks)
 
     for tick in loaded_ticks:
         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+
     # esto es lo que habra que hacer
     # second_to_include = 0
     # for tick in loaded_ticks:
@@ -102,13 +108,24 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
-        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-        print("Nuevo tick añadido:", ticks[-1])
-        prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-        # print(prices_frame)
-        rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-        prices_frame["RSI"] = rsi.rsi()
-        print(prices_frame)
+        if tick is not None:
+            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+            print("Nuevo tick añadido:", ticks[-1])
+            prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+            # print(prices_frame)
+            
+            rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+            prices_frame["RSI"] = rsi.rsi()
+            CUR_RSI=rsi.rsi()
+
+            macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
+            prices_frame['macd'] = macd.macd()
+            prices_frame['macd_signal'] = macd.macd_signal()
+            CUR_MACD=macd.macd()
+            CUR_SIGNAL=macd.macd_signal()
+
+            print(prices_frame)
+
         time.sleep(trading_data['time_period'])
         
         
