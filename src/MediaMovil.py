@@ -5,6 +5,11 @@ from ta.trend import MACD
 import tick_reader as tr
 import pandas as pd
 import ordenes as ord
+import MetaTrader5 as mt5
+import datetime as dt
+import pytz
+import time
+TIMEZONE=pytz.timezone("Etc/UTC")
 
 
 
@@ -86,57 +91,57 @@ def MediaMovil(pill2kill, ticks: list, trading_data: dict):
         indicators (dict): Dictionary where the data is going to be stored.
         trading_data (dict): Dictionary where the data about our bot is stored.
     """
-    global MACDs, CUR_SIGNAL, CUR_MACD, PREV_SIGNAL, PREV_MACD
-    #global CUR_MED_LP,CUR_MED_CP
+    global CUR_MED_LP,CUR_MED_CP
     
-    # Wait if there are not enough elements
-    while len(ticks) < 35 and not pill2kill.wait(1.5):
-        print("[THREAD - MACD] - Waiting for ticks")
+     # Wait if there are not enough elements
+    #while len(ticks) < 14 and not pill2kill.wait(1.5):
+     #   print("[THREAD - MACD] - Waiting for ticks")
     
-    print("[THREAD - MACD] - Loading values")
-    # First we need to calculate the previous MACDs and SIGNALs
-    i = 26
-    while i < len(ticks):
-        # Computing the MACD
-        PREV_MACD = CUR_MACD
-        CUR_MACD = MACD(ticks[:i])
-        MACDs.append(CUR_MACD)
-        
-        i+=1
-        
-        # Computing the SIGNAL
-        if len(MACDs) < 9:
-            continue
-        else:
-            PREV_SIGNAL = CUR_SIGNAL
-            CUR_SIGNAL = SIGNAL(MACDs)
-        
-        if len(MACDs) > 9:
-            del MACDs[0]
 
-    # Main thread loop
-    print("[THREAD - MACD] - Computing values")
-    i = 0
+    #date_from = dt.datetime.now(tz=TIMEZONE)
+
+    #HABRA QUE HACER USO DE OTRA FUNCION COMO LA DE COPY RANGE, EN LA QUE EL FINAL DE COPIAR LOS TICKS ES ACTUAL, Y 
+    # EN FUNCION DEL NUMERO DE TICKS Y EL INTERVALO QUE NOS HAGA FALTA, NOS IREMOS A UN DIA U OTRO
+
+    date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
+
+    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
+
+    
+    print(loaded_ticks)
+
+    for tick in loaded_ticks:
+        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+
+    # esto es lo que habra que hacer
+    # second_to_include = 0
+    # for tick in loaded_ticks:
+    #     # Every X seconds we add a value to the list
+    #     if tick[0] > second_to_include + trading_data['time_period']:
+    #         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+    #         second_to_include = tick[0]
+    
+    print("\nDisplay RSI THREAD")
+    print(prices_frame)
+    print("[THREAD - tick_reader] - Taking ticks")
+    
     while not pill2kill.wait(1):
-        # Computing the MACD
-        PREV_MACD = CUR_MACD
-        CUR_MACD = MACD(ticks[-26:])
-        
-        # Only append a MACD value every time period
-        if i >= trading_data['time_period']:
-            MACDs.append(CUR_MACD)
-            i = 0
-        else:
-            MACDs[-1] = CUR_MACD
-        i+=1
-        
-        # Computing the SIGNAL
-        PREV_SIGNAL = CUR_SIGNAL
-        CUR_SIGNAL = SIGNAL(MACDs)
-        
-        # Updating the dictionary
-        indicators['MACD']['MACD'] = CUR_MACD
-        indicators['MACD']['SIGNAL'] = CUR_SIGNAL
+        # Every trading_data['time_period'] seconds we add a tick to the list
+        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
+        # print(tick)
+        if tick is not None:
+            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+            print("Nuevo tick añadido:", ticks[-1])
+            prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+            # print(prices_frame)
 
-        if len(MACDs) > 9:
-            del MACDs[0]
+            prices_frame['mediaMovil_CP'] = prices_frame['price'].rolling(window=30).mean()
+            prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()
+
+            CUR_MED_CP = prices_frame['mediaMovil_CP']
+            CUR_MED_LP = prices_frame['mediaMovil_LP']
+
+            print(prices_frame)
+
+        time.sleep(trading_data['time_period'])

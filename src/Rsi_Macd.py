@@ -79,7 +79,12 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     # Wait if there are not enough elements
     #while len(ticks) < 14 and not pill2kill.wait(1.5):
      #   print("[THREAD - MACD] - Waiting for ticks")
+    
+
     #date_from = dt.datetime.now(tz=TIMEZONE)
+
+    #HABRA QUE HACER USO DE OTRA FUNCION COMO LA DE COPY RANGE, EN LA QUE EL FINAL DE COPIAR LOS TICKS ES ACTUAL, Y 
+    # EN FUNCION DEL NUMERO DE TICKS Y EL INTERVALO QUE NOS HAGA FALTA, NOS IREMOS A UN DIA U OTRO
 
     date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
 
@@ -113,7 +118,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
             print("Nuevo tick añadido:", ticks[-1])
             prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
             # print(prices_frame)
-            
+
             rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
             prices_frame["RSI"] = rsi.rsi()
             CUR_RSI=rsi.rsi()
