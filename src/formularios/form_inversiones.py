@@ -12,6 +12,10 @@ import matplotlib.dates as mdates
 from datetime import datetime
 from config import COLOR_CUERPO_PRINCIPAL
 import time
+from tkinter import Scrollbar
+import matplotlib.ticker as ticker
+
+
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
@@ -187,24 +191,6 @@ class FormularioInversiones(tk.Toplevel):
         self.combo_acciones.bind('<<ComboboxSelected>>', reload_options)
 
 
-
-        cuadro_informacion_image = PhotoImage(
-            file="src/imagenes/assets/boton_grafico_operaciones.png")
-        cuadro_informacion = Button(
-            canvas,
-            image=cuadro_informacion_image,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: print("button_2 clicked"),
-            relief="flat"
-        )
-        cuadro_informacion.place(
-            x=35.0,
-            y=334.0,
-            width=1298.0,
-            height=309.0
-        )
-
         #         cuadro_informacion_image = PhotoImage(file="src/imagenes/assets/boton_grafico_operaciones.png")
         #         self.cuadro_informacion = tk.Label(
         #             image=cuadro_informacion_image,
@@ -220,21 +206,6 @@ class FormularioInversiones(tk.Toplevel):
         #             height=309.0
         #         )
         
-
-
-        entry_image_1 = PhotoImage(
-            file="src/imagenes/assets/entry_fondo_operaciones.png")
-        entry_bg_1 = canvas.create_image(
-            683.0,
-            300.0,
-            image=entry_image_1
-        )
-
-        canvas.create_text(42, 284, anchor="nw", text="Cartera: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(310, 284, anchor="nw", text="Gan. latente: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(617, 284, anchor="nw", text="Gan. día: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(865, 284, anchor="nw", text="Órdenes: ", fill="white", font=("Calistoga Regular", 12))
-        canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
 
         self.titulo_estrategia = ttk.Label(self.cuerpo_principal, text="Seleccione una estrategia:")
         self.titulo_estrategia.place(x=35.0, y=96, width=200, height=38.0)
@@ -367,17 +338,24 @@ class FormularioInversiones(tk.Toplevel):
         fin_txt = self.fecha_fin_entry.get()
         estrategia_txt = self.combo_estrategia.get()
 
+        print("----------------------------------------")
+        print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
+
         frec = self.calcular_frecuencia(frecuencia_txt)
 
         self.b.set_info(frec, accion_txt) 
         #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
 
+        print("----------------------------------------")
+        print("----------------------------------------")
+        print("----------------------------------------")
+        print("----------------------------------------")
 
         #cambiar a form operaciones
         
         #if abrir operacion       
-        self.b.thread_orders()
+        #self.b.thread_orders()
 
         #if elegir tipo de operacion
         if estrategia_txt == 'RSI':
@@ -420,21 +398,33 @@ class FormularioInversiones(tk.Toplevel):
 
         # Calcular la rentabilidad de la estrategia, sumar las rentabilidades cuando decision es -1
         rentabilidad_estrategia = df.loc[df['Decision'] == '-1', 'Rentabilidad'].sum()
+
+        self.valor_rentabilidad_estrategia = tk.Text(self.cuerpo_principal, wrap="word")
+        self.valor_rentabilidad_estrategia.insert(tk.END, f"En base a la estrategia {estrategia}, la rentabilidad obtenida es de: {rentabilidad_estrategia:.2f}% ")
+        self.valor_rentabilidad_estrategia.place(x=50, y=270, width=600, height=30.0)
+        self.valor_rentabilidad_estrategia.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 14))
         
         # Obtener el primer y último precio de la columna 'price'
         primer_precio = df['price'].iloc[0]
         ultimo_precio = df['price'].iloc[-1]
 
-        print("----------------------------------------")
+        print("-----------------Datos-----------------------")
         print(primer_precio, ultimo_precio)
         print(df)
-
-        # Calcular la rentabilidad basica de la accion
-        rentabilidad_basica = (ultimo_precio - primer_precio) / primer_precio * 100
-
-        self.resultado_label = ttk.Label(self.cuerpo_principal, text=f"La rentabilidad del periodo es de: {rentabilidad_basica:.4f}%")
-        self.resultado_label.place(x=750.0, y=210.0, width=300.0, height=38.0)
         
+
+        # Crea el widget Text con la informacion de la grafica de la estratgeia.
+        self.info_rentabilidad_estrategia = tk.Text(self.cuerpo_principal, wrap="word")
+        self.info_rentabilidad_estrategia.insert(tk.END, f"En la siguiente gráfica podemos observar, en azul la rentabilidad de las operaciones de compra-venta utilizando la estrategia {estrategia}. Cuando la rentabilida es positiva, significa que hemos obtenido beneficios, es decir, si hubiesemos invertido 100€, y la rentabilidad de la primera operacion fuera de 5%, hubiesemos tenido un beneficio de 5€, quedandonos con un total de 105€. En caso de que la rentabilidad fuera negativa, en vez de beneficios hubiesemos obtenido perdidas. En naranja podemos observar la rentabilidad acumulada de dichas operaciones. Es una manera de ver el rendimiento global de las decisiones financieras tomadas a lo largo del tiempo")
+        self.info_rentabilidad_estrategia.place(x=50, y=310, width=600, height=80.0)
+        self.info_rentabilidad_estrategia.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 9))
+        
+        # Crea la barra deslizante
+        scrollbar = Scrollbar(self.cuerpo_principal, command=self.info_rentabilidad_estrategia.yview)
+        scrollbar.place(x=650, y=310, height=80.0)
+
+        # Configura la barra deslizante con el widget Text
+        self.info_rentabilidad_estrategia.config(yscrollcommand=scrollbar.set)
 
         # Filtrar los datos donde "Decision" es igual a -1
         df_decision_minus_1 = df[df['Decision'] == '-1']
@@ -442,26 +432,39 @@ class FormularioInversiones(tk.Toplevel):
         # Crear la figura y el eje
         fig, ax = plt.subplots()
 
+        # Obtener el número de operaciones y la rentabilidad
+        num_operaciones = range(1, df_decision_minus_1.shape[0] + 1)
+        rentabilidad = df_decision_minus_1['Rentabilidad']
+
+        # Calcular el acumulado de la rentabilidad
+        rentabilidad_acumulada = rentabilidad.cumsum()
+
         # Graficar la rentabilidad en función del tiempo para Decision = -1
-        ax.plot(df_decision_minus_1['time'].dt.strftime('%d-%m'), df_decision_minus_1['Rentabilidad'], label='Decision = -1')
+        ax.plot(num_operaciones, rentabilidad, marker='o', linestyle='-', label='Rentabilidad de las operaciones')
+        ax.plot(num_operaciones, rentabilidad_acumulada, marker='o', linestyle='-', label='Rentabilidad Acumulada')
+        ax.grid(True)
 
         # Configurar la leyenda, etiquetas de ejes, etc. según tus necesidades
         ax.legend()
-        ax.set_xlabel('Tiempo')
         ax.set_ylabel('Rentabilidad')
-        ax.set_title('Rentabilidad en función del tiempo')
+        ax.set_title('Rentabilidad en función de las operaciones')
 
         # Crear el widget de canvas para la gráfica
         canvas = FigureCanvasTkAgg(fig, master=self.cuerpo_principal)
         canvas_widget = canvas.get_tk_widget()
 
         # Colocar el widget de canvas en un lugar específico
-        canvas_widget.place(x=50, y=380, width=600, height=250)
+        canvas_widget.place(x=50, y=400, width=600, height=250)
 
-        self.info_rentabilidad_estrategia = tk.Text(self.cuerpo_principal, wrap="word")
-        self.info_rentabilidad_estrategia.insert(tk.END, f"En base a la estrategia {estrategia}, la rentabilidad obtenida es de: {rentabilidad_estrategia:.2f}% ")
-        self.info_rentabilidad_estrategia.place(x=50, y=340, width=600, height=40.0)
-        self.info_rentabilidad_estrategia.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
+
+        # Calcular la rentabilidad basica de la accion
+        rentabilidad_basica = (ultimo_precio - primer_precio) / primer_precio * 100
+
+        # Mostrar la rentabilidad básica
+        self.valor_rentabilidad_basica = tk.Text(self.cuerpo_principal, wrap="word")
+        self.valor_rentabilidad_basica.insert(tk.END, f"En base a la estrategia básica, la rentabilidad obtenida es de: {rentabilidad_basica:.2f}% ")
+        self.valor_rentabilidad_basica.place(x=700, y=270, width=600, height=30.0)
+        self.valor_rentabilidad_basica.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 14))
 
 
         if opcion == 'Rentabilidad Diaria':
@@ -475,37 +478,43 @@ class FormularioInversiones(tk.Toplevel):
             # Calcular la rentabilidad media diaria
             rentabilidad_media_diaria = df.groupby(df.index.date)['RentabilidadDiaria'].mean()
 
+            rentabilidad_acumulada_basica = rentabilidad_media_diaria.cumsum()
+
 
             # Crear una nueva figura
             self.figura = Figure(figsize=(6, 2), dpi=100)
             ax = self.figura.add_subplot(111)
 
-            
-            # Graficar la rentabilidad a lo largo del tiempo con suavizado exponencial
+            # Graficar la rentabilidad a lo largo del tiempo
             ax.plot(rentabilidad_media_diaria.index, rentabilidad_media_diaria.values, marker='o', linestyle='-', color='b')
+            ax.plot(rentabilidad_acumulada_basica.index, rentabilidad_acumulada_basica.values, marker='o', linestyle='-', color='orange')
             ax.set_title('Rentabilidad en función del tiempo')
             ax.set_xlabel('Fecha')
             ax.set_ylabel('Rentabilidad')
             ax.grid(True)
 
             # Establecer el locator de fechas en días y ajustar el formato de fecha
-            ax.xaxis.set_major_locator(mdates.DayLocator())
+            ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m'))
-
-            # Rotar las etiquetas del eje x 
-            #ax.tick_params(axis='x', rotation=45)
 
             # Crear el widget de canvas para la gráfica
             canvas = FigureCanvasTkAgg(self.figura, master=self.cuerpo_principal)
             canvas_widget = canvas.get_tk_widget()
 
             # Colocar el widget de canvas en un lugar específico
-            canvas_widget.place(x=700, y=380, width=600, height=250)
+            canvas_widget.place(x=700, y=400, width=600, height=250)
             
             self.info_rentabilidad_opcion = tk.Text(self.cuerpo_principal, wrap="word")
             self.info_rentabilidad_opcion.insert(tk.END, f"En base a la siguiente grafica podemos observar la rentabilidad diaria.")
-            self.info_rentabilidad_opcion.place(x=700, y=340, width=600, height=40.0)
+            self.info_rentabilidad_opcion.place(x=700, y=310, width=600, height=80.0)
             self.info_rentabilidad_opcion.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
+
+             # Crea la barra deslizante
+            scrollbar2 = Scrollbar(self.cuerpo_principal, command=self.info_rentabilidad_estrategia.yview)
+            scrollbar2.place(x=1300, y=310, height=80.0)
+
+            # Configura la barra deslizante con el widget Text
+            self.info_rentabilidad_estrategia.config(yscrollcommand=scrollbar2.set)
             
         elif opcion == 'Rentabilidad Acumulada':
             df['date'] = pd.to_datetime(df['time'])
