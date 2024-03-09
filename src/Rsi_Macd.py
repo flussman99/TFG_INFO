@@ -65,6 +65,8 @@ def backtesting(nombre:str, prices: list):
     tr.frameToExcel(prices_frame, nombre + '.xlsx') 
 
 
+
+
 def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     """Function executed by a thread that calculates
     the  RSI and MACD and the SIGNAL.
@@ -75,41 +77,19 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
         trading_data (dict): Dictionary where the data about our bot is stored.
     """
     global MACDs, CUR_SIGNAL, CUR_MACD, CUR_RSI
+
+    print("Show symbol_info")
+    symbol_info_dict = mt5.symbol_info(trading_data['market'])._asdict()
+    for prop in symbol_info_dict:
+        print("  {}={}".format(prop, symbol_info_dict[prop]))
+
+    print("[THREAD - tick_direto] - Working")
     
-    # Wait if there are not enough elements
-    #while len(ticks) < 14 and not pill2kill.wait(1.5):
-     #   print("[THREAD - MACD] - Waiting for ticks")
-    
+    load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
-    #date_from = dt.datetime.now(tz=TIMEZONE)
-
-    #HABRA QUE HACER USO DE OTRA FUNCION COMO LA DE COPY RANGE, EN LA QUE EL FINAL DE COPIAR LOS TICKS ES ACTUAL, Y 
-    # EN FUNCION DEL NUMERO DE TICKS Y EL INTERVALO QUE NOS HAGA FALTA, NOS IREMOS A UN DIA U OTRO
-
-    date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
-
-    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
-
-    
-    print(loaded_ticks)
-
-    for tick in loaded_ticks:
-        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
-
-    # esto es lo que habra que hacer
-    # second_to_include = 0
-    # for tick in loaded_ticks:
-    #     # Every X seconds we add a value to the list
-    #     if tick[0] > second_to_include + trading_data['time_period']:
-    #         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    #         second_to_include = tick[0]
-    
-    print("\nDisplay RSI THREAD")
-    print(prices_frame)
     print("[THREAD - tick_reader] - Taking ticks")
     
-    while not pill2kill.wait(1):
+    while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
@@ -131,10 +111,57 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
 
             print(prices_frame)
 
-        time.sleep(trading_data['time_period'])
         
         
            
+   
+def load_ticks_directo(ticks: list, market: str, time_period: int):
+    
+    # Loading data
+    
+    timezone = pytz.timezone("Etc/UTC")
+    today = dt.datetime.now()#dia de hoy
+    date_from = today - dt.timedelta(days=25)#esto es lo que hay que camabiar en cada estrategia
+    date_from = timezone.localize(date_from)
+
+    # print(today)
+    # print(date_from) --> lo hace bien
+    
+    loaded_ticks = mt5.copy_ticks_range(market, date_from, today, mt5.COPY_TICKS_ALL)
+    
+    if loaded_ticks is None:
+        print("Error loading the ticks")
+        return -1
+
+    print(loaded_ticks)
+    
+    # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
+    #Me añade de toda la lista de ticks de los ultimos 25 dias ticks cada time_period y empieza desde la fecha inicial
+    
+    # Inicializamos 'second_to_include' con el primer elemento de 'loaded_ticks'
+    second_to_include = loaded_ticks[-1][0]#con el timepo
+
+    # Agregamos el primer elemento al comienzo de la lista 'ticks'
+    ticks.append([pd.to_datetime(loaded_ticks[-1][0], unit='s'), loaded_ticks[-1][2]])
+
+    # Iteramos sobre los elementos de 'loaded_ticks' en orden inverso
+    for tick in reversed(loaded_ticks):
+        # Si el tiempo del tick actual es menor que el tiempo de 'second_to_include - time_period'
+        if len(ticks) < 15 and tick[0] < second_to_include - time_period:
+            # Agregamos el tick a la lista 'ticks'
+            ticks.insert(0, [pd.to_datetime(tick[0], unit='s'), tick[2]])#agregamos en forma inversa, quiere decir que el primero que inserto sera el ultimo
+            # Actualizamos 'second_to_include' al tiempo del tick actual
+            second_to_include = tick[0]
+        elif len(ticks) >= 15:
+            break
+
+    
+    print("\nDisplay TICKS DIRECTO RSI")
+    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+    print(prices_frame)
+    
+
+
 
 def check_buy() -> bool:
     """Function to check if the MACD indicator

@@ -62,12 +62,13 @@ class Bot:
 
 
 
-    def set_info(self, time_period: int, market: str):
+    def establecer_frecuencia_accion(self, frecuencia: int, market: str):
         """
         Args:
             time_period (int): Time period of the bot, 24h * 3600 (in seconds)
             market (str): Market to operate in.
         """
+        time_period=self.calcular_frecuencia(frecuencia)
         self.trading_data['time_period'] = time_period
         self.trading_data['market'] = market
     
@@ -100,14 +101,14 @@ class Bot:
         print('Thread - tick_reader. LAUNCHED')
     
 
-    def ticks_directo(self):
-        """Function to launch the tick reader thread.
-        """
-        t = threading.Thread(target=tr.ticks_directo, 
-                             args=(self.pill2kill, self.ticks, self.trading_data))
-        self.threads.append(t)
-        t.start()
-        print('Thread - tick_reader. LAUNCHED')
+    # def ticks_directo(self , estrategia):
+    #     """Function to launch the tick reader thread.
+    #     """
+    #     t = threading.Thread(target=tr.ticks_directo, 
+    #                          args=(self.pill2kill, self.ticks, self.trading_data, estrategia))
+    #     self.threads.append(t)
+    #     t.start()
+    #     print('Thread - tick_reader. LAUNCHED')
 
     
     def thread_slope_abs_rel(self):
@@ -200,3 +201,52 @@ class Bot:
             trading_data.append(symbol.name)
 
         return trading_data, exchanges_list
+    
+    
+    def calcular_frecuencia(self, frecuencia_txt):
+        # Obtener valores de la frecuencia en segundos
+        if frecuencia_txt == "1M":
+            frecuencia = 60
+        elif frecuencia_txt == "2M":
+            frecuencia = 120
+        elif frecuencia_txt == "3M":
+            frecuencia = 180
+        elif frecuencia_txt == "4M":
+            frecuencia = 240
+        elif frecuencia_txt == "5M":
+            frecuencia = 300
+        elif frecuencia_txt == "6M":
+            frecuencia = 360
+        elif frecuencia_txt == "10M":
+            frecuencia = 600
+        elif frecuencia_txt == "12M":
+            frecuencia = 720
+        elif frecuencia_txt == "15M":
+            frecuencia = 900
+        elif frecuencia_txt == "20M":
+            frecuencia = 1200
+        elif frecuencia_txt == "30M":
+            frecuencia = 1800
+        elif frecuencia_txt == "1H":
+            frecuencia = 3600
+        elif frecuencia_txt == "2H":
+            frecuencia = 7200
+        elif frecuencia_txt == "3H":
+            frecuencia = 10800
+        elif frecuencia_txt == "4H":
+            frecuencia = 14400
+        elif frecuencia_txt == "6H":
+            frecuencia = 21600
+        elif frecuencia_txt == "8H":
+            frecuencia = 28800
+        elif frecuencia_txt == "12H":
+            frecuencia = 43200
+        elif frecuencia_txt == "Daily":
+            frecuencia = 86400
+        elif frecuencia_txt == "Weekly":
+            frecuencia = 604800
+        elif frecuencia_txt == "Monthly":
+            frecuencia = 2592000
+        else:
+            frecuencia = 0
+        return frecuencia

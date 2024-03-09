@@ -20,7 +20,7 @@ spread_list = []
 TIMEZONE=pytz.timezone("Etc/UTC")
 
 
-                            #Funciones estaticas de ticks
+                            #Funciones de ticks EN BACKTESTING
 
 def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estrategia_txt):
     """Function executed by a thread. It fills the list of ticks and
@@ -86,23 +86,9 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 
 
 
-                            #Funciones DINMICAS de ticks
+                            #Funciones de ticks EN DIRECTO
 
-
-def ticks_directo(pill2kill, ticks: list, trading_data: dict):#primera forma
-    # Coger tcks en directo
-    print("[THREAD - tick_reader] - Taking ticks")
-    
-    while not pill2kill.wait(1):
-        # Every trading_data['time_period'] seconds we add a tick to the list
-        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        print(tick)
-        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-        print("Nuevo tick añadido:", ticks[-1])
-        time.sleep(trading_data['time_period'])
-   
-                                    #FUNCIONES DE APOYO
-        
+     
 
 def estrategias(ticks: list, market: str,nombre:str):
     #Escoger estrategia a aplicar

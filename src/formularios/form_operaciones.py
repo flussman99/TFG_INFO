@@ -219,14 +219,14 @@ class FormularioOperaciones(tk.Toplevel):
         canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
         
 
-        velas = ['10', '20', '50', '100', '200', '500', '1000', '2000', '5000']
-        self.velas_var = tk.StringVar(value=velas)
-        self.combo_velas = ttk.Combobox(canvas, textvariable=self.velas_var, values=velas)
+        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
+        self.velas_var = tk.StringVar(value=estrategia)
+        self.combo_velas = ttk.Combobox(canvas, textvariable=self.velas_var, values=estrategia)
         self.combo_velas.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
         self.combo_velas.current(0)  # Establece la opción por defecto
         self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        self.original_velas = velas
+        self.original_velas = estrategia
 
         # Función para manejar la selección en el ComboBox
         def seleccionar_velas(event):
@@ -467,7 +467,7 @@ class FormularioOperaciones(tk.Toplevel):
 
 
 
-        frecuencia = ['1M', '2M', '5M', '10M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
+        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(canvas, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
@@ -509,54 +509,16 @@ class FormularioOperaciones(tk.Toplevel):
     def tickdirecto(self):
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
-        frec = self.calcular_frecuencia(frecuencia_txt)
-        self.b.set_info(frec, accion_txt) 
-        self.b.thread_RSI_MACD()
+        estrategia=self.combo_velas.get()
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        
+        if estrategia == 'RSI':
+            self.b.thread_RSI_MACD()
+        elif estrategia == 'Media Movil':
+            self.b.thread_MediaMovil()
+        elif estrategia == 'Bandas':
+            self.b.thread_bandas()
+        elif estrategia == 'Estocastico':
+            self.b.thread_estocastico()
     
-    def calcular_frecuencia(self, frecuencia_txt):
-        # Obtener valores de la frecuencia en segundos
-        if frecuencia_txt == "1M":
-            frecuencia = 60
-        elif frecuencia_txt == "2M":
-            frecuencia = 120
-        elif frecuencia_txt == "3M":
-            frecuencia = 180
-        elif frecuencia_txt == "4M":
-            frecuencia = 240
-        elif frecuencia_txt == "5M":
-            frecuencia = 300
-        elif frecuencia_txt == "6M":
-            frecuencia = 360
-        elif frecuencia_txt == "10M":
-            frecuencia = 600
-        elif frecuencia_txt == "12M":
-            frecuencia = 720
-        elif frecuencia_txt == "15M":
-            frecuencia = 900
-        elif frecuencia_txt == "20M":
-            frecuencia = 1200
-        elif frecuencia_txt == "30M":
-            frecuencia = 1800
-        elif frecuencia_txt == "1H":
-            frecuencia = 3600
-        elif frecuencia_txt == "2H":
-            frecuencia = 7200
-        elif frecuencia_txt == "3H":
-            frecuencia = 10800
-        elif frecuencia_txt == "4H":
-            frecuencia = 14400
-        elif frecuencia_txt == "6H":
-            frecuencia = 21600
-        elif frecuencia_txt == "8H":
-            frecuencia = 28800
-        elif frecuencia_txt == "12H":
-            frecuencia = 43200
-        elif frecuencia_txt == "Daily":
-            frecuencia = 86400
-        elif frecuencia_txt == "Weekly":
-            frecuencia = 604800
-        elif frecuencia_txt == "Monthly":
-            frecuencia = 2592000
-        else:
-            frecuencia = 0
-        return frecuencia
+    
