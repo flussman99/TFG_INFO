@@ -12,6 +12,10 @@ class Bot:
     # Attributes
     threads = []
     ticks = []
+    ticksRSI = []
+    ticksMedia = []
+    ticksBandas = []
+    ticksEstocasticos = []
     pill2kill = threading.Event()
     
     trading_data = {
@@ -128,7 +132,7 @@ class Bot:
         """Function to launch the thread for calculating the MACD.
         """
         t = threading.Thread(target=Rsi_Macd.thread_rsi_macd, 
-                            args=(self.pill2kill, self.ticks, self.trading_data))
+                            args=(self.pill2kill, self.ticksRSI, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - RSI_MACD. LAUNCHED')
@@ -136,8 +140,8 @@ class Bot:
     def thread_MediaMovil(self):
         """Function to launch the thread for calculating the MACD.
         """
-        t = threading.Thread(target=MediaMovil.MediaMovil, 
-                            args=(self.pill2kill, self.ticks, self.trading_data))
+        t = threading.Thread(target=MediaMovil.thread_MediaMovil, 
+                            args=(self.pill2kill, self.ticksMedia, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - MediaMovil. LAUNCHED')
@@ -145,7 +149,7 @@ class Bot:
     def thread_bandas(self):
         
         t = threading.Thread(target=Bandas_Bollinger.thread_bandas, 
-                            args=(self.pill2kill, self.ticks, self.trading_data))
+                            args=(self.pill2kill, self.ticksBandas, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - BandasBollinger. LAUNCHED')
@@ -153,7 +157,7 @@ class Bot:
     def thread_estocastico(self):
         
         t = threading.Thread(target=Estocastico.thread_estocastico, 
-                            args=(self.pill2kill, self.ticks, self.trading_data))
+                            args=(self.pill2kill, self.ticksEstocasticos, self.trading_data))
         self.threads.append(t)
         t.start()
         print('Thread - Estocastico. LAUNCHED')    
@@ -207,40 +211,22 @@ class Bot:
         # Obtener valores de la frecuencia en segundos
         if frecuencia_txt == "1M":
             frecuencia = 60
-        elif frecuencia_txt == "2M":
-            frecuencia = 120
         elif frecuencia_txt == "3M":
             frecuencia = 180
-        elif frecuencia_txt == "4M":
-            frecuencia = 240
         elif frecuencia_txt == "5M":
             frecuencia = 300
-        elif frecuencia_txt == "6M":
-            frecuencia = 360
         elif frecuencia_txt == "10M":
             frecuencia = 600
-        elif frecuencia_txt == "12M":
-            frecuencia = 720
         elif frecuencia_txt == "15M":
             frecuencia = 900
-        elif frecuencia_txt == "20M":
-            frecuencia = 1200
         elif frecuencia_txt == "30M":
             frecuencia = 1800
         elif frecuencia_txt == "1H":
             frecuencia = 3600
         elif frecuencia_txt == "2H":
             frecuencia = 7200
-        elif frecuencia_txt == "3H":
-            frecuencia = 10800
         elif frecuencia_txt == "4H":
             frecuencia = 14400
-        elif frecuencia_txt == "6H":
-            frecuencia = 21600
-        elif frecuencia_txt == "8H":
-            frecuencia = 28800
-        elif frecuencia_txt == "12H":
-            frecuencia = 43200
         elif frecuencia_txt == "Daily":
             frecuencia = 86400
         elif frecuencia_txt == "Weekly":

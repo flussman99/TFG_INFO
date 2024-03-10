@@ -228,7 +228,7 @@ class FormularioInversiones(tk.Toplevel):
         self.titulo_frecuencia.place(x=35.0, y=189, width=200, height=38.0)
         self.titulo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
+        frecuencia = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']        
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(self.cuerpo_principal, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.place(x=35.0, y=224.0, width=200.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario

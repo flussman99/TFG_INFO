@@ -16,7 +16,7 @@ BB_LOWER=None
 BB_UPPER=None
 PRECIO_ACTUAL=None
 
-MAX_LEN = 9
+
 
 
 def backtesting(market: str, prices: list):
@@ -58,6 +58,60 @@ def backtesting(market: str, prices: list):
     tr.frameToExcel(prices_frame,'Bandas.xlsx')
 
 
+      
+   
+def load_ticks_directo(ticks: list, market: str, time_period: int):
+    
+    # Loading data
+    
+    timezone = pytz.timezone("Etc/UTC")
+    today = dt.datetime.now()#dia de hoy
+    date_from = today - dt.timedelta(days=20)#esto es lo que hay que camabiar en cada estrategia
+    date_from = timezone.localize(date_from)
+
+    # print(today)
+    # print(date_from) --> lo hace bien
+    
+    loaded_ticks = mt5.copy_ticks_range(market, date_from, today, mt5.COPY_TICKS_ALL)
+    
+    if loaded_ticks is None:
+        print("Error loading the ticks")
+        return -1
+
+    print(loaded_ticks)
+
+   #limpio ticks por si viene llena
+    ticks.clear()
+
+    # Inicializamos 'second_to_include' con el primer elemento de 'loaded_ticks'
+    second_to_include = loaded_ticks[-1][0]#con el timepo
+
+    
+
+    # Agregamos el primer elemento al comienzo de la lista 'ticks'
+    ticks.append([pd.to_datetime(loaded_ticks[-1][0], unit='s'), loaded_ticks[-1][2]])
+    print("primer tick")
+    print(ticks[0])
+
+    # Iteramos sobre los elementos de 'loaded_ticks' en orden inverso
+    for tick in reversed(loaded_ticks):
+        # Si el tiempo del tick actual es menor que el tiempo de 'second_to_include - time_period'
+        if len(ticks) < 20 and tick[0] < second_to_include - time_period:
+            # Agregamos el tick a la lista 'ticks'
+            ticks.insert(0, [pd.to_datetime(tick[0], unit='s'), tick[2]])#agregamos en forma inversa, quiere decir que el primero que inserto sera el ultimo
+            # Actualizamos 'second_to_include' al tiempo del tick actual
+            second_to_include = tick[0]
+        elif len(ticks) >= 20:
+            break
+
+    
+    print("\nDisplay TICKS DIRECTO Bandas Bollinger")
+    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+    print(prices_frame)
+    
+
+
+
 def thread_bandas(pill2kill, ticks: list,trading_data: dict):
     """Function executed by a thread that calculates
     the  RSI and MACD and the SIGNAL.
@@ -70,40 +124,15 @@ def thread_bandas(pill2kill, ticks: list,trading_data: dict):
     """
     global BB_LOWER,BB_UPPER,PRECIO_ACTUAL
     
-     # Wait if there are not enough elements
-    #while len(ticks) < 14 and not pill2kill.wait(1.5):
-     #   print("[THREAD - MACD] - Waiting for ticks")
     
 
-    #date_from = dt.datetime.now(tz=TIMEZONE)
-
-    #HABRA QUE HACER USO DE OTRA FUNCION COMO LA DE COPY RANGE, EN LA QUE EL FINAL DE COPIAR LOS TICKS ES ACTUAL, Y 
-    # EN FUNCION DEL NUMERO DE TICKS Y EL INTERVALO QUE NOS HAGA FALTA, NOS IREMOS A UN DIA U OTRO
-
-    date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
-
-    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
-
+    print("[THREAD - tick_direto] - Working")
     
-    print(loaded_ticks)
+    load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
-    for tick in loaded_ticks:
-        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
-
-    # esto es lo que habra que hacer
-    # second_to_include = 0
-    # for tick in loaded_ticks:
-    #     # Every X seconds we add a value to the list
-    #     if tick[0] > second_to_include + trading_data['time_period']:
-    #         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    #         second_to_include = tick[0]
-    
-    print("\nDisplay RSI THREAD")
-    print(prices_frame)
     print("[THREAD - tick_reader] - Taking ticks")
     
-    while not pill2kill.wait(1):
+    while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
@@ -117,13 +146,12 @@ def thread_bandas(pill2kill, ticks: list,trading_data: dict):
             prices_frame['bb_upper'] = bb.bollinger_hband()
             prices_frame['bb_lower'] = bb.bollinger_lband()
 
-            PRECIO_ACTUAL= tick
+            PRECIO_ACTUAL= tick[2]
             BB_UPPER = bb.bollinger_hband()
             BB_LOWER =  bb.bollinger_lband()
 
             print(prices_frame)
 
-        time.sleep(trading_data['time_period'])
 
 def check_buy() -> bool:
    if PRECIO_ACTUAL <  BB_LOWER:

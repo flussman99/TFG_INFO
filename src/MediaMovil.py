@@ -19,8 +19,6 @@ TIMEZONE=pytz.timezone("Etc/UTC")
 CUR_MED_LP= None
 CUR_MED_CP= None
 
-MAX_LEN = 9
-
 
 def backtesting(market: str, prices: list):
 
@@ -69,19 +67,58 @@ def backtesting(market: str, prices: list):
     tr.frameToExcel(prices_frame,'MediaMovil.xlsx')
 
 
-def check_buy() -> bool:
-    if CUR_MED_LP >= CUR_MED_CP :
-        return True
-    return False
-   
-def check_sell() -> bool:
-     if CUR_MED_LP <= CUR_MED_CP :
-        return True
-     return False
 
    
+def load_ticks_directo(ticks: list, market: str, time_period: int):
+    
+    # Loading data
+    
+    timezone = pytz.timezone("Etc/UTC")
+    today = dt.datetime.now()#dia de hoy
+    date_from = today - dt.timedelta(days=60)#esto es lo que hay que camabiar en cada estrategia
+    date_from = timezone.localize(date_from)
 
-def MediaMovil(pill2kill, ticks: list, trading_data: dict):
+    # print(today)
+    # print(date_from) --> lo hace bien
+    
+    loaded_ticks = mt5.copy_ticks_range(market, date_from, today, mt5.COPY_TICKS_ALL)
+    
+    if loaded_ticks is None:
+        print("Error loading the ticks")
+        return -1
+
+    print(loaded_ticks)
+
+   #limpio ticks por si viene llena
+    ticks.clear()
+
+    # Inicializamos 'second_to_include' con el primer elemento de 'loaded_ticks'
+    second_to_include = loaded_ticks[-1][0]#con el timepo
+
+    # Agregamos el primer elemento al comienzo de la lista 'ticks'
+    ticks.append([pd.to_datetime(loaded_ticks[-1][0], unit='s'), loaded_ticks[-1][2]])
+    print("primer tick")
+    print(ticks[0])
+
+    # Iteramos sobre los elementos de 'loaded_ticks' en orden inverso
+    for tick in reversed(loaded_ticks):
+        # Si el tiempo del tick actual es menor que el tiempo de 'second_to_include - time_period'
+        if len(ticks) < 60 and tick[0] < second_to_include - time_period:
+            # Agregamos el tick a la lista 'ticks'
+            ticks.insert(0, [pd.to_datetime(tick[0], unit='s'), tick[2]])#agregamos en forma inversa, quiere decir que el primero que inserto sera el ultimo
+            # Actualizamos 'second_to_include' al tiempo del tick actual
+            second_to_include = tick[0]
+        elif len(ticks) >= 60:
+            break
+
+    
+    print("\nDisplay TICKS DIRECTO MediaMovil")
+    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+    print(prices_frame)
+    
+
+
+def thread_MediaMovil(pill2kill, ticks: list, trading_data: dict):
     """Function executed by a thread that calculates
     the MACD and the SIGNAL.
 
@@ -93,40 +130,14 @@ def MediaMovil(pill2kill, ticks: list, trading_data: dict):
     """
     global CUR_MED_LP,CUR_MED_CP
     
-     # Wait if there are not enough elements
-    #while len(ticks) < 14 and not pill2kill.wait(1.5):
-     #   print("[THREAD - MACD] - Waiting for ticks")
+
+    print("[THREAD - tick_direto] - Working")
     
+    load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
-    #date_from = dt.datetime.now(tz=TIMEZONE)
-
-    #HABRA QUE HACER USO DE OTRA FUNCION COMO LA DE COPY RANGE, EN LA QUE EL FINAL DE COPIAR LOS TICKS ES ACTUAL, Y 
-    # EN FUNCION DEL NUMERO DE TICKS Y EL INTERVALO QUE NOS HAGA FALTA, NOS IREMOS A UN DIA U OTRO
-
-    date_from = dt.datetime(2024, 2, 6, tzinfo=TIMEZONE)
-
-    loaded_ticks=mt5.copy_ticks_from(trading_data['market'],date_from,25,mt5.COPY_TICKS_ALL)
-
-    
-    print(loaded_ticks)
-
-    for tick in loaded_ticks:
-        ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])
-
-    # esto es lo que habra que hacer
-    # second_to_include = 0
-    # for tick in loaded_ticks:
-    #     # Every X seconds we add a value to the list
-    #     if tick[0] > second_to_include + trading_data['time_period']:
-    #         ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-    #         second_to_include = tick[0]
-    
-    print("\nDisplay RSI THREAD")
-    print(prices_frame)
     print("[THREAD - tick_reader] - Taking ticks")
     
-    while not pill2kill.wait(1):
+    while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
@@ -144,4 +155,12 @@ def MediaMovil(pill2kill, ticks: list, trading_data: dict):
 
             print(prices_frame)
 
-        time.sleep(trading_data['time_period'])
+def check_buy() -> bool:
+    if CUR_MED_LP >= CUR_MED_CP :
+        return True
+    return False
+   
+def check_sell() -> bool:
+     if CUR_MED_LP <= CUR_MED_CP :
+        return True
+     return False

@@ -81,6 +81,7 @@ def handle_sell(sell, market: str):#modificar venta
         time.sleep(0.1)
 
 
+
 def open_buy(trading_data: dict):
     """Function to open a buy operation.
 
@@ -96,30 +97,24 @@ def open_buy(trading_data: dict):
         return None
     
     counter = 0
+
     # We only open the operation if the spread is 0
     # we check the spread 300000 times
-    while symbol_info.spread > 0 and counter < 300000:
-        counter += 1
-        symbol_info = mt5.symbol_info(trading_data['market'])
-
-    # If the spread wasn't 0 then we do not open the operation 
-    if counter == 300000:
-        now = date.datetime.now()
-        dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-        print("[Thread - orders]", dt_string, "- Spread too high. Spread =", symbol_info.spread)
-        return None
-
-    # If the symbol is not available in the MarketWatch, we add it
-    if not symbol_info.visible:
-        print("[Thread - orders]", trading_data['market'], "is not visible, trying to switch on")
-        if not mt5.symbol_select(trading_data['market'], True):
-            print("[Thread - orders] symbol_select({}) failed, exit",trading_data['market'])
+    #nuestro margen de spread es del 0.5% por eso esta puesto el 0.005 ademas counter solo mirara 1 minuto los sprea sino no hago la operacion
+    while (symbol_info.spread/symbol_info.ask) > 0.005:
+        if counter<60:
+            counter += 1
+            symbol_info = mt5.symbol_info(trading_data['market'])
+        else:
+            now = date.datetime.now()
+            dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+            print("[Thread - orders]", dt_string, "- Spread too high. Spread =", symbol_info.spread)
             return None
+        
 
     point = mt5.symbol_info(trading_data['market']).point
     price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
 
-    
     account_info = mt5.account_info()
 
     if account_info is None:
@@ -230,13 +225,13 @@ def check_buy(nombre:str) -> bool:
         bool: True if we can, false if not.
     """
     if nombre == 'RSI':
-        return Rsi_Macd.check_buy(nombre)
+        return Rsi_Macd.check_buy()
     elif nombre == 'Media Movil':
-        return MediaMovil.check_buy(nombre)
+        return MediaMovil.check_buy()
     elif nombre == 'Bandas':
-        return Bandas_Bollinger.check_buy(nombre)
+        return Bandas_Bollinger.check_buy()
     elif nombre == 'Estocastico':
-        return Estocastico.check_buy(nombre)
+        return Estocastico.check_buy()
 
 
 def check_sell(nombre : str) -> bool:
@@ -266,11 +261,10 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
     
     #chequear aqui que la operacione este abierta o no, variable operacion.
 
-
     print("[THREAD - orders] - Checking operations")
-    operacion_abierta=0
+    #operacion_abierta=0
     while not pill2kill.wait(0.1):
-        if check_buy(estrategia_directo) and operacion_abierta==0:
+        if check_buy(estrategia_directo):
             buy = open_buy(trading_data)
             if buy is not None:
                 now = date.datetime.now()
@@ -280,7 +274,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
                 buy = None
                 operacion_abierta=1
                
-        if check_sell(estrategia_directo) and operacion_abierta==1:
+        if check_sell(estrategia_directo):
             sell = open_sell(trading_data)
             if sell is not None:
                 now = date.datetime.now()

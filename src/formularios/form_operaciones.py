@@ -467,7 +467,7 @@ class FormularioOperaciones(tk.Toplevel):
 
 
 
-        frecuencia = ['1M', '2M', '3M', '4M', '5M', '6M', '10M', '12M', '15M', '20M', '30M', '1H', '2H', '3H', '4H', '6H', '8H', '12H', 'Daily', 'Weekly', 'Monthly']
+        frecuencia = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']
         self.frecuencia_var = tk.StringVar(value=frecuencia)
         self.combo_frecuencia = ttk.Combobox(canvas, textvariable=self.frecuencia_var, values=frecuencia)
         self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
@@ -510,7 +510,9 @@ class FormularioOperaciones(tk.Toplevel):
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_velas.get()
+
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        #self.b.thread_orders(estrategia)
         
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
