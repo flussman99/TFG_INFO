@@ -135,13 +135,28 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     
     load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
+
+#CAMBIAR ESTO 
+    
+    prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+
+    rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+    CUR_RSI=rsi.rsi()
+
+    macd = MACD(prices_frame["price"], window_slow=26, window_fast=12, window_sign=9)
+    CUR_MACD=macd.macd()
+    CUR_SIGNAL=macd.macd_signal()
+    
     print("[THREAD - tick_reader] - Taking ticks")
     
     while not pill2kill.wait(trading_data['time_period']):
+        print("DENTRO DEL BUCLE")
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        # print(tick)
+        print("COJO INFO")
+        print(tick)
         if tick is not None:
+            print("DENTRO IF")
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             print("Nuevo tick añadido:", ticks[-1])
             prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
@@ -157,7 +172,10 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
             CUR_MACD=macd.macd()
             CUR_SIGNAL=macd.macd_signal()
 
+
             print(prices_frame)
+        #print(CUR_MACD)
+        #print(CUR_RSI)        
 
 
 
@@ -168,16 +186,16 @@ def check_buy() -> bool:
     #Poner variable global el rsi y el macd, hacer comprobacion como en backtesting, y luego la 
     #operacion abierta se comprueba en ordenes.
 
-    if CUR_SIGNAL >= CUR_MACD and CUR_RSI < 35 :
-        return True
-    return False
+    if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
+        return False
+    return True
 
 
 def check_sell() -> bool:
     """Function to check if the MACD indicator
     allows a buy operation"""
 
-    if CUR_SIGNAL <= CUR_MACD and CUR_RSI > 65:
+    if CUR_SIGNAL.iloc[-1] <= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] > 65:
         return True
     return False
 

@@ -101,16 +101,23 @@ def open_buy(trading_data: dict):
     # We only open the operation if the spread is 0
     # we check the spread 300000 times
     #nuestro margen de spread es del 0.5% por eso esta puesto el 0.005 ademas counter solo mirara 1 minuto los sprea sino no hago la operacion
-    while (symbol_info.spread/symbol_info.ask) > 0.005:
+
+    spread= symbol_info.ask- symbol_info.bid
+
+    while (spread / symbol_info.ask) > 0.005:        
         if counter<60:
             counter += 1
             symbol_info = mt5.symbol_info(trading_data['market'])
         else:
             now = date.datetime.now()
             dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-            print("[Thread - orders]", dt_string, "- Spread too high. Spread =", symbol_info.spread)
+            print("[Thread - orders]", dt_string, "- Spread too high. Spread =", spread)
+            print(symbol_info.ask)    
+            print(symbol_info.bid)    
+
             return None
         
+
 
     point = mt5.symbol_info(trading_data['market']).point
     price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
@@ -144,11 +151,16 @@ def open_buy(trading_data: dict):
         "magic": 234000,#no sabemos q es
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_IOC,
+        "type_filling": mt5.ORDER_FILLING_FOK,
     }
 
     # Sending the buy
+
+
+    print(buy)
     result = mt5.order_send(buy)
+    print(result)
+
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         print("[Thread - orders] Failed buy: retcode={}".format(result.retcode))
@@ -238,13 +250,13 @@ def check_sell(nombre : str) -> bool:
     """Function to check if we can open a sell"""
 
     if nombre == 'RSI':
-        return Rsi_Macd.check_sell(nombre)
+        return Rsi_Macd.check_sell()
     elif nombre == 'Media Movil':
-        return MediaMovil.check_sell(nombre)
+        return MediaMovil.check_sell()
     elif nombre == 'Bandas':
-        return Bandas_Bollinger.check_sell(nombre)
+        return Bandas_Bollinger.check_sell()
     elif nombre == 'Estocastico':
-        return Estocastico.check_sell(nombre)
+        return Estocastico.check_sell()
    
     
 
@@ -263,7 +275,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
 
     print("[THREAD - orders] - Checking operations")
     #operacion_abierta=0
-    while not pill2kill.wait(0.1):
+    while not pill2kill.wait(trading_data['time_period']):
         if check_buy(estrategia_directo):
             buy = open_buy(trading_data)
             if buy is not None:
@@ -273,6 +285,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
                 handle_buy(buy, trading_data['market'])
                 buy = None
                 operacion_abierta=1
+        else: print("NO SE ABRE OPERACION")        
                
         if check_sell(estrategia_directo):
             sell = open_sell(trading_data)

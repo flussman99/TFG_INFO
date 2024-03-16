@@ -19,7 +19,7 @@ class Bot:
     pill2kill = threading.Event()
     
     trading_data = {
-        "lotage": 0.0,
+        "lotage": 1,
 	    "time_period": 0,
 	    "avg_spread": -1,
 	    "market": "",
