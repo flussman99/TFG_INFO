@@ -40,6 +40,7 @@ pip install openpyxl
 pip install pandas  
 pip install tkcalendar
 pip psutil
+pip install mysql-connector-python
 
 
 

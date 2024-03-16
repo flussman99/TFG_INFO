@@ -11,12 +11,22 @@ from formularios.form_inversiones import FormularioInversiones
 from formularios.form_operaciones import FormularioOperaciones
 from formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
-
+import mysql.connector
+from configDB import DBConfig
 
 class FormularioMaestroDesign(tk.Tk):
 
     def __init__(self):
         super().__init__()
+        #Establecemos conexión con la base de datos
+        self.conn = mysql.connector.connect(
+            host=DBConfig.HOST,
+            user=DBConfig.USER,
+            password=DBConfig.PASSWORD,
+            database=DBConfig.DATABASE,
+            port=DBConfig.PORT
+        )
+
         self.logo = util_img.leer_imagen("./src/imagenes/meta-trader-5-logo.png", (560,135))
         self.perfil = util_img.leer_imagen("./src/imagenes/usuario.png", (100,100))
         self.imgconstruccion = util_img.leer_imagen("./src/imagenes/construccion.png", (100,100))
@@ -154,7 +164,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.botonOperaciones, self.abrir_panel_inicio)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.botonOperaciones, self.abrir_panel_inicio, self.conn)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)

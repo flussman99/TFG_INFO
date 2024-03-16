@@ -14,9 +14,9 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 class FormularioLoginDesign(tk.Toplevel):
 
    
-    def __init__(self, panel_principal, label_usuario, boton_inversiones, boton_operaciones, abrir_panel_inicio):
+    def __init__(self, panel_principal, label_usuario, boton_inversiones, boton_operaciones, abrir_panel_inicio, conn):
 
-
+        self.conn = conn
         self.panel_inicio = abrir_panel_inicio
         self.labelUsuario = label_usuario
         self.boton_inv = boton_inversiones
@@ -92,7 +92,7 @@ class FormularioLoginDesign(tk.Toplevel):
             font=("Calistoga Regular", 20 * -1)
         )
         canvas.create_window(296, 331, window=self.usuario)
-        self.usuario.insert(0, "51468408")
+        self.usuario.insert(0, "admin")
 
         self.usuario.place(
             x=296.0,
@@ -118,7 +118,7 @@ class FormularioLoginDesign(tk.Toplevel):
             font=("Calistoga Regular", 20 * -1)
         )
         canvas.create_window(296, 460, window=self.password)
-        self.password.insert(0, "YHPuThmy")
+        self.password.insert(0, "123456789")
         self.password.config(show="*")
 
         self.password.place(
@@ -149,13 +149,34 @@ class FormularioLoginDesign(tk.Toplevel):
         )
 
         self.cuerpo_principal.mainloop()
-        #Hay que hacer que pueda logarse cualquier otro usuario
+        
 
-
+    #Hay que hacer que pueda logarse cualquier otro usuario
     def verificar(self):
         usu = self.usuario.get()
         password = self.password.get()
+        cursor = self.conn.cursor()
+        sql = "SELECT nombre, userMetaTrader, passwordMetaTrader FROM Usuarios WHERE user = %s AND contraseña = %s"
+        cursor.execute(sql, (usu,password))
+        resultado = cursor.fetchone()
         server = "ICMarketsEU-Demo"
+        if resultado:
+            nombre_usuario = resultado[0]
+            usermt5 = resultado[1]
+            passwordmt5 = resultado[2]
+            if not self.mt5_login(int(usermt5),passwordmt5,server):
+                messagebox.showerror(message="Conexión con cuenta de metatrader fallida", title="Mensaje")
+            else:
+                #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje") 
+                self.labelUsuario.config(text=f"Usuario: {nombre_usuario}")
+                self.boton_op["state"] = tk.NORMAL
+                self.boton_inv["state"] = tk.NORMAL
+                self.lift
+                self.panel_inicio()
+        else:
+            messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
+        
+        cursor.close()
         # with open("login.txt", 'r') as f:
         #         lines = f.readlines()
         #         usr = lines[0].strip()
@@ -165,18 +186,8 @@ class FormularioLoginDesign(tk.Toplevel):
         #     messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
         # else: 
             #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
-        if not self.mt5_login(int(usu),password,server):
-            messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
-            # quit()
-        else:
-            messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje") 
-            self.labelUsuario.config(text=f"Usuario: {usu}")
-            self.boton_op["state"] = tk.NORMAL
-            self.boton_inv["state"] = tk.NORMAL
-            self.lift()
-            self.panel_inicio()
-
-            #FormularioMaestroDesign()
+        
+        
 
     def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
         """Function to initialize the metatrader 5 aplication
