@@ -7,8 +7,8 @@ import MetaTrader5 as mt5
 THRESHOLD = 20
 MARGIN = 10
 TIME_BETWEEN_OPERATIONS = 15*60*10
-STOPLOSS = 100
-TAKEPROFIT = 100
+STOPLOSS = 100.0
+TAKEPROFIT = 100.0
 
 
 def handle_buy(buy, market):#modificar compra
@@ -138,27 +138,26 @@ def open_buy(trading_data: dict):
     
 
     deviation = 20
-    
+
+    #trading_data['lotage'],
     buy = {
         "action": mt5.TRADE_ACTION_DEAL,
         "symbol": trading_data['market'],
-        "volume": trading_data['lotage'],
+        "volume": float(trading_data['lotage']),
         "type": mt5.ORDER_TYPE_BUY,
         "price": price,
-        "sl": price - STOPLOSS * point,
-        "tp": price + TAKEPROFIT * point,
+        #"sl": float(price - STOPLOSS * point),
+        #"tp": float(price + TAKEPROFIT * point),
         "deviation": deviation, #no sabemos q es
         "magic": 234000,#no sabemos q es
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_FOK,
+        "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
     # Sending the buy
-
-
     print(buy)
-    result = mt5.order_send(buy)
+    result=mt5.order_send(buy)
     print(result)
 
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
@@ -209,11 +208,11 @@ def open_sell(trading_data: dict):
     sell = {
         "action": mt5.TRADE_ACTION_DEAL,
         "symbol": trading_data['market'],
-        "volume": trading_data['lotage'],
+        "volume": float(trading_data['lotage']),
         "type": mt5.ORDER_TYPE_SELL,
         "price": price,
-        "sl": price + STOPLOSS * point,
-        "tp": price - TAKEPROFIT * point,
+        #"sl": price + STOPLOSS * point,
+        #"tp": price - TAKEPROFIT * point,
         "deviation": deviation,
         "magic": 234000,
         "comment": "python script open",

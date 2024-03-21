@@ -19,22 +19,12 @@ class Bot:
     pill2kill = threading.Event()
     
     trading_data = {
-        "lotage": 1,
+        "lotage": 1.0,
 	    "time_period": 0,
 	    "avg_spread": -1,
 	    "market": "",
 	    "buy_model": None,
 	    "sell_Model": None
-    }
-
-    indicators = {
-        "MACD": {"MACD": 0.0, "SIGNAL": 0.0},
-        "RSI": 0.0,
-        "slope": 0.0,
-        "absolute_max": {"time": 0.0, "difference": 0.0},
-        "absolute_min": {"time": 0.0, "difference": 0.0},
-        "relative_min": {"time": 0.0, "difference": 0.0},
-        "relative_max": {"time": 0.0, "difference": 0.0}
     }
     
     # Methods
