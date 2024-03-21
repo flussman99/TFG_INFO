@@ -179,22 +179,25 @@ def open_sell(trading_data: dict):
     symbol_info = mt5.symbol_info(trading_data['market'])
     if symbol_info is None:
         print("[Thread - orders]", trading_data['market'], "not found, can not call order_check()")
+    
         return None
     
     counter = 0
-    # We only open the operation if the spread is 0
-    # we check the spread 300000 times
-    while symbol_info.spread > 0 and counter < 300000:
-        counter += 1
-        symbol_info = mt5.symbol_info(trading_data['market'])
 
-    # If the spread wasn't 0 then we do not open the operation 
-    if counter == 300000:
-        now = date.datetime.now()
-        dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-        print("[Thread - orders]",dt_string, "- Spread too high. Spread =", symbol_info.spread)
-        return None
+    spread= symbol_info.ask- symbol_info.bid
 
+    while (spread / symbol_info.ask) > 0.005:        
+        if counter<60:
+            counter += 1
+            symbol_info = mt5.symbol_info(trading_data['market'])
+        else:
+            now = date.datetime.now()
+            dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+            print("[Thread - orders]", dt_string, "- Spread too high. Spread =", spread)
+            print(symbol_info.ask)    
+            print(symbol_info.bid)    
+
+            return None
     # si el símbolo no está disponible en MarketWatch, lo añadimos
     if not symbol_info.visible:
         print("[Thread - orders]", trading_data['market'], "is not visible, trying to switch on")

@@ -150,13 +150,9 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     print("[THREAD - tick_reader] - Taking ticks")
     
     while not pill2kill.wait(trading_data['time_period']):
-        print("DENTRO DEL BUCLE")
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        print("COJO INFO")
-        print(tick)
         if tick is not None:
-            print("DENTRO IF")
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             print("Nuevo tick añadido:", ticks[-1])
             prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
@@ -174,8 +170,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
 
 
             print(prices_frame)
-        #print(CUR_MACD)
-        #print(CUR_RSI)        
+              
 
 
 
@@ -187,8 +182,8 @@ def check_buy() -> bool:
     #operacion abierta se comprueba en ordenes.
 
     if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-        return False
-    return True
+        return True
+    return False
 
 
 def check_sell() -> bool:
