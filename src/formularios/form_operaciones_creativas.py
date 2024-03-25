@@ -15,7 +15,7 @@ from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
-class FormularioOperaciones(tk.Toplevel):
+class FormularioOperacionesCreativas(tk.Toplevel):
    
     def __init__(self, panel_principal):
 
@@ -524,15 +524,3 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_estocastico()
             
         self.b.thread_orders(estrategia)
-
-    def getPrice(self):
-        lotaje = self.entry_compras.get()
-        accion = self.combo_acciones.get()
-        mercado = self.combo_mercados.get()
-
-
-    
-    def lanzarCompra(self):
-       lotaje = self.entry_compras.get()
-    
-    

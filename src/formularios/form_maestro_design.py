@@ -9,6 +9,7 @@ from formularios.form_pagina_construccion import FormularioPagConstruccion
 from formularios.form_pagina_informacion import FormularioPagInformacion
 from formularios.form_inversiones import FormularioInversiones
 from formularios.form_operaciones import FormularioOperaciones
+from formularios.form_operaciones_creativas import FormularioOperacionesCreativas
 from formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
 import mysql.connector
@@ -67,14 +68,14 @@ class FormularioMaestroDesign(tk.Tk):
    
     def controles_barra_superior(self):
         #Configuración de la barra superior
-        ancho_menu = 16
+        ancho_menu = 15
         alto_menu = 35
-        font_awesome = font.Font(family="FontAwesome", size=15)
+        font_awesome = font.Font(family="FontAwesome", size=14)
         font_awesome_usuario = font.Font(family="FontAwesome", size=12)
         
         #Imagen de metatrader para la barra superior
         imagen_logo = Image.open("./src/imagenes/meta-trader-5-logo.png")
-        imagen_logo = imagen_logo.resize((200, 35))
+        imagen_logo = imagen_logo.resize((150, 35))
         self.imagen_logo = ImageTk.PhotoImage(imagen_logo)
         label_logo = tk.Label(self.barra_superior, image=self.imagen_logo, bg=COLOR_BARRA_SUPERIOR)
         label_logo.pack(side=tk.LEFT, padx=5)
@@ -105,6 +106,7 @@ class FormularioMaestroDesign(tk.Tk):
         self.botonPerfil = tk.Button(self.contenedor_botones)
         self.botonInversiones = tk.Button(self.contenedor_botones, state=tk.DISABLED)
         self.botonOperaciones = tk.Button(self.contenedor_botones, state=tk.DISABLED)
+        self.botonOperacionesCreativas = tk.Button(self.contenedor_botones, state=tk.DISABLED)
         self.botonInfo = tk.Button(self.contenedor_botones)
 
         botones_info = [
@@ -112,6 +114,7 @@ class FormularioMaestroDesign(tk.Tk):
             ("Perfil", "\uf007", self.botonPerfil, self.abrir_panel_perfil),
             ("Inversiones", "\uf1da", self.botonInversiones, self.abrir_panel_inversiones),
             ("Operaciones", "\uf201", self.botonOperaciones, self.abrir_panel_operaciones),
+            ("Ops Creativas", "\uf1fc", self.botonOperacionesCreativas, self.abrir_panel_operaciones_creativas),
             ("Información", "\uf129", self.botonInfo, self.abrir_panel_informacion)
         ]
 
@@ -164,7 +167,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_perfil(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.botonOperaciones, self.abrir_panel_inicio, self.conn)
+        FormularioLoginDesign(self.cuerpo_principal, self.labelTitulo, self.botonInversiones, self.botonOperaciones, self.botonOperacionesCreativas, self.abrir_panel_inicio, self.conn)
 
     def abrir_panel_pag_construccion(self):
         self.limpiar_panel(self.cuerpo_principal)
@@ -181,6 +184,10 @@ class FormularioMaestroDesign(tk.Tk):
     def abrir_panel_operaciones(self):
         self.limpiar_panel(self.cuerpo_principal)
         FormularioOperaciones(self.cuerpo_principal)
+
+    def abrir_panel_operaciones_creativas(self):
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioOperacionesCreativas(self.cuerpo_principal)
 
 
     def abrir_panel_ajustes(self):
