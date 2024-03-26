@@ -15,7 +15,7 @@ from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
-class FormularioOperaciones(tk.Toplevel):
+class FormularioOperacionesCreativas(tk.Toplevel):
    
     def __init__(self, panel_principal):
 
@@ -512,9 +512,8 @@ class FormularioOperaciones(tk.Toplevel):
         estrategia=self.combo_velas.get()
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-       
-        self.b.thread_orders(estrategia)
         
+
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
         elif estrategia == 'Media Movil':
@@ -523,5 +522,5 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_bandas()
         elif estrategia == 'Estocastico':
             self.b.thread_estocastico()
-    
-    
+            
+        self.b.thread_orders(estrategia)
