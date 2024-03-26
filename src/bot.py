@@ -126,6 +126,7 @@ class Bot:
         self.threads.append(t)
         t.start()
         print('Thread - RSI_MACD. LAUNCHED')
+        print("Hilos en la lista threads:", self.threads)
     
     def thread_MediaMovil(self):
         """Function to launch the thread for calculating the MACD.
@@ -143,6 +144,7 @@ class Bot:
         self.threads.append(t)
         t.start()
         print('Thread - BandasBollinger. LAUNCHED')
+        print("Hilos en la lista threads:", self.threads)
 
     def thread_estocastico(self):
         
@@ -159,6 +161,7 @@ class Bot:
         self.threads.append(t)
         t.start()
         print('Thread - orders. LAUNCHED')
+        print("Hilos en la lista threads:", self.threads)
     
     def kill_threads(self):
         """Function to kill all the loaded threads.
@@ -200,7 +203,7 @@ class Bot:
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos
         if frecuencia_txt == "1M":
-            frecuencia = 60
+            frecuencia = 20
         elif frecuencia_txt == "3M":
             frecuencia = 180
         elif frecuencia_txt == "5M":

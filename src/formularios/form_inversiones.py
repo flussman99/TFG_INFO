@@ -339,33 +339,7 @@ class FormularioInversiones(tk.Toplevel):
         #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
 
-        print("----------------------------------------")
-        print("----------------------------------------")
-        print("----------------------------------------")
-        print("----------------------------------------")
-
-        #cambiar a form operaciones
         
-        #if abrir operacion       
-        #self.b.thread_orders()
-
-        #if elegir tipo de operacion
-        if estrategia_txt == 'RSI':
-            self.b.thread_RSI_MACD()
-
-        elif estrategia_txt == 'Media Movil':
-            self.b.thread_MediaMovil()
-
-        elif estrategia_txt == 'Bandas':
-            self.b.thread_bandas()
-
-        elif estrategia_txt == 'Estocastico':
-            self.b.thread_estocastico()
-
-
-        # Esperar 7 segundos
-        time.sleep(7)
-
 
         self.informacion()
 
