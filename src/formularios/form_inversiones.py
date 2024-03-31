@@ -182,7 +182,7 @@ class FormularioInversiones(tk.Toplevel):
         self.acciones_var = tk.StringVar(value=acciones)
         self.combo_acciones = ttk.Combobox(self.cuerpo_principal, textvariable=self.acciones_var, values=acciones)
         self.combo_acciones.place(x=684.0, y=38.0, width=640, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_acciones.set("TSLA.NAS")  # Establece la opción por defecto
+        self.combo_acciones.set("ACS.MAD")  # Establece la opción por defecto
         self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         self.original_acciones = acciones
@@ -211,7 +211,7 @@ class FormularioInversiones(tk.Toplevel):
         self.titulo_estrategia.place(x=35.0, y=96, width=200, height=38.0)
         self.titulo_estrategia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
+        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico', 'Futbol']
         self.estrategia_var = tk.StringVar(value=estrategia)
         self.combo_estrategia = ttk.Combobox(self.cuerpo_principal, textvariable=self.estrategia_var, values=estrategia)
         self.combo_estrategia.place(x=35.0, y=131.0, width=200.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario

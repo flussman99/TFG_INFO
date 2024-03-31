@@ -5,6 +5,7 @@ import Rsi_Macd
 import MediaMovil 
 import Bandas_Bollinger
 import Estocastico
+import EquiposdeFutbol.SBS_backtesting as Futbol
 import pytz
 import openpyxl
 import pandas as pd
@@ -55,6 +56,7 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     fecha_fin = txt_to_int_fecha(fin_txt)
 
     utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
+    print(utc_from)
     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
     loaded_ticks = mt5.copy_ticks_range(market, utc_from, utc_to, mt5.COPY_TICKS_ALL)
     if loaded_ticks is None:
@@ -67,8 +69,8 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
 
     # mostrar todos los ticks con todas las columnas
-    print("\nDisplay dataframe with ticks")
-    print(ticks_frame)
+    # print("\nDisplay dataframe with ticks")
+    # print(ticks_frame)
 
     # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
     second_to_include = 0
@@ -77,7 +79,10 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
         if tick[0] > second_to_include + time_period:
             ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
             second_to_include = tick[0] 
+    print("\nDisplay dataframe with ticks tratados")
+    final_frame=pd.DataFrame(ticks)
 
+    print(final_frame)
     # # Removing the ticks that we do not need
     # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
     # if not_needed_ticks > 0:
@@ -104,10 +109,10 @@ def estrategias(ticks: list, market: str,nombre:str):
     elif nombre == 'Estocastico':
         Estocastico.backtesting(nombre,ticks)
         ticks.clear()
+    elif nombre == 'Futbol':
+        Futbol.backtesting(nombre,ticks)
+        ticks.clear()
    
-    
-
-
 
 def calcular_rentabilidad(precio_apertura: int,precio_cierre: int):
     """
