@@ -7,7 +7,7 @@ import pandas as pd
 import MetaTrader5 as mt5
 import datetime as dt
 import pytz
-import time
+from datetime import timedelta
 TIMEZONE=pytz.timezone("Etc/UTC")
 
 
@@ -17,8 +17,9 @@ MACDs = []
 CUR_MACD = None
 CUR_SIGNAL = None
 CUR_RSI = None
-
-
+# Definir 'TIMEBTWOPERATIONS' como un timedelta que representa 15 minutos
+TIMEBTWOPERATIONS = timedelta(minutes=15)
+compras=[]
 MAX_LEN = 9
 
 
@@ -34,23 +35,32 @@ def backtesting(nombre:str, prices: list):
     prices_frame["RSI"] = rsi.rsi()
     decisiones = []
     rentabilidad=[]
-    posicion_abierta=False
-
+    posicion_abierta=False#comprobar si hay alguna posicion abierta para poder realziar ventas
+    tiempo=0#tiempo ultima operacion
+    
     for index, row in prices_frame.iterrows():
         rsi = row['RSI']
         macd_fila=row['macd']
         macd_si=row['macd_signal']
         precioCompra= row['price']
+
         # Comparar las medias móviles
         if rsi > 65 and macd_fila < macd_si and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
-        elif rsi < 35 and macd_fila > macd_si and posicion_abierta == False:
-            decisiones.append("1")#COMPRO
-            rentabilidad.append(None)
-            posicion_abierta=True
-            guardar=precioCompra
+            rentabilidad.append(tr.calcular_rentabilidad(compras,row['price']))
+            compras.clear()
+        elif len(compras) < 10 and rsi < 35 and macd_fila > macd_si :
+            if tiempo==0 or diftime(row['time'],tiempo):
+                decisiones.append("1")#COMPRO
+                rentabilidad.append(None)
+                compras.append(precioCompra)
+                posicion_abierta=True
+                tiempo=row['time']#tiempo ultima operacion
+                print(tiempo)
+            else:
+                decisiones.append("NO SE REALIZA OPERACION")
+                rentabilidad.append(None)
         else:
             decisiones.append("NO SE REALIZA OPERACION")#COMPRO
             rentabilidad.append(None)
@@ -64,9 +74,14 @@ def backtesting(nombre:str, prices: list):
     tr.rentabilidad_total( prices_frame['Rentabilidad'])
     tr.frameToExcel(prices_frame, nombre + '.xlsx') 
 
+def diftime(t1,t2):
+    if t1-t2>TIMEBTWOPERATIONS:
+        print("Diferencia de tiempo mayor a 15 minutos")
+        print(t1-t2)
+        return True
+    else:
+        return False
 
-        
-   
 def load_ticks_directo(ticks: list, market: str, time_period: int):
     
     # Loading data
@@ -183,8 +198,8 @@ def check_buy() -> bool:
     #operacion abierta se comprueba en ordenes.
 
     if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-        return False
-    return True
+        return True
+    return False
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy

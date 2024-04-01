@@ -114,17 +114,24 @@ def estrategias(ticks: list, market: str,nombre:str):
         ticks.clear()
    
 
-def calcular_rentabilidad(precio_apertura: int,precio_cierre: int):
+def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
     """
-    Calcular rentabilidad
+    Calcular rentabilidad total
     """
-    if precio_apertura != 0 :
+    rentabilidad_total = 0
 
-        rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
-        print("Rentabilidad obtenida")
-        print(rentabilidad)
-        return rentabilidad
-    
+    for precio_apertura in precios_apertura:
+        if precio_apertura != 0:
+            rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
+            # print("Rentabilidad obtenida")
+            # print(rentabilidad)
+            rentabilidad_total += rentabilidad
+
+    print("Rentabilidad total obtenida")
+    print(rentabilidad_total)
+    return rentabilidad_total
+
+
 def rentabilidad_total(rentabilidades):
      # Mostrar la rentabilidad total
     suma_rentabilidades = rentabilidades.sum()

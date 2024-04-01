@@ -203,7 +203,7 @@ class Bot:
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos
         if frecuencia_txt == "1M":
-            frecuencia = 20
+            frecuencia = 60
         elif frecuencia_txt == "3M":
             frecuencia = 180
         elif frecuencia_txt == "5M":

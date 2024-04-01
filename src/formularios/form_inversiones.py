@@ -341,7 +341,7 @@ class FormularioInversiones(tk.Toplevel):
 
         
 
-        self.informacion()
+        # self.informacion()
 
 
     def informacion(self):
