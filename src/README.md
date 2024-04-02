@@ -41,7 +41,8 @@ pip install pandas
 pip install tkcalendar
 pip psutil
 pip install mysql-connector-python
-
+pip install beautifulsoup4
+pip install lxml
 
 
 A nivel de interfaz incluir ventana para estudio y ventana para abrir operaciones donde podremos abrir varias y establecer valores de stop loss o el profit -->IMPORTANTE

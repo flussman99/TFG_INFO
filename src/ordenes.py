@@ -9,7 +9,10 @@ MARGIN = 10
 TIME_BETWEEN_OPERATIONS = 15*60*10
 STOPLOSS = 100.0
 TAKEPROFIT = 100.0
-
+comprasRSI = []
+comprasMedia = []
+comprasBandas = []
+comprasEstocasticos = []
 
 def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
@@ -20,6 +23,7 @@ def handle_buy(buy, market):#modificar compra
     """
     position=mt5.positions_get(symbol=market)[-1].ticket
     point = mt5.symbol_info(market).point
+    ticket=buy.order#aqui tenemos el ticket
     GOAL = buy['price']+point*THRESHOLD
     while True:
         tick = mt5.symbol_info_tick(market)
@@ -158,13 +162,16 @@ def open_buy(trading_data: dict):
     # Sending the buy
     print(buy)
     result=mt5.order_send(buy)
-    print(result)
+    result_dict=result._asdict()
+    for field in result_dict.keys():
+        print("   {}={}".format(field,result_dict[field]))
+    #print(result)
 
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         print("[Thread - orders] Failed buy: retcode={}".format(result.retcode))
         return None
-    return buy
+    return result
 
 
 def open_sell(trading_data: dict):
@@ -261,6 +268,19 @@ def check_sell(nombre : str) -> bool:
         return Estocastico.check_sell()
    
     
+def elegirListGuardarCompras(estrategia, buy):
+    if estrategia == 'RSI':
+        comprasRSI.append(buy)
+        return comprasRSI
+    elif estrategia == 'Media Movil':
+        comprasMedia.append(buy)
+        return comprasMedia
+    elif estrategia == 'Bandas':
+        comprasBandas.append(buy)
+        return comprasBandas
+    elif estrategia == 'Estocastico':
+        comprasEstocasticos.append(buy)
+        return comprasEstocasticos
 
 
 def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot solo abre una operacion al mismo tiempo
@@ -280,21 +300,24 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
     while not pill2kill.wait(trading_data['time_period']):
         if check_buy(estrategia_directo):
             buy = open_buy(trading_data)
+            lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
             if buy is not None:
                 now = date.datetime.now()
                 dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
                 print("[Thread - orders] Buy open -", dt_string)
-                handle_buy(buy, trading_data['market'])
+                #handle_buy(buy, trading_data['market'])
                 buy = None
-                operacion_abierta=1
+                
         else: print("NO SE ABRE OPERACION")        
-               
-        if check_sell(estrategia_directo):
-            sell = open_sell(trading_data)
-            if sell is not None:
-                now = date.datetime.now()
-                dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-                print("[Thread - orders] Sell open -", dt_string)
-                handle_sell(sell, trading_data['market'])
-                sell = None
-                operacion_abierta=0
+        
+        # for compra in lista: #comprobar en el hilo de RSI si es interesante vender alguna compra
+
+        # if check_sell(estrategia_directo):
+        #     sell = open_sell(trading_data)
+        #     if sell is not None:
+        #         now = date.datetime.now()
+        #         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+        #         print("[Thread - orders] Sell open -", dt_string)
+        #         handle_sell(sell, trading_data['market'])
+        #         sell = None
+                

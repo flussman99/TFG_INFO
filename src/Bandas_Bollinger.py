@@ -64,14 +64,10 @@ def load_ticks_directo(ticks: list, market: str, time_period: int):
     
     # Loading data
     
-    timezone = pytz.timezone("Etc/UTC")
-    today = dt.datetime.now()#dia de hoy
-    date_from = today - dt.timedelta(days=20)#esto es lo que hay que camabiar en cada estrategia
-    date_from = timezone.localize(date_from)
-
-    # print(today)
-    # print(date_from) --> lo hace bien
-    
+     # Loading data
+    tick = mt5.symbol_info_tick(market)
+    today=pd.to_datetime(tick[0], unit='s')#coje el horario del tick de la accion que haya elegido asi me adapto el horario en funcion del tick y la accion seleccionada
+    date_from = today - dt.timedelta(days=21)#esto es lo que hay que camabiar en cada estrategia
     loaded_ticks = mt5.copy_ticks_range(market, date_from, today, mt5.COPY_TICKS_ALL)
     
     if loaded_ticks is None:
@@ -82,16 +78,10 @@ def load_ticks_directo(ticks: list, market: str, time_period: int):
 
    #limpio ticks por si viene llena
     ticks.clear()
-
-    # Inicializamos 'second_to_include' con el primer elemento de 'loaded_ticks'
-    second_to_include = loaded_ticks[-1][0]#con el timepo
-
-    
-
     # Agregamos el primer elemento al comienzo de la lista 'ticks'
-    ticks.append([pd.to_datetime(loaded_ticks[-1][0], unit='s'), loaded_ticks[-1][2]])
-    print("primer tick")
-    print(ticks[0])
+    ticks.append([today,tick[2]])
+   # Inicializamos 'second_to_include' con el primer elemento de 'loaded_ticks'
+    second_to_include = tick[0]#con el timepo
 
     # Iteramos sobre los elementos de 'loaded_ticks' en orden inverso
     for tick in reversed(loaded_ticks):
