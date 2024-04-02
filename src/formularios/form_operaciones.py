@@ -321,11 +321,11 @@ class FormularioOperaciones(tk.Toplevel):
             file="src/imagenes/assets/boton_comun_mkt.png")
         button_8 = Button(
             canvas,
-            text="Precio venta",
+            text=self.getPrice,
             image=button_image_8,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_8 clicked"),
+            command=self.lanzarVenta,
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
@@ -490,13 +490,13 @@ class FormularioOperaciones(tk.Toplevel):
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
         button_16 = Button(
             canvas,
-            text="\uf0ad",
+            text="Parar ticks",
             image=button_image_16,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_16 clicked"),
+            command=self.pararTicksDirecto,
             compound=tk.CENTER,
-            font="font_awesome"
+            font=('Calistoga Regular', 12)
         )
         button_16.place(
             x=1234.0,
@@ -523,5 +523,38 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_bandas()
         elif estrategia == 'Estocastico':
             self.b.thread_estocastico()
+
+    def getPrice(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        estrategia=self.combo_velas.get()
+
+        # self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+       
+        # self.b.thread_orders(estrategia)
+        
+        # if estrategia == 'RSI':
+        #     self.b.thread_RSI_MACD()
+        # elif estrategia == 'Media Movil':
+        #     self.b.thread_MediaMovil()
+        # elif estrategia == 'Bandas':
+        #     self.b.thread_bandas()
+        # elif estrategia == 'Estocastico':
+        #     self.b.thread_estocastico()
+    
+    def lanzarCompra(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        estrategia=self.combo_velas.get()
+
+    def lanzarVenta(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        estrategia=self.combo_velas.get()
+
+    def pararTicksDirecto(self):
+        frecuencia_txt = self.combo_frecuencia.get()
+        accion_txt = self.combo_acciones.get()
+        estrategia=self.combo_velas.get()
     
     
