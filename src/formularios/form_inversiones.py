@@ -13,7 +13,7 @@ from datetime import datetime
 from config import COLOR_CUERPO_PRINCIPAL
 import time
 from tkinter import Scrollbar
-from formularios.form_informacion_estrategia import FormularioMasInformacion
+#from formularios.form_informacion_estrategia import FormularioMasInformacion
 import matplotlib.ticker as ticker
 
 
