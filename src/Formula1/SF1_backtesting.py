@@ -64,6 +64,35 @@ def obtener_resultados_piloto(html, nombre):
 
     return datos_piloto
 
+def obtener_escuderia_piloto(html, nombre):
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Extraer las filas de la tabla
+    filas = soup.find_all('tr')
+
+    escuderia_piloto = ''
+
+    for fila in filas:
+        celdas = fila.find_all('td')
+        if len(celdas) == 3:  # Si hay tres celdas, la primera contiene la escudería y la tercera el piloto
+            piloto = celdas[2].text.strip()
+            escuderia_piloto = celdas[0].text.strip()
+            if piloto == nombre:
+                break  # Salir del bucle una vez que se haya encontrado el piloto
+        if len(celdas) == 2:
+            piloto = celdas[1].text.strip()
+            if piloto == nombre:
+                break  # Salir del bucle una vez que se haya encontrado el piloto
+
+    # Mostrar la escudería del piloto buscado
+    print("Escudería de", nombre + ":", escuderia_piloto)
+    # Crear un DataFrame
+
+    return escuderia_piloto
+
+
+
 
 def datosPiloto(piloto):
     base_dir = os.path.abspath('src\Formula1\html')
@@ -93,13 +122,26 @@ def datosPiloto(piloto):
         '2022_calendar.html',
         '2023_calendar.html'
     ]
+    html_teams_files = [
+        '2014_teams.html',
+        '2015_teams.html',
+        '2016_teams.html',
+        '2017_teams.html',
+        '2018_teams.html',
+        '2019_teams.html',
+        '2020_teams.html',
+        '2021_teams.html',
+        '2022_teams.html',
+        '2023_teams.html'
+    ]
 
     # Convert the HTML files list to full file paths
     html_results_files = [os.path.join(base_dir, file) for file in html_results_files]
     html_dates_files = [os.path.join(base_dir, file) for file in html_calendars_files]
+    html_teams_files = [os.path.join(base_dir, file) for file in html_teams_files]
     año = 2014
-    for result_file_name, date_file_name in zip(html_results_files, html_dates_files):
-        if os.path.exists(result_file_name):
+    for result_file_name, date_file_name, teams_file_name in zip(html_results_files, html_dates_files, html_teams_files):
+        if os.path.exists(result_file_name) and os.path.exists(date_file_name) and os.path.exists(teams_file_name):
             
             
             with open(result_file_name, 'r', encoding='utf-8') as file_results:
@@ -108,6 +150,8 @@ def datosPiloto(piloto):
             with open(date_file_name, 'r', encoding='utf-8') as file_dates:
                 html_content_dates = file_dates.read()
 
+            with open(teams_file_name, 'r', encoding='utf-8') as file_teams:
+                html_content_teams = file_teams.read()
 
 
             soup_tabla_principal = BeautifulSoup(html_content_results, 'html.parser')
@@ -115,9 +159,11 @@ def datosPiloto(piloto):
 
             # Buscar las filas de la tabla principal que contengan el texto específico
             # Extraer los datos de las filas y transponerlos en una columna
-            texto_especifico = piloto # Por ejemplo, estamos buscando el nombre 'Jane'
             filas_con_texto = obtener_resultados_piloto(html_content_results, piloto)
-            df = pd.DataFrame(filas_con_texto, columns=[texto_especifico])
+            escuderia = obtener_escuderia_piloto(html_content_teams, piloto)
+
+
+            df = pd.DataFrame(filas_con_texto, columns=[escuderia])
 
 
             # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
@@ -144,7 +190,6 @@ def convert_date(fecha_texto, año):
     mes, dia = fecha_texto.split()
     mes_numero = meses.get(mes)
     fecha_formateada = f"{año}-{mes_numero}-{dia.zfill(2)}"
-    print(fecha_formateada)
 
     return fecha_formateada
 
