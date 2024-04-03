@@ -42,6 +42,7 @@ pip install tkcalendar
 pip psutil
 pip install mysql-connector-python
 pip install requests
+pip install yfinance
 
 
 A nivel de interfaz incluir ventana para estudio y ventana para abrir operaciones donde podremos abrir varias y establecer valores de stop loss o el profit -->IMPORTANTE
