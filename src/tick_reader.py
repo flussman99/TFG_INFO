@@ -14,7 +14,7 @@ from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
 import time
-import yfinance as yf
+import investpy
 
 # Global variables
 MAX_TICKS_LEN = 200
@@ -43,12 +43,67 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     print("[THREAD - tick_reader] - Working")
 
     # Filling the list with previos ticks
-    load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
+    load_ticks_invest(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
     estrategias(ticks,trading_data['market'],estrategia_txt)
     
     print("[THREAD - tick_reader] - Ticks loaded")
    
+def load_ticks_invest(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
+
+    timezone = pytz.timezone("Etc/UTC")
+    fecha_inicio = txt_to_int_fecha(inicio_txt)
+    fecha_fin = txt_to_int_fecha(fin_txt)
+
+    utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
+    print(utc_from)
+    utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
+
+    loaded_ticks = investpy.get_stock_historical_data(stock='TSLA',
+                                                     from_date='01/01/2022',
+                                                     to_date='01/01/2024',
+                                                     interval='1min')
+    
+    if loaded_ticks is None:
+        print("Error loading the ticks")
+        return -1
+
+    # create DataFrame out of the obtained data
+    ticks_frame = pd.DataFrame(loaded_ticks)
+   
+    loaded_ticks['Datetime'] = pd.to_datetime(loaded_ticks['Datetime']).apply(lambda x: int(x.timestamp()))
+
+
+    print(ticks_frame)
+    print(loaded_ticks)
+
+    # mostrar todos los ticks con todas las columnas
+    # print("\nDisplay dataframe with ticks")
+
+    # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
+    second_to_include = 0
+
+    for index, row in loaded_ticks.iterrows():
+        if row['Datetime'] > second_to_include + time_period:
+            ticks.append([pd.to_datetime(row['Datetime'], unit='s'), row['Close']])
+            second_to_include = row['Datetime']
+
+ 
+    print("\nDisplay dataframe with ticks tratados")
+    final_frame=pd.DataFrame(ticks)
+
+    print(final_frame)
+    # # Removing the ticks that we do not need
+    # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
+    # if not_needed_ticks > 0:
+    #     for i in range(not_needed_ticks):
+    #         del ticks[0]
+
+
+    
+    
+
+
 
 def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 # Loading data
