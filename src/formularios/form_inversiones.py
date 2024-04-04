@@ -13,6 +13,7 @@ from datetime import datetime
 from config import COLOR_CUERPO_PRINCIPAL
 import time
 from tkinter import Scrollbar
+#from formularios.form_informacion_estrategia import FormularioMasInformacion
 import matplotlib.ticker as ticker
 
 
@@ -53,8 +54,7 @@ class FormularioInversiones(tk.Toplevel):
             683.0,
             331.0,
             image=image_image_1
-        )       
-
+        )   
         
 
         self.b = bt(1) #como mejorarlo?
@@ -314,6 +314,22 @@ class FormularioInversiones(tk.Toplevel):
             height=38.0
         )
 
+        masInfo = ttk.Button(self.cuerpo_principal, text="Más Información", command=self.abrir_mas_info)
+        masInfo.place(
+            x=900.0,
+            y=150.0,
+            width=300.0,
+            height=38.0
+        )
+
+        comparar = ttk.Button(self.cuerpo_principal, text="Comparar Estrategias", command=self.guardar_excell)
+        comparar.place(
+            x=900.0,
+            y=200.0,
+            width=300.0,
+            height=38.0
+        )
+
         self.cuerpo_principal.mainloop()
 
 
@@ -322,7 +338,11 @@ class FormularioInversiones(tk.Toplevel):
         estrategia_txt = self.combo_estrategia.get()
         self.b.guar_excell(estrategia_txt)
 
-
+    
+    def abrir_mas_info(self):
+        estrategia_txt = self.combo_estrategia.get()
+        self.mas_info = FormularioMasInformacion(self.cuerpo_principal, estrategia_txt)
+        
     def coger_ticks(self):
         
         frecuencia_txt = self.combo_frecuencia.get()
@@ -338,8 +358,6 @@ class FormularioInversiones(tk.Toplevel):
 
         #if parte backtestin
         self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
-
-        
 
         # self.informacion()
 
@@ -392,6 +410,10 @@ class FormularioInversiones(tk.Toplevel):
         # Configura la barra deslizante con el widget Text
         self.info_rentabilidad_estrategia.config(yscrollcommand=scrollbar.set)
 
+
+
+        #GRAFICA RENTABILIDAD DE LA ESTRATEGIA
+
         # Filtrar los datos donde "Decision" es igual a -1
         df_decision_minus_1 = df[df['Decision'] == '-1']
 
@@ -404,6 +426,9 @@ class FormularioInversiones(tk.Toplevel):
 
         # Calcular el acumulado de la rentabilidad
         rentabilidad_acumulada = rentabilidad.cumsum()
+
+        # Ajustar el acumulado para que comience desde cero
+        rentabilidad_acumulada -= rentabilidad_acumulada.iloc[0]
 
         # Graficar la rentabilidad en función del tiempo para Decision = -1
         ax.plot(num_operaciones, rentabilidad, marker='o', linestyle='-', label='Rentabilidad de las operaciones')
@@ -443,9 +468,9 @@ class FormularioInversiones(tk.Toplevel):
 
             # Calcular la rentabilidad media diaria
             rentabilidad_media_diaria = df.groupby(df.index.date)['RentabilidadDiaria'].mean()
-
             rentabilidad_acumulada_basica = rentabilidad_media_diaria.cumsum()
 
+            rentabilidad_acumulada_basica -= rentabilidad_acumulada_basica.iloc[0]
 
             # Crear una nueva figura
             self.figura = Figure(figsize=(6, 2), dpi=100)
@@ -471,7 +496,7 @@ class FormularioInversiones(tk.Toplevel):
             canvas_widget.place(x=700, y=400, width=600, height=250)
             
             self.info_rentabilidad_opcion = tk.Text(self.cuerpo_principal, wrap="word")
-            self.info_rentabilidad_opcion.insert(tk.END, f"En base a la siguiente grafica podemos observar la rentabilidad diaria.")
+            self.info_rentabilidad_opcion.insert(tk.END, f"En la siguiente gráfica podemos observar, en azul la rentabilidad de la acción a lo largo del tiempo. Cuando la rentabilida es positiva, significa que hemos obtenido beneficios, es decir, si hubiesemos invertido 100€, y la rentabilidad fuera de 5%, hubiesemos tenido un beneficio de 5€, quedandonos con un total de 105€. En caso de que la rentabilidad fuera negativa, en vez de beneficios hubiesemos obtenido perdidas. En naranja podemos observar la rentabilidad acumulada de la accion a lo largo del tiempo. Es una manera de ver el rendimiento global de las decisiones financieras tomadas a lo largo del tiempo")
             self.info_rentabilidad_opcion.place(x=700, y=310, width=600, height=80.0)
             self.info_rentabilidad_opcion.configure(background='#30A4B4', foreground='white', font=('Calistoga Regular', 10))
 

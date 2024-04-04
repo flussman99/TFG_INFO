@@ -232,6 +232,7 @@ def open_sell(trading_data: dict):
 
     # Sending the sell
     result = mt5.order_send(sell)
+
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         print("[Thread - orders] failed sell: {}".format(result.retcode))
@@ -281,6 +282,16 @@ def elegirListGuardarCompras(estrategia, buy):
     elif estrategia == 'Estocastico':
         comprasEstocasticos.append(buy)
         return comprasEstocasticos
+
+def cerrar_operaciones(operaciones_a_cerrar: list):
+    """Función para cerrar todas las operaciones en la lista proporcionada.
+
+    Args:
+        operaciones_a_cerrar (list): Lista de operaciones a cerrar.
+    """
+    for operacion in operaciones_a_cerrar:
+        mt5.order_close(operacion.ticket)
+
 
 
 def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot solo abre una operacion al mismo tiempo
