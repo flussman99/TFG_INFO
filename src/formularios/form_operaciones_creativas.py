@@ -17,7 +17,9 @@ from config import COLOR_CUERPO_PRINCIPAL
 
 class FormularioOperacionesCreativas(tk.Toplevel):
    
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, form_f1):
+        
+        self.formulario_f1 = form_f1
 
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
@@ -75,7 +77,7 @@ class FormularioOperacionesCreativas(tk.Toplevel):
             image=button_image_formula1,
             borderwidth=0,
             highlightthickness=0,
-            command=self.estrategiaFormula1,
+            command=self.estrategiaF1,
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
@@ -138,9 +140,9 @@ class FormularioOperacionesCreativas(tk.Toplevel):
 
     def estrategiaFutbol(self):
         print("Futbol")
-    
-    def estrategiaFormula1(self):
-        print("Formula 1")
+
+    def estrategiaF1(self):
+        self.formulario_f1()
 
     def estrategiaAlvaro(self):
         print("Alvaro")

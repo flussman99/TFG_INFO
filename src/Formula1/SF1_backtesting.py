@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+import re
 import numpy as np
 
 
@@ -20,6 +21,61 @@ meses = {
     'November': '11',
     'December': '12'
 }
+
+acciones_escuderias = {
+    'Mercedes-AMG Petronas Formula One Team': 'HPQ.NYSE',
+    'Scuderia Ferrari': 'RACE.NYSE',
+    'Oracle Red Bull Racing': 'HMC.NYSE', #Honda es su motorista exclusivo, ellos no cotizan
+    'McLaren Formula 1 Team': 'GOOG.NAS', #Google es su patrocinador principal, ellos no cotizan
+    'Aston Martin Aramco Cognizant Formula One Team': 'AML.LSE',
+    'BWT Alpine F1 Team': 'RNO.PAR',
+    'Scuderia AlphaTauri': 'HMC.NYSE',
+    'Alfa Romeo F1 Team Stake': 'STLA.NYSE', #Pertenece al grupo Stellantis
+    'MoneyGram Haas F1 Team': 'TLT.NAS', #Haas no tiene patrocinadores que coticen en bolsa, pero al dejar claro su apoyo a los EEUU, contamos con los bonos del país a +20 años
+    'Williams Racing': 'PG.NYSE' #Duracell, uno de los principales patrocinadores, pertenece a Procter & Gamble
+    # Agrega más escuderías y sus acciones asociadas según sea necesario
+}
+
+# List of HTML files to process from https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
+html_results_files = [
+    '2014.html',
+    '2015.html',
+    '2016.html',
+    '2017.html',
+    '2018.html',
+    '2019.html',
+    '2020.html',
+    '2021.html',
+    '2022.html',
+    '2023.html'
+]
+
+html_calendars_files = [
+    '2014_calendar.html',
+    '2015_calendar.html',
+    '2016_calendar.html',
+    '2017_calendar.html',
+    '2018_calendar.html',
+    '2019_calendar.html',
+    '2020_calendar.html',
+    '2021_calendar.html',
+    '2022_calendar.html',
+    '2023_calendar.html'
+]
+
+# https://fiaresultsandstatistics.motorsportstats.com/series/fia-formula-one-world-championship/season/2023
+html_teams_files = [
+    '2014_teams.html',
+    '2015_teams.html',
+    '2016_teams.html',
+    '2017_teams.html',
+    '2018_teams.html',
+    '2019_teams.html',
+    '2020_teams.html',
+    '2021_teams.html',
+    '2022_teams.html',
+    '2023_teams.html'
+]
 
 
 def backtesting(nombre:str, prices: list):
@@ -47,6 +103,62 @@ def backtesting(nombre:str, prices: list):
 
     # tr.rentabilidad_total( prices_frame['Rentabilidad']
 
+def obtener_accion_escuderia(piloto, año):
+    base_dir = os.path.abspath('src\Formula1\html')
+    dir = año + '_teams.html'
+    file_name = os.path.join(base_dir, dir)
+
+    if os.path.exists(file_name):
+
+        with open(file_name, 'r', encoding='utf-8') as file:
+            html = file.read()
+
+        escuderia = obtener_escuderia_piloto(html, piloto)
+    
+    return acciones_escuderias[escuderia]
+
+
+        
+
+def obtener_listado_años():
+    years = []
+    for file in html_results_files:
+        # Utilizar una expresión regular para encontrar el año en el nombre del archivo
+        match = re.search(r'(\d{4})\.html', file)
+        if match:
+            year = match.group(1)
+            years.append(year)
+
+    return years
+    
+
+def obtener_listado_pilotos(año):
+    base_dir = os.path.abspath('src\Formula1\html')
+    dir = año + '_teams.html'
+    file_name = os.path.join(base_dir, dir)
+    nombres_pilotos = []
+
+    if os.path.exists(file_name):
+
+        with open(file_name, 'r', encoding='utf-8') as file:
+            html = file.read()
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        filas = soup.find_all('tr')
+
+        for fila in filas:
+            celdas = fila.find_all('td')
+            if len(celdas) == 3:  # Si hay tres celdas, la primera contiene la escudería y la tercera el piloto
+                nombres_pilotos.append(celdas[2].text.strip())
+
+            if len(celdas) == 2:
+                nombres_pilotos.append(celdas[1].text.strip())
+
+
+    # Devuelve el listado de nombres de pilotos
+    return nombres_pilotos
+
 
 def obtener_resultados_piloto(html, nombre):
     # Parsea el HTML
@@ -67,27 +179,20 @@ def obtener_resultados_piloto(html, nombre):
 def obtener_escuderia_piloto(html, nombre):
 
     soup = BeautifulSoup(html, 'html.parser')
+    escuderia_piloto = ''
 
     # Extraer las filas de la tabla
     filas = soup.find_all('tr')
 
-    escuderia_piloto = ''
 
     for fila in filas:
         celdas = fila.find_all('td')
         if len(celdas) == 3:  # Si hay tres celdas, la primera contiene la escudería y la tercera el piloto
             piloto = celdas[2].text.strip()
-            escuderia_piloto = celdas[0].text.strip()
+            if(celdas[0].text.strip() != ''):
+                escuderia_piloto = celdas[0].text.strip()
             if piloto == nombre:
                 break  # Salir del bucle una vez que se haya encontrado el piloto
-        if len(celdas) == 2:
-            piloto = celdas[1].text.strip()
-            if piloto == nombre:
-                break  # Salir del bucle una vez que se haya encontrado el piloto
-
-    # Mostrar la escudería del piloto buscado
-    print("Escudería de", nombre + ":", escuderia_piloto)
-    # Crear un DataFrame
 
     return escuderia_piloto
 
@@ -96,44 +201,6 @@ def obtener_escuderia_piloto(html, nombre):
 
 def datosPiloto(piloto):
     base_dir = os.path.abspath('src\Formula1\html')
-
-    # List of HTML files to process from https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
-    html_results_files = [
-        '2014.html',
-        '2015.html',
-        '2016.html',
-        '2017.html',
-        '2018.html',
-        '2019.html',
-        '2020.html',
-        '2021.html',
-        '2022.html',
-        '2023.html'
-    ]
-    html_calendars_files = [
-        '2014_calendar.html',
-        '2015_calendar.html',
-        '2016_calendar.html',
-        '2017_calendar.html',
-        '2018_calendar.html',
-        '2019_calendar.html',
-        '2020_calendar.html',
-        '2021_calendar.html',
-        '2022_calendar.html',
-        '2023_calendar.html'
-    ]
-    html_teams_files = [
-        '2014_teams.html',
-        '2015_teams.html',
-        '2016_teams.html',
-        '2017_teams.html',
-        '2018_teams.html',
-        '2019_teams.html',
-        '2020_teams.html',
-        '2021_teams.html',
-        '2022_teams.html',
-        '2023_teams.html'
-    ]
 
     # Convert the HTML files list to full file paths
     html_results_files = [os.path.join(base_dir, file) for file in html_results_files]

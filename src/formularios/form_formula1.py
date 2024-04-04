@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageTk
 from datetime import datetime
 import pandas as pd
 import sys
+import os
 from bot import Bot as bt
 from tkcalendar import DateEntry
 import matplotlib.pyplot as plt
@@ -11,13 +12,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from datetime import datetime
+from Formula1 import SF1_backtesting
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
-class FormularioOperaciones(tk.Toplevel):
+class FormularioFormula1(tk.Toplevel):
    
     def __init__(self, panel_principal):
+
 
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
@@ -68,10 +71,10 @@ class FormularioOperaciones(tk.Toplevel):
                 options = self.original_acciones
             elif combobox == self.combo_mercados:
                 options = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                options = self.original_frecuencia 
-            elif combobox == self.combo_velas:
-                options = self.original_velas 
+            elif combobox == self.combo_piloto:
+                options = self.original_piloto 
+            elif combobox == self.combo_años:
+                options = self.original_años 
 
             if data:
                 # Filter the options
@@ -102,6 +105,29 @@ class FormularioOperaciones(tk.Toplevel):
             # Update combo_acciones options
             self.combo_acciones['values'] = filtered_acciones
             self.combo_acciones.set(filtered_acciones[0])
+        
+        def filter_pilotos(event):
+            # Get selected market
+            selected_year = self.combo_años.get().upper()
+            # Update combo_acciones options
+            self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(selected_year)
+            self.combo_piloto.current(0)
+            seleccionar_accion(event)
+
+
+        # Función para manejar la selección en el ComboBox
+        def seleccionar_accion(event):
+            selected_pilot = self.combo_piloto.get()
+            año = self.combo_años.get()
+
+            print("Opción seleccionada:", selected_pilot)
+            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+            
+            accion = SF1_backtesting.obtener_accion_escuderia(selected_pilot, año)
+            self.combo_acciones.set(accion)
+            mercado = accion.split('.')[1]
+            self.combo_mercados.set(mercado)
+
 
         def reload_options(event):
             # Get the combobox that triggered the event
@@ -112,10 +138,10 @@ class FormularioOperaciones(tk.Toplevel):
                 combobox['values'] = self.original_acciones
             elif combobox == self.combo_mercados:
                 combobox['values'] = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                combobox['values'] = self.original_frecuencia 
-            elif combobox == self.combo_velas:
-                combobox['values'] = self.original_velas
+            elif combobox == self.combo_piloto:
+                combobox['values'] = self.original_piloto 
+            elif combobox == self.combo_años:
+                combobox['values'] = self.original_años
 
 
         def borrar_texto(event):
@@ -172,12 +198,6 @@ class FormularioOperaciones(tk.Toplevel):
 
         self.original_acciones = acciones
 
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_acciones(event):
-            selected_item = self.acciones_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
 
         self.combo_acciones.bind('<KeyRelease>', filter_options)
         #self.combo_acciones.bind('<KeyRelease>', seleccionar_acciones) SI HAY DOS FUNCIONES PETA
@@ -219,24 +239,18 @@ class FormularioOperaciones(tk.Toplevel):
         canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
         
 
-        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
-        self.velas_var = tk.StringVar(value=estrategia)
-        self.combo_velas = ttk.Combobox(canvas, textvariable=self.velas_var, values=estrategia)
-        self.combo_velas.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_velas.current(0)  # Establece la opción por defecto
-        self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+        años = SF1_backtesting.obtener_listado_años()
+        self.años_var = tk.StringVar(value=años)
+        self.combo_años = ttk.Combobox(canvas, textvariable=self.años_var, values=años)
+        self.combo_años.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_años.current(0)  # Establece la opción por defecto
+        self.combo_años.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        self.original_velas = estrategia
+        self.original_años = años
 
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_velas(event):
-            selected_item = self.velas_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
-
-        self.combo_velas.bind("<<ComboboxSelected>>", seleccionar_velas)  # Asocia la función al evento de selección del ComboBox
-        self.combo_velas.bind('<KeyRelease>', filter_options)
+        self.combo_años.bind("<<ComboboxSelected>>", filter_pilotos)
+        # self.combo_años.bind("<<ComboboxSelected>>", seleccionar_accion)
+        self.combo_años.bind('<KeyRelease>', filter_options)
 
         button_image_4 = PhotoImage(
             file="src/imagenes/assets/boton_lim.png")
@@ -292,7 +306,7 @@ class FormularioOperaciones(tk.Toplevel):
         )
 
         button_window = canvas.create_window(650, 103, anchor='nw', window=button_6, width=196, height=38)
-        button_6.bind("<Button-1>", lambda event: seleccionar_velas())
+        button_6.bind("<Button-1>", lambda event: seleccionar_años())
 
 
 
@@ -331,7 +345,7 @@ class FormularioOperaciones(tk.Toplevel):
         )
 
         button_window = canvas.create_window(650, 187, anchor='nw', window=button_8, width=197, height=38)
-        button_8.bind("<Button-1>", lambda event: seleccionar_velas())
+        button_8.bind("<Button-1>", lambda event: seleccionar_años())
 
 
 
@@ -467,24 +481,17 @@ class FormularioOperaciones(tk.Toplevel):
 
 
 
-        frecuencia = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']
-        self.frecuencia_var = tk.StringVar(value=frecuencia)
-        self.combo_frecuencia = ttk.Combobox(canvas, textvariable=self.frecuencia_var, values=frecuencia)
-        self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_frecuencia.current(0)  # Establece la opción por defecto
-        self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+        piloto = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
+        self.piloto_var = tk.StringVar(value=piloto)
+        self.combo_piloto = ttk.Combobox(canvas, textvariable=self.piloto_var, values=piloto)
+        self.combo_piloto.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_piloto.current(0)  # Establece la opción por defecto
+        self.combo_piloto.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        self.original_frecuencia = frecuencia
+        self.original_piloto = piloto
 
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_frecuencia(event):
-            selected_item = self.mercados_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
-
-        self.combo_frecuencia.bind("<<ComboboxSelected>>", seleccionar_frecuencia)  # Asocia la función al evento de selección del ComboBox
-        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
+        self.combo_piloto.bind("<<ComboboxSelected>>", seleccionar_accion)
+        self.combo_piloto.bind('<KeyRelease>', filter_options)
 
         button_image_16 = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
@@ -507,11 +514,11 @@ class FormularioOperaciones(tk.Toplevel):
         self.cuerpo_principal.mainloop()
     
     def tickdirecto(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_velas.get()
 
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        self.b.establecer_piloto_accion(piloto_txt, accion_txt) 
        
         self.b.thread_orders(estrategia)
         
@@ -525,11 +532,11 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_estocastico()
 
     def getPrice(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
 
-        # self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        # self.b.establecer_piloto_accion(piloto_txt, accion_txt) 
        
         # self.b.thread_orders(estrategia)
         
@@ -543,18 +550,18 @@ class FormularioOperaciones(tk.Toplevel):
         #     self.b.thread_estocastico()
     
     def lanzarCompra(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
 
     def lanzarVenta(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
 
     def pararTicksDirecto(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
     
     
