@@ -37,7 +37,7 @@ acciones_escuderias = {
 }
 
 # List of HTML files to process from https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
-html_results_files = [
+html_standings_files = [
     '2014.html',
     '2015.html',
     '2016.html',
@@ -64,7 +64,7 @@ html_calendars_files = [
 ]
 
 # https://fiaresultsandstatistics.motorsportstats.com/series/fia-formula-one-world-championship/season/2023
-html_teams_files = [
+html_pilotTeams_files = [
     '2014_teams.html',
     '2015_teams.html',
     '2016_teams.html',
@@ -87,10 +87,13 @@ def backtesting(nombre:str, prices: list):
     ticks_frame['time'] = ticks_frame['time'].dt.date.astype(str)#conventirlo a string para poder comparar con el dataframe de las carreras
     print(ticks_frame)
     ticks_frame.to_excel('tick.xlsx', index=False)
-    piloto_frame=datosPiloto(nombre)
+    
+    nombreSplitted = nombre.split('.')
+    nombrePiloto = nombreSplitted[1]
+    piloto_frame=datosPiloto(nombrePiloto)
     # Initialize a new column 'precio' in piloto_frame with NaN values
     piloto_frame['precio'] = np.nan
-    # Iterate over the rows in equipos_frame
+    # Iterate over the rows in piloto_frame
     for i, row in piloto_frame.iterrows(): 
         # Find the corresponding price in ticks_frame
         price = ticks_frame.loc[ticks_frame['time'] >= row['Fecha'], 'price'].first_valid_index()
@@ -122,7 +125,7 @@ def obtener_accion_escuderia(piloto, año):
 
 def obtener_listado_años():
     years = []
-    for file in html_results_files:
+    for file in html_standings_files:
         # Utilizar una expresión regular para encontrar el año en el nombre del archivo
         match = re.search(r'(\d{4})\.html', file)
         if match:
@@ -203,10 +206,13 @@ def datosPiloto(piloto):
     base_dir = os.path.abspath('src\Formula1\html')
 
     # Convert the HTML files list to full file paths
-    html_results_files = [os.path.join(base_dir, file) for file in html_results_files]
+    html_results_files = [os.path.join(base_dir, file) for file in html_standings_files]
     html_dates_files = [os.path.join(base_dir, file) for file in html_calendars_files]
-    html_teams_files = [os.path.join(base_dir, file) for file in html_teams_files]
+    html_teams_files = [os.path.join(base_dir, file) for file in html_pilotTeams_files]
     año = 2014
+    cabeceras = ['Circuito', 'Fecha', 'Resultado']
+    df = pd.DataFrame(columns=cabeceras)
+
     for result_file_name, date_file_name, teams_file_name in zip(html_results_files, html_dates_files, html_teams_files):
         if os.path.exists(result_file_name) and os.path.exists(date_file_name) and os.path.exists(teams_file_name):
             
@@ -227,15 +233,14 @@ def datosPiloto(piloto):
             # Buscar las filas de la tabla principal que contengan el texto específico
             # Extraer los datos de las filas y transponerlos en una columna
             filas_con_texto = obtener_resultados_piloto(html_content_results, piloto)
-            escuderia = obtener_escuderia_piloto(html_content_teams, piloto)
-
-
-            df = pd.DataFrame(filas_con_texto, columns=[escuderia])
+            filas_con_texto = filas_con_texto[3:]
 
 
             # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
             encabezado_tabla = [th.get_text(strip=True) for th in soup_tabla_principal.find('tr').find_all('th')]
-            fechas_asociadas = [''] * 3 + [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
+            encabezado_tabla = encabezado_tabla[3:]
+            fechas_asociadas = [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
+
 
             fechas_formateadas = []
 
@@ -246,11 +251,21 @@ def datosPiloto(piloto):
                 else:
                     fechas_formateadas.append('')  # Mantener un espacio en blanco si no hay fecha
 
-            df['Encabezado Tabla'] = encabezado_tabla
-            df['Fecha Asociada'] = fechas_formateadas
 
-            print(df)
+            nuevo_df = pd.DataFrame(encabezado_tabla, columns=['Circuito'])
+            nuevo_df['Fecha'] = fechas_formateadas
+            if filas_con_texto == []:
+                filas_con_texto = ['No participo'] * len(fechas_formateadas)
+
+            print(filas_con_texto)
+            nuevo_df['Resultado'] = filas_con_texto
+
             año = año + 1
+
+        df = pd.concat([df, nuevo_df], ignore_index=True)
+
+    return df
+
 
 def convert_date(fecha_texto, año):           
 

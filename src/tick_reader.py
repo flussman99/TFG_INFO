@@ -6,6 +6,7 @@ import MediaMovil
 import Bandas_Bollinger
 import Estocastico
 import EquiposdeFutbol.SBS_backtesting as Futbol
+import Formula1.SF1_backtesting as Formula1
 import pytz
 import openpyxl
 import pandas as pd
@@ -43,7 +44,7 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     print("[THREAD - tick_reader] - Working")
 
     # Filling the list with previos ticks
-    load_ticks_invest(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
+    load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
     estrategias(ticks,trading_data['market'],estrategia_txt)
     
@@ -224,6 +225,10 @@ def estrategias(ticks: list, market: str,nombre:str):
     elif nombre == 'Futbol':
         Futbol.backtesting(nombre,ticks)
         ticks.clear()
+    elif nombre.startswith('Formula1.'):
+        Formula1.backtesting(nombre,ticks)
+        ticks.clear()
+        
    
 
 def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
