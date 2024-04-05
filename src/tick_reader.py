@@ -16,6 +16,7 @@ from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
 import time
 import investpy
+import requests
 
 # Global variables
 MAX_TICKS_LEN = 200
@@ -60,50 +61,80 @@ def load_ticks_invest(ticks: list, market: str, time_period: int, inicio_txt, fi
     print(utc_from)
     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
 
-    loaded_ticks = investpy.get_stock_historical_data(stock='TSLA',
-                                                     from_date='01/01/2022',
-                                                     to_date='01/01/2024',
-                                                     interval='1min')
-    
-    if loaded_ticks is None:
-        print("Error loading the ticks")
-        return -1
+    api_key = "2937e2b78f1093a52d383bda8dd05f928b49d4aa"
+
+    url = "https://api.scraperlink.com/investpy/"
+    params = {
+    "email": "tfginfotrading@gmail.com",
+    "type": "historical_data",
+    "product": "stocks",
+    "country": "spain",
+    "symbol": "ACS",
+    "from_date": inicio_txt,
+    "to_date": fin_txt,
+    "interval": '1m'
+
+        
+    }
+    headers = {
+    "Authorization": f"Bearer {api_key}"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+         data = response.json()
+    # Hacer algo con los datos devueltos por la API
+    # print(data)
+    # Crear un DataFrame con los datos obtenidos
+         loaded_ticks = pd.DataFrame(data['data'])  # Suponiendo que 'data' es la clave que contiene los datos relevantes
+    # Reverse the order of the rows in the DataFrame
+         loaded_ticks = loaded_ticks.iloc[::-1]
+    # Reset the index of the DataFrame to start from 0
+         loaded_ticks = loaded_ticks.reset_index(drop=True)
+    # Renombrar las columnas a 'price' y 'fecha'
+         loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDate': 'fecha'})
+
+    # Crear una nueva vista del DataFrame con solo las columnas 'price' y 'fecha'
+         prices_frame = loaded_ticks[['price', 'fecha']]
+    # Imprimir el DataFrame resultante
+         print(prices_frame)
+    # Export the DataFrame to an Excel file
+         #prices_frame.to_excel('output.xlsx', index=False)
+
 
     # create DataFrame out of the obtained data
-    ticks_frame = pd.DataFrame(loaded_ticks)
+         #ticks_frame = pd.DataFrame(loaded_ticks)
    
-    loaded_ticks['Datetime'] = pd.to_datetime(loaded_ticks['Datetime']).apply(lambda x: int(x.timestamp()))
+         prices_frame['fecha'] = pd.to_datetime(loaded_ticks['fecha']).apply(lambda x: int(x.timestamp()))
 
 
-    print(ticks_frame)
-    print(loaded_ticks)
+         print(prices_frame)
+         print(loaded_ticks)
 
     # mostrar todos los ticks con todas las columnas
     # print("\nDisplay dataframe with ticks")
 
     # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
-    second_to_include = 0
+         second_to_include = 0
+         prices_frame['price'] = pd.to_numeric(prices_frame['price'], errors='coerce', downcast='integer')
 
-    for index, row in loaded_ticks.iterrows():
-        if row['Datetime'] > second_to_include + time_period:
-            ticks.append([pd.to_datetime(row['Datetime'], unit='s'), row['Close']])
-            second_to_include = row['Datetime']
+         for index, row in prices_frame.iterrows():
+            if row['fecha'] > second_to_include + time_period:
+                ticks.append([pd.to_datetime(row['fecha'], unit='s'), row['price']])
+                second_to_include = row['fecha']
+        
 
- 
-    print("\nDisplay dataframe with ticks tratados")
-    final_frame=pd.DataFrame(ticks)
+        
+         print("\nDisplay dataframe with ticks tratados")
+         final_frame=pd.DataFrame(ticks)
 
-    print(final_frame)
-    # # Removing the ticks that we do not need
-    # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-    # if not_needed_ticks > 0:
-    #     for i in range(not_needed_ticks):
-    #         del ticks[0]
-
-
+         print(final_frame)
+       
+    else:
+        print(f"Error al obtener datos: {response.status_code}")
     
     
-
 
 
 def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
