@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import requests
 import numpy as np
+import tick_reader as tr
 
 
 # Spanish month names
@@ -27,40 +28,101 @@ month_names = {
 
 # Lista para almacenar los datos de todos los partidos
 data = []
+compras=[]
 
 
-def backtesting(nombre:str, prices: list):
-    # Crear un DataFrame de la lista prices
-    ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
-    # Convert 'time' from Unix timestamp to datetime
-    ticks_frame['time'] = pd.to_datetime(ticks_frame['time'], unit='s')
-    # Extract the date
-    ticks_frame['time'] = ticks_frame['time'].dt.date.astype(str)#conventirlo a string para poder comparar con el dataframe de los partidos
-    print(ticks_frame)
-    ticks_frame.to_excel('tick.xlsx', index=False)
-    equipos_frame=datosEquipos()
-    # Initialize a new column 'precio' in equipos_frame with NaN values
-    equipos_frame['precio'] = np.nan
-    # Iterate over the rows in equipos_frame
-    for i, row in equipos_frame.iterrows(): 
-        # Find the corresponding price in ticks_frame
-        price = ticks_frame.loc[ticks_frame['time'] >= row['Fecha'], 'price'].first_valid_index()
-        if price is not None:
-            # If a price was found, update the 'precio' column in equipos_frame
-            equipos_frame.at[i, 'precio'] = ticks_frame.loc[price, 'price']
+def backtesting(nombre:str, ticks: list,inicio: str, fin: str):
     
+    equipos_frame=datosEquipos(ticks,inicio, fin) 
+    # Initialize a new column 'precio' in equipos_frame with NaN values
+    
+    # equipos_frame['Fecha'] = ticks_frame['Fecha'].dt.date#solo la fecha no la hora
+    posicion_abierta=False #comprobar si hay alguna posicion abierta para poder realziar ventas 
+    decisiones = []
+    rentabilidad=[]
+
+
+    for index, row in equipos_frame.iterrows():
+        resultado = row['Resultado']
+        precioCompra= row['Precio']
+
+        # Comparar las medias móviles
+        if resultado == 'Perdido' and posicion_abierta==True:
+            decisiones.append("-1")#VENDO
+            posicion_abierta=False
+            rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
+            compras.clear()
+        elif len(compras) < 10 and resultado == 'Ganado' :  
+            decisiones.append("1")#COMPRO
+            rentabilidad.append(None)
+            compras.append(precioCompra)
+            posicion_abierta=True
+        else:
+            decisiones.append("NO SE REALIZA OPERACION")#COMPRO
+            rentabilidad.append(None)
+
+    # Agregar la lista de decisiones como una nueva columna al DataFrame
+    equipos_frame['Decision'] = decisiones
+    equipos_frame['Rentabilidad']= rentabilidad
+ 
     print(equipos_frame)
     equipos_frame.to_excel('precios.xlsx', index=False)
 
-    # tr.rentabilidad_total( prices_frame['Rentabilidad']
+    tr.rentabilidad_total(equipos_frame['Rentabilidad'])
+
+
+def crearDf(ticks:list,inicio: str, fin: str):
+
+    # Crear un DataFrame de la lista prices
+    ticks_frame = pd.DataFrame(ticks, columns=['time', 'price'])
+    # Convert 'time' from Unix timestamp to datetime
+    print(ticks_frame)
+    
+    ticks_frame.to_excel('tick.xlsx', index=False)
+    # Convert data to a DataFrame
+    equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
+
+    # Convertir la columna 'Fecha' a datetime
+    equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
+
+    # Filtrar el DataFrame basado en las fechas de inicio y fin
+    equipos_frame = equipos_frame[equipos_frame['Fecha'].between(inicio, fin)]
+    equipos_frame['Precio'] = np.nan
+
+    for i, row in equipos_frame.iterrows(): 
+        price = ticks_frame.loc[ticks_frame['time'] >= row['Fecha'], 'price'].first_valid_index()
+        if price is not None:
+            # If a price was found, update the 'precio' column in equipos_frame
+            equipos_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
+        #Asignar el Resultado a cada partido
+        if row['Equipo Local'] == 'Real Madrid':
+            if int(row['ResultadoLocal']) > int(row['ResultadoVisitante']):
+                equipos_frame.loc[i, 'Resultado'] = 'Ganado'
+            elif int(row['ResultadoLocal']) < int(row['ResultadoVisitante']):
+                equipos_frame.loc[i, 'Resultado'] = 'Perdido'
+            else:
+                equipos_frame.loc[i, 'Resultado'] = 'Empatado'
+        else:
+            if int(row['ResultadoVisitante']) > int(row['ResultadoLocal']):
+                equipos_frame.loc[i, 'Resultado'] = 'Ganado'
+            elif int(row['ResultadoLocal']) > int(row['ResultadoVisitante']):
+                equipos_frame.loc[i, 'Resultado'] = 'Perdido'
+            else:
+                equipos_frame.loc[i, 'Resultado'] = 'Empatado'
+        
+    # Guardar los datos en un archivo Excel
+    # df.to_excel('de la url.xlsx', index=False)
+    # Aquí puedes procesar los datos obtenidos de la URL
+
+    return equipos_frame
+    
 
 
 
-
-def datosEquipos():
-    #leerHtml()
+def datosEquipos(ticks:list,inicio: str, fin: str):
+    leerHtml()
     leerUrl()
-    dataframe=crearDf()
+    dataframe=crearDf(ticks,inicio, fin)
     return dataframe
     
 
@@ -174,34 +236,6 @@ def leerUrl():
     else:
             print("Error al obtener la URL. Código de estado:", response.status_code)
 
-
-def crearDf():
-    
-    # Convert data to a DataFrame
-        df = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Resultado', 'ResultadoLocal', 'ResultadoVisitante'])
-
-    # Después de crear el DataFrame
-        for index, row in df.iterrows():
-            if row['Equipo Local'] == 'Real Madrid':
-                if int(row['ResultadoLocal']) > int(row['ResultadoVisitante']):
-                    df.loc[index, 'Decision'] = 'Ganado'
-                elif int(row['ResultadoLocal']) < int(row['ResultadoVisitante']):
-                    df.loc[index, 'Decision'] = 'Perdido'
-                else:
-                    df.loc[index, 'Decision'] = 'Empatado'
-            else:
-                if int(row['ResultadoVisitante']) > int(row['ResultadoLocal']):
-                    df.loc[index, 'Decision'] = 'Ganado'
-                elif int(row['ResultadoLocal']) > int(row['ResultadoVisitante']):
-                    df.loc[index, 'Decision'] = 'Perdido'
-                else:
-                    df.loc[index, 'Decision'] = 'Empatado'
-    # Guardar los datos en un archivo Excel
-        # df.to_excel('de la url.xlsx', index=False)
-        # Aquí puedes procesar los datos obtenidos de la URL
-    
-        return df
-    
 
 
 

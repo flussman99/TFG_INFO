@@ -15,7 +15,7 @@ from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
 import time
-import investpy
+# import investpy
 import requests
 
 # Global variables
@@ -44,22 +44,22 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
 
     print("[THREAD - tick_reader] - Working")
 
+
+    if(estrategia_txt == 'Futbol'):
+        load_ticks_invest(ticks, inicio_txt, fin_txt)
     # Filling the list with previos ticks
-    load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
+    else:
+        load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
-    estrategias(ticks,trading_data['market'],estrategia_txt)
+    estrategias(ticks,trading_data['market'],estrategia_txt, inicio_txt, fin_txt)
     
     print("[THREAD - tick_reader] - Ticks loaded")
    
-def load_ticks_invest(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
+def load_ticks_invest(ticks: list, inicio_txt, fin_txt):
 
     timezone = pytz.timezone("Etc/UTC")
     fecha_inicio = txt_to_int_fecha(inicio_txt)
     fecha_fin = txt_to_int_fecha(fin_txt)
-
-    utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
-    print(utc_from)
-    utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
 
     api_key = "2937e2b78f1093a52d383bda8dd05f928b49d4aa"
 
@@ -72,9 +72,7 @@ def load_ticks_invest(ticks: list, market: str, time_period: int, inicio_txt, fi
     "symbol": "ACS",
     "from_date": inicio_txt,
     "to_date": fin_txt,
-    "interval": '1m'
-
-        
+    "time_frame": 'Daily'        
     }
     headers = {
     "Authorization": f"Bearer {api_key}"
@@ -83,56 +81,18 @@ def load_ticks_invest(ticks: list, market: str, time_period: int, inicio_txt, fi
     response = requests.get(url, params=params, headers=headers)
 
     if response.status_code == 200:
-         data = response.json()
-    # Hacer algo con los datos devueltos por la API
-    # print(data)
-    # Crear un DataFrame con los datos obtenidos
-         loaded_ticks = pd.DataFrame(data['data'])  # Suponiendo que 'data' es la clave que contiene los datos relevantes
-    # Reverse the order of the rows in the DataFrame
-         loaded_ticks = loaded_ticks.iloc[::-1]
-    # Reset the index of the DataFrame to start from 0
-         loaded_ticks = loaded_ticks.reset_index(drop=True)
-    # Renombrar las columnas a 'price' y 'fecha'
-         loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDate': 'fecha'})
+        data = response.json()
+        loaded_ticks = pd.DataFrame(data['data'])
+        loaded_ticks = loaded_ticks.iloc[::-1]
+        loaded_ticks = loaded_ticks.reset_index(drop=True)
+        loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
+        loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')
+        prices_frame = loaded_ticks[['price', 'time']]
+        print(prices_frame)
+        # Convertir el DataFrame a una lista de diccionarios y añadirlo a la lista 'ticks'
+        ticks.extend(prices_frame.to_dict('records'))
 
-    # Crear una nueva vista del DataFrame con solo las columnas 'price' y 'fecha'
-         prices_frame = loaded_ticks[['price', 'fecha']]
-    # Imprimir el DataFrame resultante
-         print(prices_frame)
-    # Export the DataFrame to an Excel file
-         #prices_frame.to_excel('output.xlsx', index=False)
-
-
-    # create DataFrame out of the obtained data
-         #ticks_frame = pd.DataFrame(loaded_ticks)
-   
-         prices_frame['fecha'] = pd.to_datetime(loaded_ticks['fecha']).apply(lambda x: int(x.timestamp()))
-
-
-         print(prices_frame)
-         print(loaded_ticks)
-
-    # mostrar todos los ticks con todas las columnas
-    # print("\nDisplay dataframe with ticks")
-
-    # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
-         second_to_include = 0
-         prices_frame['price'] = pd.to_numeric(prices_frame['price'], errors='coerce', downcast='integer')
-
-         for index, row in prices_frame.iterrows():
-            if row['fecha'] > second_to_include + time_period:
-                ticks.append([pd.to_datetime(row['fecha'], unit='s'), row['price']])
-                second_to_include = row['fecha']
-        
-
-        
-         print("\nDisplay dataframe with ticks tratados")
-         final_frame=pd.DataFrame(ticks)
-
-         print(final_frame)
-       
-    else:
-        print(f"Error al obtener datos: {response.status_code}")
+ 
     
     
 
@@ -239,7 +199,7 @@ def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_tx
 
      
 
-def estrategias(ticks: list, market: str,nombre:str):
+def estrategias(ticks: list, market: str,nombre:str, inicio_txt, fin_txt):
     #Escoger estrategia a aplicar
     if nombre == 'RSI':
         Rsi_Macd.backtesting(nombre,ticks)
@@ -254,7 +214,7 @@ def estrategias(ticks: list, market: str,nombre:str):
         Estocastico.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Futbol':
-        Futbol.backtesting(nombre,ticks)
+        Futbol.backtesting(nombre,ticks, inicio_txt, fin_txt)
         ticks.clear()
     elif nombre.startswith('Formula1.'):
         Formula1.backtesting(nombre,ticks)
