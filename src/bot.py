@@ -56,7 +56,7 @@ class Bot:
 
 
 
-    def establecer_frecuencia_accion(self, frecuencia: int, market: str):
+    def establecer_frecuencia_accion(self, frecuencia, market: str):
         """
         Args:
             time_period (int): Time period of the bot, 24h * 3600 (in seconds)
@@ -94,6 +94,14 @@ class Bot:
         t.start()
         print('Thread - tick_reader. LAUNCHED')
     
+    def thread_Futbol(self, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
+        """Function to launch the tick reader thread.
+        """
+        t = threading.Thread(target=tr.thread_Futbol, 
+                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt))
+        self.threads.append(t)
+        t.start()
+        print('Thread - tick_reader. LAUNCHED')
 
     # def ticks_directo(self , estrategia):
     #     """Function to launch the tick reader thread.

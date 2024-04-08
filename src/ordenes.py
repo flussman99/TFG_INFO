@@ -1,6 +1,7 @@
 import Rsi_Macd, MediaMovil,time,Bandas_Bollinger,Estocastico
 import datetime as date
 import MetaTrader5 as mt5
+from EquiposdeFutbol import SBS_backtesting as SBS
 
 
 # Global variables
@@ -254,6 +255,8 @@ def check_buy(nombre:str) -> bool:
         return Bandas_Bollinger.check_buy()
     elif nombre == 'Estocastico':
         return Estocastico.check_buy()
+    elif nombre == 'Futbol':
+        return SBS.check_buy()
 
 
 def check_sell(nombre : str) -> bool:
