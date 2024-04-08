@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage, Checkbutton, IntVar, Label
 from PIL import Image, ImageDraw, ImageTk
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import sys
+import os
 from bot import Bot as bt
 from tkcalendar import DateEntry
 import matplotlib.pyplot as plt
@@ -11,13 +12,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from datetime import datetime
+from Formula1 import SF1_backtesting
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
-class FormularioOperaciones(tk.Toplevel):
+class FormularioFormula1(tk.Toplevel):
    
     def __init__(self, panel_principal):
+
 
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
@@ -68,10 +71,10 @@ class FormularioOperaciones(tk.Toplevel):
                 options = self.original_acciones
             elif combobox == self.combo_mercados:
                 options = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                options = self.original_frecuencia 
-            elif combobox == self.combo_velas:
-                options = self.original_velas 
+            elif combobox == self.combo_piloto:
+                options = self.original_piloto 
+            elif combobox == self.combo_años:
+                options = self.original_años 
 
             if data:
                 # Filter the options
@@ -102,6 +105,28 @@ class FormularioOperaciones(tk.Toplevel):
             # Update combo_acciones options
             self.combo_acciones['values'] = filtered_acciones
             self.combo_acciones.set(filtered_acciones[0])
+        
+        def filter_pilotos(event):
+            # Get selected market
+            selected_year = self.combo_años.get().upper()
+            # Update combo_acciones options
+            self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(selected_year)
+            self.combo_piloto.current(0)
+            seleccionar_accion(event)
+
+
+        # Función para manejar la selección en el ComboBox
+        def seleccionar_accion(event):
+            selected_pilot = self.combo_piloto.get()
+            año = self.combo_años.get()
+
+            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+            
+            accion = SF1_backtesting.obtener_accion_escuderia(selected_pilot, año)
+            self.combo_acciones.set(accion)
+            mercado = accion.split('.')[1]
+            self.combo_mercados.set(mercado)
+
 
         def reload_options(event):
             # Get the combobox that triggered the event
@@ -112,10 +137,10 @@ class FormularioOperaciones(tk.Toplevel):
                 combobox['values'] = self.original_acciones
             elif combobox == self.combo_mercados:
                 combobox['values'] = self.original_mercados  
-            elif combobox == self.combo_frecuencia:
-                combobox['values'] = self.original_frecuencia 
-            elif combobox == self.combo_velas:
-                combobox['values'] = self.original_velas
+            elif combobox == self.combo_piloto:
+                combobox['values'] = self.original_piloto 
+            elif combobox == self.combo_años:
+                combobox['values'] = self.original_años
 
 
         def borrar_texto(event):
@@ -126,21 +151,35 @@ class FormularioOperaciones(tk.Toplevel):
             text_box = event.widget
 
             if text_box.get() == '':
-                if text_box == self.entry_compras:
-                    self.entry_compras.insert(0, self.texto_compras)
-                elif text_box == self.entry_ventas:
-                    self.entry_ventas.insert(0, self.texto_ventas)
-                elif text_box == self.entry_stop:
-                    self.entry_stop.insert(0, self.texto_stop)
-                elif text_box == self.entry_objetivo:
-                    self.entry_objetivo.insert(0, self.texto_objetivo)
+                if text_box == self.entry_fin_back:
+                    self.entry_fin_back.insert(0, self.texto_fin_back)
+                elif text_box == self.entry_lotaje:
+                    self.entry_lotaje.insert(0, self.texto_lotaje)
 
+        self.estrategia = ''
 
-        def checkbox_clicked(check_var):
-            if check_var.get() == 1:
-                print("Checkbox activado")
-            else:
-                print("Checkbox desactivado")
+        def on_checkbox_click(checkbox):
+            if checkbox == checkbox_1:
+                checkbox_podio.deselect()
+                checkbox_5.deselect()
+                checkbox_puntos.deselect()
+                self.estrategia = "Primero"
+            elif checkbox == checkbox_podio:
+                checkbox_1.deselect()
+                checkbox_5.deselect()
+                checkbox_puntos.deselect()
+                self.estrategia = "Podio"
+            elif checkbox == checkbox_5:
+                checkbox_1.deselect()
+                checkbox_podio.deselect()
+                checkbox_puntos.deselect()
+                self.estrategia = "Top 5"
+            elif checkbox == checkbox_puntos:
+                checkbox_1.deselect()
+                checkbox_podio.deselect()
+                checkbox_5.deselect()
+                self.estrategia = "Puntos"
+
 
 
         self.mercados_var = tk.StringVar(value=mercados)
@@ -172,12 +211,6 @@ class FormularioOperaciones(tk.Toplevel):
 
         self.original_acciones = acciones
 
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_acciones(event):
-            selected_item = self.acciones_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
 
         self.combo_acciones.bind('<KeyRelease>', filter_options)
         #self.combo_acciones.bind('<KeyRelease>', seleccionar_acciones) SI HAY DOS FUNCIONES PETA
@@ -203,7 +236,6 @@ class FormularioOperaciones(tk.Toplevel):
         )
 
 
-
         entry_image_1 = PhotoImage(
             file="src/imagenes/assets/entry_fondo_operaciones.png")
         entry_bg_1 = canvas.create_image(
@@ -219,96 +251,93 @@ class FormularioOperaciones(tk.Toplevel):
         canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
         
 
-        estrategia = ['RSI', 'Media Movil', 'Bandas', 'Estocastico']
-        self.velas_var = tk.StringVar(value=estrategia)
-        self.combo_velas = ttk.Combobox(canvas, textvariable=self.velas_var, values=estrategia)
-        self.combo_velas.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_velas.current(0)  # Establece la opción por defecto
-        self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+        años = SF1_backtesting.obtener_listado_años()
+        self.años_var = tk.StringVar(value=años)
+        self.combo_años = ttk.Combobox(canvas, textvariable=self.años_var, values=años)
+        self.combo_años.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_años.current(0)  # Establece la opción por defecto
+        self.combo_años.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        self.original_velas = estrategia
+        self.original_años = años
 
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_velas(event):
-            selected_item = self.velas_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_velas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
+        self.combo_años.bind("<<ComboboxSelected>>", filter_pilotos)
+        # self.combo_años.bind("<<ComboboxSelected>>", seleccionar_accion)
+        self.combo_años.bind('<KeyRelease>', filter_options)
 
-        self.combo_velas.bind("<<ComboboxSelected>>", seleccionar_velas)  # Asocia la función al evento de selección del ComboBox
-        self.combo_velas.bind('<KeyRelease>', filter_options)
 
-        button_image_4 = PhotoImage(
-            file="src/imagenes/assets/boton_lim.png")
-        button_4 = Button(
-            canvas,
-            image=button_image_4,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: print("button_4 clicked"),
-            relief="flat"
+        canvas.create_text(349, 187, anchor="nw", text="Op. de inversión:", fill="white", font=("Calistoga Regular", 12))
+
+
+
+        fecha_ayer = datetime.now() - timedelta(days = 1)   
+
+        self.entry_inicio_back = DateEntry(
+            canvas, 
+            date_pattern='yyyy/mm/dd',
+            background="#30a4b4", 
+            foreground="#FFFFFF",
+            font=('Calistoga Regular', 12),
+            borderwidth=2,
+            maxdate=fecha_ayer
         )
-        button_4.place(
+        self.entry_inicio_back.place(
             x=349.0,
             y=103.0,
             width=94.0,
             height=38.0
         )
 
-        self.entry_compras = Entry(
-            canvas,            
-            bd=0,
-            bg="#30a4b4",
-            fg="#FFFFFF",
-            font=('Calistoga Regular', 12),
-            highlightthickness=0,
-            relief="flat"
-        )
 
-        self.entry_compras.place(
+        self.entry_fin_back = DateEntry(
+            canvas, 
+            date_pattern='yyyy/mm/dd',
+            background="#30a4b4", 
+            foreground="#FFFFFF",
+            font=('Calistoga Regular', 12),
+            borderwidth=2,
+            maxdate=fecha_ayer
+        )
+        self.entry_fin_back.place(
             x=500.0,
             y=103.0,
             width=94.0,
             height=38.0
         )
-        self.texto_compras = "Nº compras"
-        self.entry_compras.insert(0, self.texto_compras)
-        self.entry_compras.bind("<FocusIn>", borrar_texto)
-        self.entry_compras.bind("<FocusOut>", reescribir_texto)
 
 
-
-        button_image_6 = PhotoImage(
+        button_image_backtesting = PhotoImage(
             file="src/imagenes/assets/boton_comun_mkt.png")
-        button_6 = Button(
+        button_backtesting = Button(
             canvas,
-            text=self.getPrice,
-            image=button_image_6,
+            text="Backtesting",
+            fg="#FFFFFF",
+            image=button_image_backtesting,
             borderwidth=0,
             highlightthickness=0,
-            command=self.lanzarCompra,
+            command=self.coger_ticks,
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
 
-        button_window = canvas.create_window(650, 103, anchor='nw', window=button_6, width=196, height=38)
-        button_6.bind("<Button-1>", lambda event: seleccionar_velas())
+        button_window = canvas.create_window(650, 103, anchor='nw', window=button_backtesting, width=196, height=38)
+        # button_6.bind("<Button-1>", lambda event: seleccionar_años())
 
 
 
-        button_image_7 = PhotoImage(
+        button_image_directo = PhotoImage(
             file="src/imagenes/assets/boton_cantidad_operaciones.png")
-        button_7 = Button(
+        button_directo = Button(
             canvas,
             text="Ticks en directo",
-            image=button_image_7,
+            fg="#FFFFFF",
+            image=button_image_directo,
             borderwidth=0,
             highlightthickness=0,
             command=self.tickdirecto,
             compound=tk.CENTER,
-            font="font_awesome"
+            font=("Calistoga regular", 12)
         )
-        button_7.place(
+        button_directo.place(
             x=904.0,
             y=103.0,
             width=305.0,
@@ -317,44 +346,28 @@ class FormularioOperaciones(tk.Toplevel):
 
 
 
-        button_image_8 = PhotoImage(
+        button_image_start = PhotoImage(
             file="src/imagenes/assets/boton_comun_mkt.png")
-        button_8 = Button(
+        button_start = Button(
             canvas,
-            text=self.getPrice,
-            image=button_image_8,
+            text="Iniciar estrategia",
+            fg="#FFFFFF",
+            image=button_image_start,
             borderwidth=0,
             highlightthickness=0,
-            command=self.lanzarVenta,
+            command=self.lanzarEstrategia,
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
 
-        button_window = canvas.create_window(650, 187, anchor='nw', window=button_8, width=197, height=38)
-        button_8.bind("<Button-1>", lambda event: seleccionar_velas())
+        button_window = canvas.create_window(650, 187, anchor='nw', window=button_start, width=197, height=38)
+        # button_8.bind("<Button-1>", lambda event: seleccionar_años())
 
 
 
-        button_image_9 = PhotoImage(
-            file="src/imagenes/assets/boton_stop.png")
-        button_9 = Button(
-            canvas,
-            image=button_image_9,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: print("button_9 clicked"),
-            relief="flat"
-        )
-        button_9.place(
-            x=349.0,
-            y=187.0,
-            width=94.0,
-            height=38.0
-        )
-
-        entry_ventas_image = PhotoImage(
+        entry_lotaje_image = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
-        self.entry_ventas = Entry(
+        self.entry_lotaje = Entry(
             canvas,            
             bd=0,
             bg="#30a4b4",
@@ -363,134 +376,121 @@ class FormularioOperaciones(tk.Toplevel):
             highlightthickness=0,
             relief="flat"
         )
-        self.entry_ventas.place(
+        self.entry_lotaje.place(
             x=500.0,
             y=187.0,
             width=94.0,
             height=38.0
         )
-        self.texto_ventas = "Nº ventas"
-        self.entry_ventas.insert(0, self.texto_ventas)
-        self.entry_ventas.bind("<FocusIn>", borrar_texto)
-        self.entry_ventas.bind("<FocusOut>", reescribir_texto)
+        self.texto_lotaje = "Cantidad"
+        self.entry_lotaje.insert(0, self.texto_lotaje)
+        self.entry_lotaje.bind("<FocusIn>", borrar_texto)
+        self.entry_lotaje.bind("<FocusOut>", reescribir_texto)
 
 
-
-
-        self.entry_stop = Entry(
-            canvas,            
-            bd=0,
-            bg="#30a4b4",
-            fg="#FFFFFF",
-            font=('Calistoga Regular', 12),
-            highlightthickness=0,
-            relief="flat"
-        )
-
-        self.entry_stop.place(
-            x=974.0,
-            y=187.0,
-            width=114.0,
-            height=38.0
-        )
-        self.texto_stop = "Stop"
-        self.entry_stop.insert(0, self.texto_stop)
-        self.entry_stop.bind("<FocusIn>", borrar_texto)
-        self.entry_stop.bind("<FocusOut>", reescribir_texto)
-
-
-        self.entry_objetivo = Entry(
-            canvas,            
-            bd=0,
-            bg="#30a4b4",
-            fg="#FFFFFF",
-            font=('Calistoga Regular', 12),
-            highlightthickness=0,
-            relief="flat"
-        )
-
-        self.entry_objetivo.place(
-            x=1217.0,
-            y=187.0,
-            width=114.0,
-            height=38.0
-        )
-        self.texto_objetivo = "Objetivo"
-        self.entry_objetivo.insert(0, self.texto_objetivo)
-        self.entry_objetivo.bind("<FocusIn>", borrar_texto)
-        self.entry_objetivo.bind("<FocusOut>", reescribir_texto)
-
-
-
-        check_S_var = IntVar()
-        checkbox_S = Checkbutton(
+        check_1_var = IntVar()
+        checkbox_1 = Checkbutton(
             canvas,
-            text="S",  # Etiqueta del checkbox
-            variable=check_S_var,  # Variable de control para el estado del checkbox
+            text="1º",  # Etiqueta del checkbox
+            variable=check_1_var,  # Variable de control para el estado del checkbox
             onvalue=1,  # Valor cuando el checkbox está seleccionado
             offvalue=0,  # Valor cuando el checkbox está deseleccionado
-            command=checkbox_clicked(check_S_var),  # Función para manejar los clics del checkbox
+            command=lambda: on_checkbox_click(checkbox_1),  # Función para manejar los clics del checkbox
             bd=0,  # Grosor del borde del checkbox
             bg="white",  # Color de fondo del checkbox
             activebackground="white",  # Color de fondo cuando el checkbox está activo
             highlightthickness=0,  # Grosor del borde cuando el checkbox está resaltado
             relief="flat"  # Tipo de relieve del checkbox
         )
-        checkbox_S.place(
+        checkbox_1.place(
             x=904.0,
             y=187.0,
-            width=48.0,
+            width=70.0,
             height=38.0
         )
 
-
-        check_O_var = IntVar()
-        checkbox_O = Checkbutton(
+        check_podio_var = IntVar()
+        checkbox_podio = Checkbutton(
             canvas,
-            text="O",  # Etiqueta del checkbox
-            variable=check_O_var,  # Variable de control para el estado del checkbox
+            text="Podio",  # Etiqueta del checkbox
+            variable=check_podio_var,  # Variable de control para el estado del checkbox
             onvalue=1,  # Valor cuando el checkbox está seleccionado
             offvalue=0,  # Valor cuando el checkbox está deseleccionado
-            command=checkbox_clicked(check_O_var),  # Función para manejar los clics del checkbox
+            command=lambda: on_checkbox_click(checkbox_podio),  # Función para manejar los clics del checkbox
             bd=0,  # Grosor del borde del checkbox
             bg="white",  # Color de fondo del checkbox
             activebackground="white",  # Color de fondo cuando el checkbox está activo
             highlightthickness=0,  # Grosor del borde cuando el checkbox está resaltado
             relief="flat"  # Tipo de relieve del checkbox
         )
-        checkbox_O.place(
-            x=1145.0,
+        checkbox_podio.place(
+            x=990.0,
             y=187.0,
-            width=48.0,
+            width=70.0,
+            height=38.0
+        )
+
+        check_5_var = IntVar()
+        checkbox_5 = Checkbutton(
+            canvas,
+            text="Top 5",  # Etiqueta del checkbox
+            variable=check_5_var,  # Variable de control para el estado del checkbox
+            onvalue=1,  # Valor cuando el checkbox está seleccionado
+            offvalue=0,  # Valor cuando el checkbox está deseleccionado
+            command=lambda: on_checkbox_click(checkbox_5),  # Función para manejar los clics del checkbox
+            bd=0,  # Grosor del borde del checkbox
+            bg="white",  # Color de fondo del checkbox
+            activebackground="white",  # Color de fondo cuando el checkbox está activo
+            highlightthickness=0,  # Grosor del borde cuando el checkbox está resaltado
+            relief="flat"  # Tipo de relieve del checkbox
+        )
+        checkbox_5.place(
+            x=1076.0,
+            y=187.0,
+            width=70.0,
+            height=38.0
+        )
+
+        check_puntos_var = IntVar()
+        checkbox_puntos = Checkbutton(
+            canvas,
+            text="Puntúa",  # Etiqueta del checkbox
+            variable=check_puntos_var,  # Variable de control para el estado del checkbox
+            onvalue=1,  # Valor cuando el checkbox está seleccionado
+            offvalue=0,  # Valor cuando el checkbox está deseleccionado
+            command=lambda: on_checkbox_click(checkbox_puntos),  # Función para manejar los clics del checkbox
+            bd=0,  # Grosor del borde del checkbox
+            bg="white",  # Color de fondo del checkbox
+            activebackground="white",  # Color de fondo cuando el checkbox está activo
+            highlightthickness=0,  # Grosor del borde cuando el checkbox está resaltado
+            relief="flat"  # Tipo de relieve del checkbox
+        )
+        checkbox_puntos.place(
+            x=1162.0,
+            y=187.0,
+            width=70.0,
             height=38.0
         )
 
 
+        piloto = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
+        self.piloto_var = tk.StringVar(value=piloto)
+        self.combo_piloto = ttk.Combobox(canvas, textvariable=self.piloto_var, values=piloto)
+        self.combo_piloto.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        self.combo_piloto.current(0)  # Establece la opción por defecto
+        self.combo_piloto.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        frecuencia = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']
-        self.frecuencia_var = tk.StringVar(value=frecuencia)
-        self.combo_frecuencia = ttk.Combobox(canvas, textvariable=self.frecuencia_var, values=frecuencia)
-        self.combo_frecuencia.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_frecuencia.current(0)  # Establece la opción por defecto
-        self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+        self.original_piloto = piloto
 
-        self.original_frecuencia = frecuencia
-
-        # Función para manejar la selección en el ComboBox
-        def seleccionar_frecuencia(event):
-            selected_item = self.mercados_var.get()
-            print("Opción seleccionada:", selected_item)
-            self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            # hay que hacer que se muestre la info del mercado seleccionado
-
-        self.combo_frecuencia.bind("<<ComboboxSelected>>", seleccionar_frecuencia)  # Asocia la función al evento de selección del ComboBox
-        self.combo_frecuencia.bind('<KeyRelease>', filter_options)
+        self.combo_piloto.bind("<<ComboboxSelected>>", seleccionar_accion)
+        self.combo_piloto.bind('<KeyRelease>', filter_options)
 
         button_image_16 = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
         button_16 = Button(
             canvas,
             text="Parar ticks",
+            fg="#FFFFFF",
             image=button_image_16,
             borderwidth=0,
             highlightthickness=0,
@@ -507,11 +507,11 @@ class FormularioOperaciones(tk.Toplevel):
         self.cuerpo_principal.mainloop()
     
     def tickdirecto(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_velas.get()
 
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        self.b.establecer_piloto_accion(piloto_txt, accion_txt) 
        
         self.b.thread_orders(estrategia)
         
@@ -525,11 +525,11 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_estocastico()
 
     def getPrice(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
 
-        # self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        # self.b.establecer_piloto_accion(piloto_txt, accion_txt) 
        
         # self.b.thread_orders(estrategia)
         
@@ -542,19 +542,33 @@ class FormularioOperaciones(tk.Toplevel):
         # elif estrategia == 'Estocastico':
         #     self.b.thread_estocastico()
     
-    def lanzarCompra(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+    def lanzarEstrategia(self):
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
-
-    def lanzarVenta(self):
-        frecuencia_txt = self.combo_frecuencia.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
 
     def pararTicksDirecto(self):
-        frecuencia_txt = self.combo_frecuencia.get()
+        piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia=self.combo_años.get()
+
+    
+    def coger_ticks(self):
+        
+        frecuencia_txt = "Daily"
+        accion_txt = self.combo_acciones.get()
+        inicio_txt = self.entry_inicio_back.get()
+        fin_txt = self.entry_fin_back.get()
+        estrategia_txt = 'Formula1.' + self.combo_piloto.get() + '.' + self.estrategia
+
+        print("----------------------------------------")
+        print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
+
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+
+        #if parte backtestin
+        self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
+
+        # self.informacion()
     
     

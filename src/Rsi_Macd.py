@@ -154,6 +154,8 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     # #CAMBIAR ESTO 
     
     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+  
+
 
     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
     CUR_RSI=rsi.rsi()

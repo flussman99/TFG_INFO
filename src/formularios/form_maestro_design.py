@@ -12,6 +12,8 @@ from formularios.form_operaciones import FormularioOperaciones
 from formularios.form_operaciones_creativas import FormularioOperacionesCreativas
 from formularios.form_inicio import FormularioInicioDesign
 from formularios.form_ajustes import FormularioAjustes
+from formularios.form_formula1 import FormularioFormula1
+from formularios.form_Futbol import FormularioFutbol 
 import mysql.connector
 from configDB import DBConfig
 
@@ -187,8 +189,16 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_operaciones_creativas(self):
         self.limpiar_panel(self.cuerpo_principal)
-        FormularioOperacionesCreativas(self.cuerpo_principal)
+        FormularioOperacionesCreativas(self.cuerpo_principal, self.abrir_panel_futbol,self.abrir_panel_f1)
 
+    def abrir_panel_f1(self):
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioFormula1(self.cuerpo_principal)
+    
+    def abrir_panel_futbol(self):
+        self.limpiar_panel(self.cuerpo_principal)
+        FormularioFutbol(self.cuerpo_principal)
+    
 
     def abrir_panel_ajustes(self):
         self.limpiar_panel(self.cuerpo_principal)

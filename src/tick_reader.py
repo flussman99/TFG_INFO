@@ -6,6 +6,7 @@ import MediaMovil
 import Bandas_Bollinger
 import Estocastico
 import EquiposdeFutbol.SBS_backtesting as Futbol
+import Formula1.SF1_backtesting as Formula1
 import pytz
 import openpyxl
 import pandas as pd
@@ -14,11 +15,14 @@ from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
 import time
-import yfinance as yf
+from config import API_KEY as API_KEY
+# import investpy
+import requests
 
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
+
 spread_list = []
 TIMEZONE=pytz.timezone("Etc/UTC")
 
@@ -41,14 +45,70 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
         print("  {}={}".format(prop, symbol_info_dict[prop]))
 
     print("[THREAD - tick_reader] - Working")
-
-    # Filling the list with previos ticks
+    
     load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
-    estrategias(ticks,trading_data['market'],estrategia_txt)
+    estrategias(ticks,trading_data['market'],estrategia_txt, inicio_txt, fin_txt)
+    
+    print("[THREAD - tick_reader] - Ticks loaded")
+
+
+def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt):
+    """Function executed by a thread. It fills the list of ticks and
+    it also computes the average spread.
+
+    Args:
+        pill2kill (Threading.Event): Event to stop the execution of the thread.
+        ticks (list): List of ticks to fill.
+        trading_data (dict): Trading data needed for loading ticks.
+    """
+   
+    print("[THREAD - tick_futbol] - Working")
+
+    load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
+    # Filling the list with previos ticks
+    
+    estrategias(ticks,trading_data['market'],estrategia_txt, inicio_txt, fin_txt,url_txt,cuando_comprar,cuando_vender,equipos_txt)
     
     print("[THREAD - tick_reader] - Ticks loaded")
    
+def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt, pais_txt):
+
+
+
+    url = "https://api.scraperlink.com/investpy/"
+    params = {
+    "email": "tfginfotrading@gmail.com",
+    "type": "historical_data",
+    "product": "stocks",
+    "country": pais_txt,
+    "symbol": market,
+    "from_date": inicio_txt,
+    "to_date": fin_txt,
+    "time_frame": time_period        
+    }
+    headers = {
+    "Authorization": f"Bearer {API_KEY}"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        loaded_ticks = pd.DataFrame(data['data'])
+        loaded_ticks = loaded_ticks.iloc[::-1]
+        loaded_ticks = loaded_ticks.reset_index(drop=True)
+        loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
+        loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')
+        prices_frame = loaded_ticks[['price', 'time']]
+        print(prices_frame)
+        # Convertir el DataFrame a una lista de diccionarios y añadirlo a la lista 'ticks'
+        ticks.extend(prices_frame.to_dict('records'))
+
+ 
+    
+    
+
 
 def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 # Loading data
@@ -152,7 +212,7 @@ def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_tx
 
      
 
-def estrategias(ticks: list, market: str,nombre:str):
+def estrategias(ticks: list, market: str,nombre:str, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt):
     #Escoger estrategia a aplicar
     if nombre == 'RSI':
         Rsi_Macd.backtesting(nombre,ticks)
@@ -167,8 +227,12 @@ def estrategias(ticks: list, market: str,nombre:str):
         Estocastico.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Futbol':
-        Futbol.backtesting(nombre,ticks)
+        Futbol.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
         ticks.clear()
+    elif nombre.startswith('Formula1.'):
+        Formula1.backtesting(nombre,ticks)
+        ticks.clear()
+        
    
 
 def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
