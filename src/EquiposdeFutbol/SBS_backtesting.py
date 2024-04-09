@@ -35,17 +35,17 @@ pais = {
     'ACS': 'spain',
     'ADS': 'united states',
     'NKE': 'united states',
-    'SPOT': 'united states',
-    'DTE': 'italy',
+    # 'SPOT': 'united states',
+    'DTEGn': 'germany',
     'ALVG': 'germany',
 
 }
 
 acciones = {
     'Real Madrid': ['ACS', 'ADS'],
-    'Barcelona': ['SPOT', 'NKE'],
+    'Barcelona': [ 'NKE'],
     'Arsenal': ['ADS'],
-    'Bayern Munich': ['DTE', 'ALVG'],
+    'Bayern Munich': ['DTEGn', 'ALVG'],
 }
 
 urls_equipos = {
@@ -96,10 +96,20 @@ def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:
     equipos_frame['Rentabilidad']= rentabilidad
  
     print(equipos_frame)
-    equipos_frame = pd.DataFrame()
+    
     equipos_frame.to_excel('precios.xlsx', index=False)
 
     tr.rentabilidad_total(equipos_frame['Rentabilidad'])
+    data.clear()
+
+
+def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
+    # leerHtml(equipos_txt)
+    leerUrl(url)
+    print(data)
+    dataframe=crearDf(ticks,inicio, fin,equipos_txt)
+    return dataframe
+
 
 
 def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
@@ -150,11 +160,88 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
 
 
 
-def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
-    # leerHtml(equipos_txt)
-    leerUrl(url)
-    dataframe=crearDf(ticks,inicio, fin,equipos_txt)
-    return dataframe
+
+def leerUrl(url):
+   
+    print(url)
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        respuesta = response.text
+        soup = BeautifulSoup(respuesta, 'html.parser')
+        matches = soup.find_all('a', class_='match-link', attrs={'data-cy': 'match'})
+
+            
+        for match in matches:
+                    competition_elem = match.find('div', class_='middle-info')
+                # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
+                    date_elem = match.find('div', class_='date-transform')
+                    fecha_convertida=convert_date(date_elem.text.strip())
+                    home_team_elem = match.find('div', class_='team-name', itemprop='name')
+                    away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
+                    result_elem = match.find('div', class_='marker')
+                    aplazado_elem = result_elem.find('p', class_='match_hour match-apl')
+                    
+                    
+                    if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem and aplazado_elem is None:
+                        
+                        result_spans = result_elem.find_all('span')
+                        small_elem = result_elem.find('span', class_='small')
+                        
+
+                        if small_elem is not None:#Para partidos con penaltis me quedo con el resultado de la tanda de penaltis
+                            p1_elem = small_elem.find('span', class_='p1')
+                            p2_elem = small_elem.find('span', class_='p2')
+                            p1 = p1_elem.text.strip()
+                            p2 = p2_elem.text.strip()
+                            data.append([
+                                fecha_convertida.strip(),
+                                competition_elem.text.strip(),
+                                home_team_elem.text.strip(),
+                                away_team_elems[1].text.strip(),
+                                result_elem.text.strip(),
+                                p1,
+                                p2
+                            ])    
+                        elif len(result_spans) == 3:  # Ensure there are two result spans and one dash
+                            result_local = result_spans[1].text.strip()
+                            result_visitante = result_spans[2].text.strip()
+                            data.append([
+                                fecha_convertida.strip(),
+                                competition_elem.text.strip(),
+                                home_team_elem.text.strip(),
+                                away_team_elems[1].text.strip(),
+                                result_elem.text.strip(),
+                                result_local,
+                                result_visitante
+                            ])
+                        else:
+                            break  # Paro aqui porque el primera partido que no tenga 3 elementos sera el primero que se vaya a jugar despues porque tiene dentro de marker la hora del partido
+                        
+
+    else:
+            print("Error al obtener la URL. Código de estado:", response.status_code)
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def cargar_html(equipo):
      # Define the base directory for the HTML files
@@ -206,44 +293,6 @@ def leerHtml(equipo):#AQUI LE DEBERIA PASAR EL EQUIPO PARA ELEGIR LOS HTML QUE V
                 matches = soup.find_all('a', class_='match-link', attrs={'data-cy': 'match'})
                 
                 for match in matches:
-                        competition_elem = match.find('div', class_='middle-info')
-                    # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
-                        date_elem = match.find('div', class_='date-transform')
-                        fecha_convertida=convert_date(date_elem.text.strip())
-                        home_team_elem = match.find('div', class_='team-name', itemprop='name')
-                        away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
-                        result_elem = match.find('div', class_='marker')
-                        
-                        if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem:
-                            result_spans = result_elem.find_all('span')
-                            if len(result_spans) == 3:  # Ensure there are two result spans and one dash
-                                result_local = result_spans[1].text.strip()
-                                result_visitante = result_spans[2].text.strip()
-                                data.append([
-                                    fecha_convertida.strip(),
-                                    competition_elem.text.strip(),
-                                    home_team_elem.text.strip(),
-                                    away_team_elems[1].text.strip(),
-                                    result_elem.text.strip(),
-                                    result_local,
-                                    result_visitante
-                                ])
-        else:
-            print(f"File {file_name} does not exist.")
-
-
-def leerUrl(url):
-   
-    url = url
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        respuesta = response.text
-        soup = BeautifulSoup(respuesta, 'html.parser')
-        matches = soup.find_all('a', class_='match-link', attrs={'data-cy': 'match'})
-
-            
-        for match in matches:
                     competition_elem = match.find('div', class_='middle-info')
                 # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
                     date_elem = match.find('div', class_='date-transform')
@@ -251,10 +300,14 @@ def leerUrl(url):
                     home_team_elem = match.find('div', class_='team-name', itemprop='name')
                     away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
                     result_elem = match.find('div', class_='marker')
+                    aplazado_elem = result_elem.find('p', class_='match_hour match-apl')
                     
-                    if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem:
+                    
+                    if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem and aplazado_elem is None:
+                        
                         result_spans = result_elem.find_all('span')
                         small_elem = result_elem.find('span', class_='small')
+
                         if small_elem is not None:#Para partidos con penaltis me quedo con el resultado de la tanda de penaltis
                             p1_elem = small_elem.find('span', class_='p1')
                             p2_elem = small_elem.find('span', class_='p2')
@@ -284,10 +337,8 @@ def leerUrl(url):
                         else:
                             break  # Paro aqui porque el primera partido que no tenga 3 elementos sera el primero que se vaya a jugar despues porque tiene dentro de marker la hora del partido
                         
-
-    else:
-            print("Error al obtener la URL. Código de estado:", response.status_code)
-
+        else:
+            print(f"File {file_name} does not exist.")
 
 
 

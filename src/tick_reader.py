@@ -15,7 +15,7 @@ from ta.momentum import RSIIndicator
 from ta.momentum import StochRSIIndicator
 from ta.trend import MACD
 import time
-from config import API_KEY as API_KEY
+from config import API_KEY 
 # import investpy
 import requests
 
@@ -74,7 +74,7 @@ def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,
    
 def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt, pais_txt):
 
-
+    print(market, time_period, inicio_txt, fin_txt, pais_txt)
 
     url = "https://api.scraperlink.com/investpy/"
     params = {
