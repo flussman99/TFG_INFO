@@ -3,6 +3,7 @@ import bot as bt
 from formularios.form_login import FormularioLoginDesign
 from formularios.form_maestro_design import FormularioMaestroDesign
 import sys
+
 app = FormularioMaestroDesign()
 app.mainloop()
 

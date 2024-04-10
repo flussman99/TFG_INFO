@@ -17,10 +17,10 @@ from config import COLOR_CUERPO_PRINCIPAL
 
 class FormularioOperacionesCreativas(tk.Toplevel):
    
-    def __init__(self, panel_principal, form_f1):
+    def __init__(self, panel_principal, form_Futbol ,form_f1):
         
         self.formulario_f1 = form_f1
-
+        self.form_Futbol = form_Futbol    
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
 
@@ -139,7 +139,7 @@ class FormularioOperacionesCreativas(tk.Toplevel):
     
 
     def estrategiaFutbol(self):
-        print("Futbol")
+        self.form_Futbol()
 
     def estrategiaF1(self):
         self.formulario_f1()
