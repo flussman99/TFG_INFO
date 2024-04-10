@@ -1,6 +1,8 @@
 import Rsi_Macd, MediaMovil,time,Bandas_Bollinger,Estocastico
 import datetime as date
 import MetaTrader5 as mt5
+import pandas as pd
+
 
 
 # Global variables
@@ -283,14 +285,38 @@ def elegirListGuardarCompras(estrategia, buy):
         comprasEstocasticos.append(buy)
         return comprasEstocasticos
 
-def cerrar_operaciones(operaciones_a_cerrar: list):
-    """Función para cerrar todas las operaciones en la lista proporcionada.
+def cerrar_posicion(orders: dict):
+    """Esta función cierra la posición que recibe como argumento"""
+    print(orders)
+    price=mt5.symbol_info_tick(orders.symbol).bid
 
-    Args:
-        operaciones_a_cerrar (list): Lista de operaciones a cerrar.
-    """
-    for operacion in operaciones_a_cerrar:
-        mt5.order_close(operacion.ticket)
+
+    request = {
+        'action': mt5.TRADE_ACTION_DEAL,
+        'position': orders.ticket,
+        'magic': orders.magic,
+        'symbol': orders.symbol,
+        'volume': orders.volume,
+        "price": price,
+        'deviation': 20,
+        'type': mt5.ORDER_TYPE_SELL,
+        'type_filling': mt5.ORDER_FILLING_IOC,
+        'type_time': mt5.ORDER_TIME_GTC,
+        'comment': "cerrar"
+    }
+    return mt5.order_send(request)
+
+def cerrar_todas_las_posiciones(trading_data):
+    """Esta función cierra TODAS las posiciones abiertas y gestiona posibles errores"""
+   
+    orders=mt5.positions_get(symbol=trading_data['market'])
+    for position in orders:
+        result = cerrar_posicion(position)
+        print(result)
+        if result.retcode == mt5.TRADE_RETCODE_DONE:
+            print(f"Posición {position.ticket} cerrada correctamente.")
+        else:
+            print(f"Ha ocurrido un error al cerrar la posición {position.ticket}: {mt5.last_error()}")
 
 
 
@@ -308,7 +334,11 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
 
     print("[THREAD - orders] - Checking operations")
     #operacion_abierta=0
-    while not pill2kill.wait(trading_data['time_period']):
+    #trading_data['time_period']
+    while not pill2kill.wait(30):
+
+        #cerrar_todas_las_posiciones(trading_data)
+
         if check_buy(estrategia_directo):
             buy = open_buy(trading_data)
             lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
