@@ -5,7 +5,7 @@ import Rsi_Macd
 import MediaMovil 
 import Bandas_Bollinger
 import Estocastico
-import EquiposdeFutbol.SBS_backtesting as Futbol
+from EquiposdeFutbol.SBS_backtesting import SBSBacktesting as SBS
 import Formula1.SF1_backtesting as Formula1
 import pytz
 import openpyxl
@@ -227,7 +227,7 @@ def estrategias(ticks: list, market: str,nombre:str, inicio_txt, fin_txt,url,cua
         Estocastico.backtesting(nombre,ticks)
         ticks.clear()
     elif nombre == 'Futbol':
-        Futbol.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
+        SBS.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
         ticks.clear()
     elif nombre.startswith('Formula1.'):
         Formula1.backtesting(nombre,ticks)
