@@ -28,16 +28,12 @@ class SBSBacktesting:
 
     ligas = {
         'La Liga': ['Real Madrid', 'Barcelona', 'Atletico de Madrid','Valencia'],
-        'Premier League': [ 'Arsenal','Manchester United','Manchester City','Chelsea'],
+        'Premier League': [ 'Arsenal','Manchester United','Manchester City','Chelsea','Liverpool'],
         'Bundesliga': ['Bayern Munich','Borussia Dortmund','RB Leipzig','Bayer Leverkusen'],
         'Serie A': ['Juventus','Roma','Napoles','AC Milan','Inter de Milan'],
         'Ligue 1':['PSG','Olympique Lyon','Olympique Marsella']
     }
-ligas = {
-    'La Liga': ['Real Madrid', 'Barcelona'],
-    'Premier League': [ 'Arsenal','Liverpool'],
-    'Bundesliga': ['Bayern Munich']
-}
+
 
     pais = {
         'ACS': 'spain',
@@ -58,6 +54,7 @@ ligas = {
         'BMWG': 'germany',
         'MCD': 'united states',
         'ORAN':'france',
+        'STAN': 'united kingdom'
 
 
     }
@@ -70,6 +67,7 @@ ligas = {
         'Atletico de Madrid':['NKE'],
         'Valencia': ['KO'],
         'Manchester United':['DXC'],
+        'Liverpool': ['STAN'],
         'Manchester City': ['EA'],
         'Chelsea': ['TRVG'],
         'Borussia Dortmund':['EVKn'],
@@ -96,6 +94,7 @@ ligas = {
         'Valencia': 'https://es.besoccer.com/equipo/partidos/valencia-cf',
         'Manchester United': 'https://es.besoccer.com/equipo/partidos/manchester-united-fc',
         'Manchester City': 'https://es.besoccer.com/equipo/partidos/manchester-city-fc',
+        'Liverpool': 'https://es.besoccer.com/equipo/partidos/liverpool',
         'Chelsea': 'https://es.besoccer.com/equipo/partidos/chelsea-fc',
         'Borussia Dortmund': 'https://es.besoccer.com/equipo/partidos/borussia-dortmund',
         'RB Leipzig': 'https://es.besoccer.com/equipo/partidos/rb-leipzig',
@@ -107,6 +106,7 @@ ligas = {
         'Inter de Milan': 'https://es.besoccer.com/equipo/partidos/internazionale',
         'PSG': 'https://es.besoccer.com/equipo/partidos/paris-saint-germain-fc',
         'Olympique Lyon': 'https://es.besoccer.com/equipo/partidos/olympique-lyonnais',
+        'Olympique Marsella': 'https://es.besoccer.com/equipo/partidos/olympique-marsella'
 
     }
 
