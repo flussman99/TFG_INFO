@@ -361,7 +361,6 @@ class FormularioFutbol(tk.Toplevel):
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
 
-     
         self.b.thread_Futbol(inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt, cuando_comprar, cuando_vender,equipo_txt)
 
     

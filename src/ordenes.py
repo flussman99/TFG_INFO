@@ -1,12 +1,8 @@
 import Rsi_Macd, MediaMovil,time,Bandas_Bollinger,Estocastico
 import datetime as date
 import MetaTrader5 as mt5
-<<<<<<< HEAD
 import pandas as pd
 
-=======
-from EquiposdeFutbol import SBS_backtesting as SBS
->>>>>>> 8cd3804bfe42bdc2ca6c5e28647281d59005edfe
 
 
 # Global variables

@@ -27,7 +27,7 @@ month_names = {
 
 ligas = {
     'La Liga': ['Real Madrid', 'Barcelona'],
-    'Premier League': [ 'Arsenal'],
+    'Premier League': [ 'Arsenal','Liverpool'],
     'Bundesliga': ['Bayern Munich']
 }
 
@@ -38,6 +38,7 @@ pais = {
     # 'SPOT': 'united states',
     'DTEGn': 'germany',
     'ALVG': 'germany',
+    'STAN':'united kingdom'
 
 }
 
@@ -46,6 +47,7 @@ acciones = {
     'Barcelona': [ 'NKE'],
     'Arsenal': ['ADS'],
     'Bayern Munich': ['DTEGn', 'ALVG'],
+    'Liverpool':['STAN']
 }
 
 urls_equipos = {
@@ -53,6 +55,7 @@ urls_equipos = {
     'Barcelona': 'https://es.besoccer.com/equipo/partidos/barcelona',
     'Arsenal': 'https://es.besoccer.com/equipo/partidos/arsenal',
     'Bayern Munich': 'https://es.besoccer.com/equipo/partidos/bayern-munchen',
+    'Liverpool':'https://es.besoccer.com/equipo/partidos/liverpool',
 }
 
 # Lista para almacenar los datos de todos los partidos
@@ -101,6 +104,7 @@ def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:
 
     tr.rentabilidad_total(equipos_frame['Rentabilidad'])
     data.clear()
+    compras.clear()
 
 
 def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
