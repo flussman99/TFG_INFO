@@ -33,6 +33,11 @@ class SBSBacktesting:
         'Serie A': ['Juventus','Roma','Napoles','AC Milan','Inter de Milan'],
         'Ligue 1':['PSG','Olympique Lyon','Olympique Marsella']
     }
+ligas = {
+    'La Liga': ['Real Madrid', 'Barcelona'],
+    'Premier League': [ 'Arsenal','Liverpool'],
+    'Bundesliga': ['Bayern Munich']
+}
 
     pais = {
         'ACS': 'spain',

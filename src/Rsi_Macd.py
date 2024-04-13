@@ -73,6 +73,8 @@ def backtesting(nombre:str, prices: list):
 
     tr.rentabilidad_total( prices_frame['Rentabilidad'])
     tr.frameToExcel(prices_frame, nombre + '.xlsx') 
+    compras.clear()#para cuando llamas varias veces a la misma estrategia
+   
 
 def diftime(t1,t2):
     if t1-t2>TIMEBTWOPERATIONS:
