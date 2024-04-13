@@ -5,7 +5,6 @@ import Rsi_Macd
 import MediaMovil 
 import Bandas_Bollinger
 import Estocastico
-from EquiposdeFutbol.SBS_backtesting import SBSBacktesting as SBS
 import Formula1.SF1_backtesting as Formula1
 import pytz
 import openpyxl
@@ -18,7 +17,7 @@ import time
 from config import API_KEY 
 # import investpy
 import requests
-
+from EquiposdeFutbol import SBS_backtesting as SBS
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
@@ -29,7 +28,7 @@ TIMEZONE=pytz.timezone("Etc/UTC")
 
                             #Funciones de ticks EN BACKTESTING
 
-def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estrategia_txt):
+def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estrategia_txt,cola):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -48,12 +47,36 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     
     load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
-    estrategias(ticks,trading_data['market'],estrategia_txt, inicio_txt, fin_txt)
-    
+    frame=estrategias(ticks,trading_data['market'],estrategia_txt)
+    rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
+
+    cola.put((frame, rentabilidad))
+
     print("[THREAD - tick_reader] - Ticks loaded")
+    
 
 
-def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt):
+def estrategias(ticks: list, market: str,nombre:str):
+    #Escoger estrategia a aplicar
+    
+    if nombre == 'RSI':
+        frame=Rsi_Macd.backtesting(nombre,ticks)
+        
+    elif nombre == 'Media Movil':
+        frame=MediaMovil.backtesting(nombre,ticks)
+        
+    elif nombre == 'Bandas':
+        frame=Bandas_Bollinger.backtesting(nombre,ticks)
+        
+    elif nombre == 'Estocastico':
+        frame=Estocastico.backtesting(nombre,ticks)
+    
+    frameToExcel(frame, f'{nombre}.xlsx')
+    ticks.clear()       
+    return frame
+
+
+def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt,cola):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -68,10 +91,25 @@ def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
     
-    estrategias(ticks,trading_data['market'],estrategia_txt, inicio_txt, fin_txt,url_txt,cuando_comprar,cuando_vender,equipos_txt)
-    
+    frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar,cuando_vender,equipos_txt)
+    rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
+    cola.put((frame, rentabilidad))
     print("[THREAD - tick_reader] - Ticks loaded")
-   
+
+
+def estrategias_Creativas(ticks: list, market: str,nombre:str,inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt):
+    if nombre == 'Futbol':
+        frame=SBS.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
+       
+    elif nombre.startswith('Formula1.'):
+        Formula1.backtesting(nombre,ticks)
+
+    frameToExcel(frame, f'{nombre}.xlsx')
+    ticks.clear()       
+    return frame
+
+
+      
 def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt, pais_txt):
 
     print(market, time_period, inicio_txt, fin_txt, pais_txt)
@@ -210,28 +248,7 @@ def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_tx
 
                             #Funciones de ticks EN DIRECTO
 
-     
 
-def estrategias(ticks: list, market: str,nombre:str, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt):
-    #Escoger estrategia a aplicar
-    if nombre == 'RSI':
-        Rsi_Macd.backtesting(nombre,ticks)
-        ticks.clear()
-    elif nombre == 'Media Movil':
-        MediaMovil.backtesting(nombre,ticks)
-        ticks.clear()
-    elif nombre == 'Bandas':
-        Bandas_Bollinger.backtesting(nombre,ticks)
-        ticks.clear()
-    elif nombre == 'Estocastico':
-        Estocastico.backtesting(nombre,ticks)
-        ticks.clear()
-    elif nombre == 'Futbol':
-        SBS.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
-        ticks.clear()
-    elif nombre.startswith('Formula1.'):
-        Formula1.backtesting(nombre,ticks)
-        ticks.clear()
         
    
 
@@ -257,6 +274,7 @@ def rentabilidad_total(rentabilidades):
      # Mostrar la rentabilidad total
     suma_rentabilidades = rentabilidades.sum()
     print("La suma de rentabilidades es:", suma_rentabilidades)
+    return suma_rentabilidades
 
 def frameToExcel(prices_frame, excel_filename):
     """

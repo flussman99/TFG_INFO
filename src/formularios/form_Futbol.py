@@ -13,11 +13,11 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from datetime import datetime
 from Formula1 import SF1_backtesting
-from EquiposdeFutbol.SBS_backtesting import SBSBacktesting as SBS
+from EquiposdeFutbol import SBS_backtesting as SBS
+
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
-# SBS_backtesting=SBS_backtesting()
 
 class FormularioFutbol(tk.Toplevel):
    
@@ -60,14 +60,13 @@ class FormularioFutbol(tk.Toplevel):
         self.b = bt(1) #como mejorarlo?
         # Lista de opciones para el ComboBox
         # acciones, mercados = self.b.get_trading_data()
-        self.sbs_backtesting=SBS()
+      
 
         self.estrategia='Futbol'
-        ligas=self.sbs_backtesting.ligas
-        ligas = self.sbs_backtesting.ligas
-        acciones=self.sbs_backtesting.acciones
-        pais=self.sbs_backtesting.pais
-        url=self.sbs_backtesting.urls_equipos
+        ligas=SBS.ligas
+        acciones=SBS.acciones
+        pais=SBS.pais
+        url=SBS.urls_equipos
 
         self.ligas_var = tk.StringVar(value=list(ligas.keys()))
         self.combo_ligas = ttk.Combobox(canvas, textvariable=self.ligas_var, values=list(ligas.keys()))
@@ -156,13 +155,13 @@ class FormularioFutbol(tk.Toplevel):
             self.combo_comprar['values'] = valores
 
         self.titulos_comprar = ttk.Label(self.cuerpo_principal, text="Seleccione cuando comprar:")
-        self.titulos_comprar.place(x=34.0, y=284, width=200, height=38.0)
+        self.titulos_comprar.place(x=34.0, y=96, width=200, height=38.0)
         self.titulos_comprar.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         # Crea el combobox 'comprar'
         self.comprar_var = tk.StringVar()
         self.combo_comprar = ttk.Combobox(canvas, textvariable=self.comprar_var, values=['Ganado', 'Empatado', 'Perdido'])
-        self.combo_comprar.place(x=34.0, y=322.0, width=200, height=38.0)
+        self.combo_comprar.place(x=34.0, y=131.0, width=200, height=38.0)
         self.combo_comprar.current(0)
         self.combo_comprar.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
@@ -171,13 +170,13 @@ class FormularioFutbol(tk.Toplevel):
 
 
         self.titulo_vender = ttk.Label(self.cuerpo_principal, text="Seleccione cuando Vender:")
-        self.titulo_vender.place(x=240.0, y=284, width=200, height=38.0)
+        self.titulo_vender.place(x=34.0, y=189, width=200, height=38.0)
         self.titulo_vender.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         # Crea el combobox 'vender'
         self.vender_var = tk.StringVar()
         self.combo_vender = ttk.Combobox(canvas, textvariable=self.vender_var, values=['Ganado', 'Empatado', 'Perdido'])
-        self.combo_vender.place(x=240.0, y=322.0, width=200, height=38.0)
+        self.combo_vender.place(x=34.0, y=224.0, width=200, height=38.0)
         self.combo_vender.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         # Vincula la función 'actualizar_comprar' a la selección de un valor en 'vender'
@@ -280,8 +279,23 @@ class FormularioFutbol(tk.Toplevel):
             font=("Calistoga Regular", 12)
         )
 
-        self.rentabilidad_label = Label(self.cuerpo_principal, text="")
-        self.rentabilidad_label.place(x=100, y=100)  # Coloca la etiqueta en la posición que desees
+        self.rentabilidad_futbol = tk.StringVar()
+        self.rentabilidad_futbol.set("0")
+
+        self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_futbol)
+        self.rentabilidad_label.place(x=35, y=300)
+
+        # Crear el botón
+        self.filter_button = ttk.Button(self.cuerpo_principal, text="Mostrar Operaciones", command=self.apply_filter)
+        self.filter_button.place(x=270, y=300)  # Ajusta las coordenadas x e y según sea necesario
+
+        # Crear el widget Treeview
+        self.tree = ttk.Treeview(self.cuerpo_principal)
+        # Añadir el widget Treeview al formulario
+        # Añadir el widget Treeview al formulario en una ubicación específica
+        self.tree.place(x=35, y=350, width=1300)
+
+
 
         button_window = canvas.create_window(650, 187, anchor='nw', window=button_start, width=197, height=38)
         # button_8.bind("<Button-1>", lambda event: seleccionar_años())
@@ -308,8 +322,7 @@ class FormularioFutbol(tk.Toplevel):
         )
         self.cuerpo_principal.mainloop()
 
-        self.rentabilidad_label = Label(self.cuerpo_principal, text="")
-        self.rentabilidad_label.place(x=100, y=100)  # Coloca la etiqueta en la posición que desees
+        
         
 
         def borrar_texto(event):
@@ -325,9 +338,7 @@ class FormularioFutbol(tk.Toplevel):
                 elif text_box == self.entry_lotaje:
                     self.entry_lotaje.insert(0, self.texto_lotaje)
 
-    def mostrar_rentabilidad(self):
-        rentabilidad_total = self.sbs_backtesting.obtener_rentabilidad_total()
-        self.rentabilidad_label.config(text=str(rentabilidad_total))
+
 
 
         
@@ -336,7 +347,19 @@ class FormularioFutbol(tk.Toplevel):
         
         self.b.thread_orders(self.estrategia)
         
+    def apply_filter(self):
+        # Obtener el DataFrame actual
+        frame, _=self.b.thread_Futbol(self.fecha_inicio_entry.get(), self.fecha_fin_entry.get(),self.pais_asoc,self.url_asoc,self.estrategia, self.combo_comprar.get(), self.combo_vender.get(),self.combo_equipos.get())
+        # Filtrar el DataFrame
+        frame = frame[frame['Decision'].isin(['1', '-1'])]
 
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir los datos filtrados al widget Treeview
+        for index, row in frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
         
 
     def getPrice(self):
@@ -370,9 +393,24 @@ class FormularioFutbol(tk.Toplevel):
         print(equipo_txt, accion_txt, pais_txt, url_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+       
+        frame, rentabilidad=self.b.thread_Futbol(inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt, cuando_comprar, cuando_vender,equipo_txt)
+        print(frame)
+        self.rentabilidad_futbol.set(str(rentabilidad))
 
-        self.b.thread_Futbol(inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt, cuando_comprar, cuando_vender,equipo_txt)
-        self.mostrar_rentabilidad()
+
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=100)
+
+        # Añadir los datos del DataFrame al widget Treeview
+        for index, row in frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+       
+        
 
     
     

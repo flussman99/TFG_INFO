@@ -8,6 +8,9 @@ import MetaTrader5 as mt5
 import datetime as dt
 import pytz
 from datetime import timedelta
+
+
+
 TIMEZONE=pytz.timezone("Etc/UTC")
 
 
@@ -64,16 +67,15 @@ def backtesting(nombre:str, prices: list):
         else:
             decisiones.append("NO SE REALIZA OPERACION")#COMPRO
             rentabilidad.append(None)
-
+    
+    compras.clear()
     # Agregar la lista de decisiones como una nueva columna al DataFrame
     prices_frame['Decision'] = decisiones
     prices_frame['Rentabilidad']= rentabilidad
 
-    print(prices_frame)
+    print("Frame Rsi ",prices_frame)
+    return prices_frame
 
-    tr.rentabilidad_total( prices_frame['Rentabilidad'])
-    tr.frameToExcel(prices_frame, nombre + '.xlsx') 
-    compras.clear()#para cuando llamas varias veces a la misma estrategia
    
 
 def diftime(t1,t2):

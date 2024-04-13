@@ -6,6 +6,7 @@ import ordenes as orders
 import Rsi_Macd, MediaMovil,Bandas_Bollinger,Estocastico
 import pandas as pd
 import os
+import queue
 
 class Bot:
     
@@ -17,6 +18,7 @@ class Bot:
     ticksBandas = []
     ticksEstocasticos = []
     pill2kill = threading.Event()
+    almacenar_frame_rentabilidad = queue.Queue()
     
     trading_data = {
         "lotage": 1.0,
@@ -88,20 +90,32 @@ class Bot:
     def thread_tick_reader(self, inicio_txt, fin_txt,estrategia_txt):
         """Function to launch the tick reader thread.
         """
+        
+        
         t = threading.Thread(target=tr.thread_tick_reader, 
-                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt))
+                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad))
         self.threads.append(t)
         t.start()
         print('Thread - tick_reader. LAUNCHED')
+
+        # Obtener el resultado de la almacenar_frame_rentabilidad
+        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
+        
+        return frame, rentabilidad
+        
     
-    def thread_Futbol(self, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
+    def thread_Futbol(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
         """Function to launch the tick reader thread.
         """
         t = threading.Thread(target=tr.thread_Futbol, 
-                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt))
+                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
         self.threads.append(t)
         t.start()
         print('Thread - tick_reader. LAUNCHED')
+        # Obtener el resultado de la almacenar_frame_rentabilidad
+        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
+        
+        return frame, rentabilidad
 
     # def ticks_directo(self , estrategia):
     #     """Function to launch the tick reader thread.
