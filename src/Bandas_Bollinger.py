@@ -6,6 +6,8 @@ import MetaTrader5 as mt5
 import datetime as dt
 import pytz
 import time
+from datetime import timedelta
+
 TIMEZONE=pytz.timezone("Etc/UTC")
 
 
@@ -16,7 +18,9 @@ BB_LOWER=None
 BB_UPPER=None
 PRECIO_ACTUAL=None
 
-
+TIMEBTWOPERATIONS = timedelta(minutes=15)
+compras=[]
+MAX_LEN = 9
 
 
 def backtesting(market: str, prices: list):
@@ -29,6 +33,7 @@ def backtesting(market: str, prices: list):
     decisiones = []
     rentabilidad=[]
     posicion_abierta=False
+    tiempo=0
 
     for index, row in prices_frame.iterrows():
         upper = row['bb_upper']
@@ -38,12 +43,20 @@ def backtesting(market: str, prices: list):
         if  upper < precioCompra and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
-            rentabilidad.append(tr.calcular_rentabilidad(guardar,row['price']))
-        elif lower > precioCompra and posicion_abierta == False:
-            decisiones.append("1")#COMPRO
-            rentabilidad.append(None)
-            posicion_abierta=True
-            guardar=precioCompra
+            rentabilidad.append(tr.calcular_rentabilidad(compras,row['price']))
+            compras.clear()
+
+        elif len(compras) < 10 and lower > precioCompra :
+            if tiempo==0 or diftime(row['time'],tiempo):
+                decisiones.append("1")#COMPRO
+                rentabilidad.append(None)
+                compras.append(precioCompra)
+                posicion_abierta=True
+                tiempo=row['time']#tiempo ultima operacion
+                print(tiempo)
+            else:
+                decisiones.append("NO SE REALIZA OPERACION")
+                rentabilidad.append(None)    
         else:
             decisiones.append("NO SE REALIZA OPERACION")#COMPRO
             rentabilidad.append(None)
@@ -57,7 +70,13 @@ def backtesting(market: str, prices: list):
     tr.rentabilidad_total( prices_frame['Rentabilidad'])
     tr.frameToExcel(prices_frame,'Bandas.xlsx')
 
-
+def diftime(t1,t2):
+    if t1-t2>TIMEBTWOPERATIONS:
+        print("Diferencia de tiempo mayor a 15 minutos")
+        print(t1-t2)
+        return True
+    else:
+        return False
       
    
 def load_ticks_directo(ticks: list, market: str, time_period: int):

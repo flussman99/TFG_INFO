@@ -207,6 +207,8 @@ class Bot:
 
         return trading_data, exchanges_list
     
+
+    
     
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos

@@ -2,6 +2,7 @@ import Rsi_Macd, MediaMovil,time,Bandas_Bollinger,Estocastico
 import datetime as date
 import MetaTrader5 as mt5
 import pandas as pd
+from EquiposdeFutbol import SBS_backtesting as SBS
 
 
 
