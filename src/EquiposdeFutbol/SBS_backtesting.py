@@ -25,10 +25,13 @@ month_names = {
 }
 
 ligas = {
-    'La Liga': ['Real Madrid', 'Barcelona'],
-    'Premier League': [ 'Arsenal','Liverpool'],
-    'Bundesliga': ['Bayern Munich']
+    'La Liga': ['Real Madrid', 'Barcelona', 'Atletico de Madrid','Valencia'],
+    'Premier League': [ 'Arsenal','Manchester United','Manchester City','Chelsea','Liverpool'],
+    'Bundesliga': ['Bayern Munich','Borussia Dortmund','RB Leipzig','Bayer Leverkusen'],
+    'Serie A': ['Juventus','Roma','Napoles','AC Milan','Inter de Milan'],
+    'Ligue 1':['PSG','Olympique Lyon','Olympique Marsella']
 }
+
 
 pais = {
         'ACS': 'spain',
@@ -37,13 +40,46 @@ pais = {
         # 'SPOT': 'united states',
         'DTEGn': 'germany',
         'ALVG': 'germany',
-}
+        'KO' : 'united states',
+        'DXC': 'united states',
+        'EA': 'united states',
+        'TRVG':'united states',
+        'EVKn': 'germany',
+        'VOWG':'germany',
+        'BAYGn':'germany',
+        'TM': 'united states',
+        'EBAY':'united states',
+        'BMWG': 'germany',
+        'MCD': 'united states',
+        'ORAN':'france',
+        'STAN': 'united kingdom'
+
+} 
 
 acciones = {
     'Real Madrid': ['ACS', 'ADS'],
     'Barcelona': [ 'NKE'],
     'Arsenal': ['ADS'],
     'Bayern Munich': ['DTEGn', 'ALVG'],
+    'Atletico de Madrid':['NKE'],
+    'Valencia': ['KO'],
+    'Manchester United':['DXC'],
+    'Liverpool': ['STAN'],
+    'Manchester City': ['EA'],
+    'Chelsea': ['TRVG'],
+    'Borussia Dortmund':['EVKn'],
+    'RB Leipzig': ['VOWG'],
+    'Bayer Leverkusen':['BAYGn'],
+    'Juventus':['ADS'],
+    'Roma': ['TM'],
+    'Napoles': ['EBAY'],
+    'AC Milan': ['BMWG'],
+    'Inter de Milan': ['EBAY','NKE'],
+    'PSG':['NKE','MCD'],
+    'Olympique Lyon': ['ADS'],
+    'Olympique Marsella': ['ORAN'],
+
+
 }
 
 urls_equipos = {
@@ -51,10 +87,28 @@ urls_equipos = {
     'Barcelona': 'https://es.besoccer.com/equipo/partidos/barcelona',
     'Arsenal': 'https://es.besoccer.com/equipo/partidos/arsenal',
     'Bayern Munich': 'https://es.besoccer.com/equipo/partidos/bayern-munchen',
+    'Atletico de Madrid': 'https://es.besoccer.com/equipo/partidos/atletico-madrid',
+    'Valencia': 'https://es.besoccer.com/equipo/partidos/valencia-cf',
+    'Manchester United': 'https://es.besoccer.com/equipo/partidos/manchester-united-fc',
+    'Manchester City': 'https://es.besoccer.com/equipo/partidos/manchester-city-fc',
+    'Liverpool': 'https://es.besoccer.com/equipo/partidos/liverpool',
+    'Chelsea': 'https://es.besoccer.com/equipo/partidos/chelsea-fc',
+    'Borussia Dortmund': 'https://es.besoccer.com/equipo/partidos/borussia-dortmund',
+    'RB Leipzig': 'https://es.besoccer.com/equipo/partidos/rb-leipzig',
+    'Bayer Leverkusen': 'https://es.besoccer.com/equipo/partidos/bayer-leverkusen',
+    'Juventus': 'https://es.besoccer.com/equipo/partidos/juventus-fc',
+    'Roma': 'https://es.besoccer.com/equipo/partidos/roma',
+    'Napoles': 'https://es.besoccer.com/equipo/partidos/napoli',
+    'AC Milan': 'https://es.besoccer.com/equipo/partidos/milan',
+    'Inter de Milan': 'https://es.besoccer.com/equipo/partidos/internazionale',
+    'PSG': 'https://es.besoccer.com/equipo/partidos/paris-saint-germain-fc',
+    'Olympique Lyon': 'https://es.besoccer.com/equipo/partidos/olympique-lyonnais',
+    'Olympique Marsella': 'https://es.besoccer.com/equipo/partidos/olympique-marsella'
+
 }
+
 data=[]
 compras=[]
-
 
 
 def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
