@@ -442,7 +442,45 @@ def cargar_html(equipo):
             '2019-2020_Leverkusen.html',
             '2020-2021_Leverkusen.html',
             '2021-2022_Leverkusen.html'
-        ]  
+        ] 
+    elif equipo == 'PSG':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_PSG.html',
+            '2015-2016_PSG.html',
+            '2016-2017_PSG.html',
+            '2017-2018_PSG.html',
+            '2018-2019_PSG.html',
+            '2019-2020_PSG.html',
+            '2020-2021_PSG.html',
+            '2021-2022_PSG.html'
+        ]
+
+    elif equipo == 'Olympique Lyon':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_OL.html',
+            '2015-2016_OL.html',
+            '2016-2017_OL.html',
+            '2017-2018_OL.html',
+            '2018-2019_OL.html',
+            '2019-2020_OL.html',
+            '2020-2021_OL.html',
+            '2021-2022_OL.html'
+        ]
+
+    elif equipo == 'Olympique Marsella':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_OM.html',
+            '2015-2016_OM.html',
+            '2016-2017_OM.html',
+            '2017-2018_OM.html',
+            '2018-2019_OM.html',
+            '2019-2020_OM.html',
+            '2020-2021_OM.html',
+            '2021-2022_OM.html'
+        ]       
         
          
 
