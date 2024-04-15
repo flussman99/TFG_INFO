@@ -56,30 +56,50 @@ pais = {
 
 } 
 
+acronimo_acciones = {
+    'Grupo ACS(ACS)': 'ACS',
+    'Adidas(ADS)': 'ADS',
+    'Nike(NKE)': 'NKE',
+    'Deutsche Bank(DTE)': 'DTEGn',#este es DTE en metatrader
+    'Allianz(ALV)': 'ALVG',#ALV en metatrader
+    'Coca cola(KO)': 'KO',
+    'DXC Technology(DXC)': 'DXC',
+    'Standar Chartered(STAN)': 'STAN',
+    'Electronic Arts(EA)': 'EA',
+    'Trivago(TRVG)': 'TRVG',
+    'Evonik Industries(EVK)': 'EVKn',#EVK en metatrader
+    'Volkswagen(VOW3)': 'VOWG',#VOW3 en metatrader
+    'Bayer AG(BAYN)': 'BAYGn',#BAYN en metatrader
+    'Toyota(TM)': 'TM',
+    'Ebay Inc(EBAY)': 'EBAY',
+    'Bayerische Motoren Werke(BMW)': 'BMWG',#BMW en metatrader
+    'McDonalds(MCD)': 'MCD',
+    'Orange(ORAN)': 'ORAN',
+}
+
+
 acciones = {
-    'Real Madrid': ['ACS', 'ADS'],
-    'Barcelona': [ 'NKE'],
-    'Arsenal': ['ADS'],
-    'Bayern Munich': ['DTEGn', 'ALVG'],
-    'Atletico de Madrid':['NKE'],
-    'Valencia': ['KO'],
-    'Manchester United':['DXC'],
-    'Liverpool': ['STAN'],
-    'Manchester City': ['EA'],
-    'Chelsea': ['TRVG'],
-    'Borussia Dortmund':['EVKn'],
-    'RB Leipzig': ['VOWG'],
-    'Bayer Leverkusen':['BAYGn'],
-    'Juventus':['ADS'],
-    'Roma': ['TM'],
-    'Napoles': ['EBAY'],
-    'AC Milan': ['BMWG'],
-    'Inter de Milan': ['EBAY','NKE'],
-    'PSG':['NKE','MCD'],
-    'Olympique Lyon': ['ADS'],
-    'Olympique Marsella': ['ORAN'],
-
-
+    'Real Madrid': ['Grupo ACS(ACS)', 'Adidas(ADS)'],
+    'Barcelona': [ 'Nike(NKE)'],
+    'Arsenal': ['Adidas(ADS)'],
+    'Bayern Munich': ['Deutsche Bank(DTE)', 'Allianz(ALV)'],
+    'Atletico de Madrid':['Nike(NKE)'],
+    'Valencia': ['Coca cola(KO)'],
+    'Manchester United':['DXC Technology(DXC)'],
+    'Liverpool': ['Standar Chartered(STAN)'],
+    'Manchester City': ['Electronic Arts(EA)'],
+    'Chelsea': ['Trivago(TRVG)'],
+    'Borussia Dortmund':['Evonik Industries(EVK)'],
+    'RB Leipzig': ['Volkswagen(VOW3)'],
+    'Bayer Leverkusen':['Bayer AG(BAYN)'],
+    'Juventus':['Adidas(ADS)'],
+    'Roma': ['Toyota(TM)'],
+    'Napoles': ['Ebay Inc(EBAY)'],
+    'AC Milan': ['Bayerische Motoren Werke(BMW)'],
+    'Inter de Milan': ['Ebay Inc(EBAY)','Nike(NKE)'],
+    'PSG':['Nike(NKE)','McDonalds(MCD)'],
+    'Olympique Lyon': ['Adidas(ADS)'],
+    'Olympique Marsella': ['Orange(ORAN)'],
 }
 
 urls_equipos = {

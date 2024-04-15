@@ -67,6 +67,7 @@ class FormularioFutbol(tk.Toplevel):
         acciones=SBS.acciones
         pais=SBS.pais
         url=SBS.urls_equipos
+        acronimos_acciones=SBS.acronimo_acciones
 
         self.ligas_var = tk.StringVar(value=list(ligas.keys()))
         self.combo_ligas = ttk.Combobox(canvas, textvariable=self.ligas_var, values=list(ligas.keys()))
@@ -88,28 +89,31 @@ class FormularioFutbol(tk.Toplevel):
         # self.combo_acciones.current(0)
         self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        def actualizar_equipos(event):
-            liga_seleccionada = self.combo_ligas.get()
-            equipos_liga = ligas[liga_seleccionada]
-            self.combo_equipos['values'] = equipos_liga
-            self.combo_equipos.current(0)
-            
-            
-            actualizar_acciones(None)
-
         def actualizar_acciones(event):
             equipo_seleccionado = self.combo_equipos.get()
-            acciones_equipo = acciones.get(equipo_seleccionado, [])
-            self.combo_acciones['values'] = acciones_equipo
-            if acciones_equipo:
+            nombres_acciones_equipo = acciones.get(equipo_seleccionado, [])
+            accion_previa = self.combo_acciones.get()
+            self.combo_acciones['values'] = nombres_acciones_equipo
+            if accion_previa in nombres_acciones_equipo:
+                self.combo_acciones.set(accion_previa)
+            else:
                 self.combo_acciones.current(0)
-                self.pais_asoc=obtener_pais()
-                self.url_asoc=obtener_url()
-                
-    
-        def obtener_pais():
+            self.combo_acciones.bind("<<ComboboxSelected>>", actualizar_pais_url)
+            actualizar_pais_url(None)
+
+        def actualizar_pais_url(event):
+            self.pais_asoc = obtener_pais()
+            self.url_asoc = obtener_url()
+
+        def obtener_acronimo():
             accion_seleccionada = self.combo_acciones.get()
-            pais_seleccionado = pais.get(accion_seleccionada)
+            acronimo_seleccionado = acronimos_acciones.get(accion_seleccionada)
+            print(acronimo_seleccionado)
+            return acronimo_seleccionado
+
+        def obtener_pais():
+            acronimo_seleccionado = obtener_acronimo()
+            pais_seleccionado = pais.get(acronimo_seleccionado)
             print(pais_seleccionado)  # Imprime el país seleccionado
             return pais_seleccionado
 
@@ -360,23 +364,6 @@ class FormularioFutbol(tk.Toplevel):
         # Añadir los datos filtrados al widget Treeview
         for index, row in frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
-        
-
-    def getPrice(self):
-        piloto_txt = self.combo_piloto.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_años.get()
-
-    
-    def lanzarEstrategia(self):
-        piloto_txt = self.combo_piloto.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_años.get()
-
-    def pararTicksDirecto(self):
-        piloto_txt = self.combo_piloto.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_años.get()
 
     
     def coger_ticks(self):
