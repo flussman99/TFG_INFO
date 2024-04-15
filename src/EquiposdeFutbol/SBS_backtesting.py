@@ -392,7 +392,59 @@ def cargar_html(equipo):
             '2020-2021_Liverpool.html',
             '2021-2022_Liverpool.html'
         ]             
-    
+    elif equipo == 'Bayern Munich':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Bayern.html',
+            '2015-2016_Bayern.html',
+            '2016-2017_Bayern.html',
+            '2017-2018_Bayern.html',
+            '2018-2019_Bayern.html',
+            '2019-2020_Bayern.html',
+            '2020-2021_Bayern.html',
+            '2021-2022_Bayern.html'
+        ] 
+
+    elif equipo == 'Borussia Dortmund':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Borussia.html',
+            '2015-2016_Borussia.html',
+            '2016-2017_Borussia.html',
+            '2017-2018_Borussia.html',
+            '2018-2019_Borussia.html',
+            '2019-2020_Borussia.html',
+            '2020-2021_Borussia.html',
+            '2021-2022_Borussia.html'
+        ] 
+
+    elif equipo == 'RB Leipzig':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_RB.html',
+            '2015-2016_RB.html',
+            '2016-2017_RB.html',
+            '2017-2018_RB.html',
+            '2018-2019_RB.html',
+            '2019-2020_RB.html',
+            '2020-2021_RB.html',
+            '2021-2022_RB.html'
+        ] 
+
+    elif equipo == 'Bayern Leverkusen':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Leverkusen.html',
+            '2015-2016_Leverkusen.html',
+            '2016-2017_Leverkusen.html',
+            '2017-2018_Leverkusen.html',
+            '2018-2019_Leverkusen.html',
+            '2019-2020_Leverkusen.html',
+            '2020-2021_Leverkusen.html',
+            '2021-2022_Leverkusen.html'
+        ]  
+        
+         
 
     # Convert the HTML files list to full file paths
     html_files = [os.path.join(base_dir, file) for file in html_files]
