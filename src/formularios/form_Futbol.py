@@ -89,6 +89,17 @@ class FormularioFutbol(tk.Toplevel):
         # self.combo_acciones.current(0)
         self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
+        def actualizar_equipos(event):
+            liga_seleccionada = self.combo_ligas.get()
+            equipos_liga = ligas[liga_seleccionada]
+            self.combo_equipos['values'] = equipos_liga
+            self.combo_equipos.current(0) 
+            actualizar_acciones(None)
+
+        def actualizar_pais_url(event):
+            self.pais_asoc = obtener_pais()
+            self.url_asoc = obtener_url()
+            
         def actualizar_acciones(event):
             equipo_seleccionado = self.combo_equipos.get()
             nombres_acciones_equipo = acciones.get(equipo_seleccionado, [])
@@ -98,12 +109,9 @@ class FormularioFutbol(tk.Toplevel):
                 self.combo_acciones.set(accion_previa)
             else:
                 self.combo_acciones.current(0)
-            self.combo_acciones.bind("<<ComboboxSelected>>", actualizar_pais_url)
-            actualizar_pais_url(None)
 
-        def actualizar_pais_url(event):
-            self.pais_asoc = obtener_pais()
-            self.url_asoc = obtener_url()
+            self.combo_acciones.bind("<<ComboboxSelected>>", actualizar_pais_url)
+
 
         def obtener_acronimo():
             accion_seleccionada = self.combo_acciones.get()
