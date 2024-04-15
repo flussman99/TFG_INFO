@@ -302,6 +302,97 @@ def cargar_html(equipo):
             '2020-2021_Barcelona.html',
             '2021-2022_Barcelona.html'
         ]
+        
+    elif equipo == 'Atletico de Madrid':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Atletico.html',
+            '2015-2016_Atletico.html',
+            '2016-2017_Atletico.html',
+            '2017-2018_Atletico.html',
+            '2018-2019_Atletico.html',
+            '2019-2020_Atletico.html',
+            '2020-2021_Atletico.html',
+            '2021-2022_Atletico.html'
+        ]
+
+    elif equipo == 'Valencia':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Valencia.html',
+            '2015-2016_Valencia.html',
+            '2016-2017_Valencia.html',
+            '2017-2018_Valencia.html',
+            '2018-2019_Valencia.html',
+            '2019-2020_Valencia.html',
+            '2020-2021_Valencia.html',
+            '2021-2022_Valencia.html'
+        ]
+    elif equipo == 'Arsenal':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Arsenal.html',
+            '2015-2016_Arsenal.html',
+            '2016-2017_Arsenal.html',
+            '2017-2018_Arsenal.html',
+            '2018-2019_Arsenal.html',
+            '2019-2020_Arsenal.html',
+            '2020-2021_Arsenal.html',
+            '2021-2022_Arsenal.html'
+        ]   
+
+    elif equipo == 'Manchester United':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_United.html',
+            '2015-2016_United.html',
+            '2016-2017_United.html',
+            '2017-2018_United.html',
+            '2018-2019_United.html',
+            '2019-2020_United.html',
+            '2020-2021_United.html',
+            '2021-2022_United.html'
+        ]    
+
+    elif equipo == 'Manchester City':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_City.html',
+            '2015-2016_City.html',
+            '2016-2017_City.html',
+            '2017-2018_City.html',
+            '2018-2019_City.html',
+            '2019-2020_City.html',
+            '2020-2021_City.html',
+            '2021-2022_City.html'
+        ]
+
+    elif equipo == 'Chelsea':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Chelsea.html',
+            '2015-2016_Chelsea.html',
+            '2016-2017_Chelsea.html',
+            '2017-2018_Chelsea.html',
+            '2018-2019_Chelsea.html',
+            '2019-2020_Chelsea.html',
+            '2020-2021_Chelsea.html',
+            '2021-2022_Chelsea.html'
+        ]  
+
+    elif equipo == 'Liverpool':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Liverpool.html',
+            '2015-2016_Liverpool.html',
+            '2016-2017_Liverpool.html',
+            '2017-2018_Liverpool.html',
+            '2018-2019_Liverpool.html',
+            '2019-2020_Liverpool.html',
+            '2020-2021_Liverpool.html',
+            '2021-2022_Liverpool.html'
+        ]             
+    
 
     # Convert the HTML files list to full file paths
     html_files = [os.path.join(base_dir, file) for file in html_files]
