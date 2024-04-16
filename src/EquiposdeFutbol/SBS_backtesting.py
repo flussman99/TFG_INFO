@@ -500,9 +500,71 @@ def cargar_html(equipo):
             '2019-2020_OM.html',
             '2020-2021_OM.html',
             '2021-2022_OM.html'
-        ]       
+        ]    
+
+    elif equipo == 'Juventus':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Juventus.html',
+            '2015-2016_Juventus.html',
+            '2016-2017_Juventus.html',
+            '2017-2018_Juventus.html',
+            '2018-2019_Juventus.html',
+            '2019-2020_Juventus.html',
+            '2020-2021_Juventus.html',
+            '2021-2022_Juventus.html'
+        ]  
+
+    elif equipo == 'Roma':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Roma.html',
+            '2015-2016_Roma.html',
+            '2016-2017_Roma.html',
+            '2017-2018_Roma.html',
+            '2018-2019_Roma.html',
+            '2019-2020_Roma.html',
+            '2020-2021_Roma.html',
+            '2021-2022_Roma.html'
+        ] 
+
+    elif equipo == 'Napoles':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Napoles.html',
+            '2015-2016_Napoles.html',
+            '2016-2017_Napoles.html',
+            '2017-2018_Napoles.html',
+            '2018-2019_Napoles.html',
+            '2019-2020_Napoles.html',
+            '2020-2021_Napoles.html',
+            '2021-2022_Napoles.html'
+        ]            
         
-         
+    elif equipo == 'AC Milan':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Milan.html',
+            '2015-2016_Milan.html',
+            '2016-2017_Milan.html',
+            '2017-2018_Milan.html',
+            '2018-2019_Milan.html',
+            '2019-2020_Milan.html',
+            '2020-2021_Milan.html',
+            '2021-2022_Milan.html'
+        ]  
+    elif equipo == 'Inter de Milan':
+        # List of HTML files to process
+        html_files = [
+            '2014-2015_Inter.html',
+            '2015-2016_Inter.html',
+            '2016-2017_Inter.html',
+            '2017-2018_Inter.html',
+            '2018-2019_Inter.html',
+            '2019-2020_Inter.html',
+            '2020-2021_Inter.html',
+            '2021-2022_Inter.html'
+        ]       
 
     # Convert the HTML files list to full file paths
     html_files = [os.path.join(base_dir, file) for file in html_files]
