@@ -33,13 +33,13 @@ Cuando esté descargado, nos metemos en la carpeta otfs, y ahí abrimos el archi
 
 pip install pandas
 pip instal openpyxl
+pip install matplotlib
 pip install Pillow      (Para que se vean las imagenes)
-pip install ta (importar indicadores)
-pip install psutil
-pip install openpyxl
-pip install pandas  
+pip install ta (importar indicadores) 
 pip install tkcalendar
-pip psutil
+pip install psutil
+pip install MetaTrader5
+pip install beautifulsoup4
 pip install mysql-connector-python
 pip install requests
 pip instal investpy
