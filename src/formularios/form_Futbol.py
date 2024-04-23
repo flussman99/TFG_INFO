@@ -100,20 +100,21 @@ class FormularioFutbol(tk.Toplevel):
         def actualizar_equipos(event):
             liga_seleccionada = self.combo_ligas.get()
             equipos_liga = ligas[liga_seleccionada]
-            imagen = imagenes_liga[liga_seleccionada]
-            print(imagen)
+            # imagen = imagenes_liga[liga_seleccionada]
+            # print(imagen)
             
-            # Delete the previous image label if it exists
-            if hasattr(self, 'image_label'):
-                self.image_label.destroy()
+            # # Delete the previous image label if it exists
+            # if hasattr(self, 'image_label'):
+            #     self.image_label.destroy()
             
-            # Create a new image label with the selected image
-            self.image_label = tk.Label(canvas, image=imagen)
-            self.image_label.place(x=934.0, y=19.0)  # Adjust the position and size as needed
+            # # Create a new image label with the selected image
+            # self.image_label = tk.Label(canvas, image=imagen)
+            # self.image_label.place(x=934.0, y=19.0)  # Adjust the position and size as needed
             
             self.combo_equipos['values'] = equipos_liga
             self.combo_equipos.current(0) 
             actualizar_acciones(None)
+        
         def actualizar_pais_url_acronimo(event):
             self.pais_asoc = obtener_pais()
             self.url_asoc = obtener_url()
