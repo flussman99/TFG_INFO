@@ -107,10 +107,11 @@ class Bot:
     def thread_Futbol(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
         """Function to launch the tick reader thread.
         """
-        t = threading.Thread(target=tr.thread_Futbol, 
-                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
-        self.threads.append(t)
-        t.start()
+        tr.thread_Futbol(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
+        # t = threading.Thread(target=tr.thread_Futbol, 
+        #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
+        # self.threads.append(t)
+        # t.start()
         print('Thread - tick_reader. LAUNCHED')
         # Obtener el resultado de la almacenar_frame_rentabilidad
         frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola

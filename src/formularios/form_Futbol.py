@@ -63,11 +63,20 @@ class FormularioFutbol(tk.Toplevel):
       
 
         self.estrategia='Futbol'
+        self.pais_asoc = None  # or any default value you want
+        self.url_asoc = None  # or any default value you want
+        self.acronimo=None
+        self.frame_without_filter=None
+        self.current_frame = None
+        self.frame_with_filter=None
+        
         ligas=SBS.ligas
         acciones=SBS.acciones
         pais=SBS.pais
         url=SBS.urls_equipos
         acronimos_acciones=SBS.acronimo_acciones
+        imagenes_liga=SBS.imagenes_ligas
+        imagenes_equipos=SBS.imagenes_equipos
 
         self.ligas_var = tk.StringVar(value=list(ligas.keys()))
         self.combo_ligas = ttk.Combobox(canvas, textvariable=self.ligas_var, values=list(ligas.keys()))
@@ -75,7 +84,6 @@ class FormularioFutbol(tk.Toplevel):
         self.combo_ligas.current(0)
         self.combo_ligas.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
         
-
         self.equipos_var = tk.StringVar()
         self.combo_equipos = ttk.Combobox(canvas, textvariable=self.equipos_var)
         self.combo_equipos.place(x=334.0, y=19.0, width=300, height=38.0)
@@ -92,16 +100,29 @@ class FormularioFutbol(tk.Toplevel):
         def actualizar_equipos(event):
             liga_seleccionada = self.combo_ligas.get()
             equipos_liga = ligas[liga_seleccionada]
+            imagen = imagenes_liga[liga_seleccionada]
+            print(imagen)
+            
+            # Delete the previous image label if it exists
+            if hasattr(self, 'image_label'):
+                self.image_label.destroy()
+            
+            # Create a new image label with the selected image
+            self.image_label = tk.Label(canvas, image=imagen)
+            self.image_label.place(x=934.0, y=19.0)  # Adjust the position and size as needed
+            
             self.combo_equipos['values'] = equipos_liga
             self.combo_equipos.current(0) 
             actualizar_acciones(None)
-
-        def actualizar_pais_url(event):
+        def actualizar_pais_url_acronimo(event):
             self.pais_asoc = obtener_pais()
             self.url_asoc = obtener_url()
+            self.acronimo=obtener_acronimo()
+    
             
         def actualizar_acciones(event):
             equipo_seleccionado = self.combo_equipos.get()
+            imagen= imagenes_equipos[equipo_seleccionado]
             nombres_acciones_equipo = acciones.get(equipo_seleccionado, [])
             accion_previa = self.combo_acciones.get()
             self.combo_acciones['values'] = nombres_acciones_equipo
@@ -109,43 +130,38 @@ class FormularioFutbol(tk.Toplevel):
                 self.combo_acciones.set(accion_previa)
             else:
                 self.combo_acciones.current(0)
-
-            self.combo_acciones.bind("<<ComboboxSelected>>", actualizar_pais_url)
+            actualizar_pais_url_acronimo(None) #Pra que actue con la inicializacion del programa 
+            self.combo_acciones.bind("<<ComboboxSelected>>", actualizar_pais_url_acronimo) #cuando un equipo tiene varias acciones se actualiza a la nueva seleccionada
 
 
         def obtener_acronimo():
             accion_seleccionada = self.combo_acciones.get()
             acronimo_seleccionado = acronimos_acciones.get(accion_seleccionada)
-            print(acronimo_seleccionado)
+            # print(acronimo_seleccionado)
             return acronimo_seleccionado
 
         def obtener_pais():
             acronimo_seleccionado = obtener_acronimo()
             pais_seleccionado = pais.get(acronimo_seleccionado)
-            print(pais_seleccionado)  # Imprime el país seleccionado
+            # print(pais_seleccionado)  # Imprime el país seleccionado
             return pais_seleccionado
 
         def obtener_url():
             equipo_seleccionado = self.combo_equipos.get()
             url_equipo = url.get(equipo_seleccionado)
-            print(url_equipo)  # Imprime la URL del equipo seleccionado
+            # print(url_equipo)  # Imprime la URL del equipo seleccionado
             return url_equipo
 
 
         self.combo_ligas.bind('<<ComboboxSelected>>', actualizar_equipos)
         self.combo_equipos.bind('<<ComboboxSelected>>', actualizar_acciones)
 
-        
-        
-       
-        
-
         def actualizar_vender(event):
             # Obtén el valor seleccionado en 'comprar'
             comprar_seleccionado = self.comprar_var.get()
 
             # Define los posibles valores para 'vender'
-            valores = ['Ganado', 'Empatado', 'Perdido']
+            valores = ['Perdido','Ganado', 'Empatado']
 
             # Elimina el valor seleccionado en 'comprar' de los posibles valores para 'vender'
             valores.remove(comprar_seleccionado)
@@ -169,7 +185,7 @@ class FormularioFutbol(tk.Toplevel):
         self.titulos_comprar = ttk.Label(self.cuerpo_principal, text="Seleccione cuando comprar:")
         self.titulos_comprar.place(x=34.0, y=96, width=200, height=38.0)
         self.titulos_comprar.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-
+        
         # Crea el combobox 'comprar'
         self.comprar_var = tk.StringVar()
         self.combo_comprar = ttk.Combobox(canvas, textvariable=self.comprar_var, values=['Ganado', 'Empatado', 'Perdido'])
@@ -187,13 +203,17 @@ class FormularioFutbol(tk.Toplevel):
 
         # Crea el combobox 'vender'
         self.vender_var = tk.StringVar()
-        self.combo_vender = ttk.Combobox(canvas, textvariable=self.vender_var, values=['Ganado', 'Empatado', 'Perdido'])
+        self.combo_vender = ttk.Combobox(canvas, textvariable=self.vender_var, values=['Perdido', 'Empatado', 'Ganado'])
         self.combo_vender.place(x=34.0, y=224.0, width=200, height=38.0)
+        self.combo_vender.current(0)
         self.combo_vender.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         # Vincula la función 'actualizar_comprar' a la selección de un valor en 'vender'
         self.combo_vender.bind('<<ComboboxSelected>>', actualizar_comprar)
 
+        actualizar_vender(None)
+        actualizar_comprar(None)
+        actualizar_equipos(None)
 
         self.titulo_fecha_inicio = ttk.Label(self.cuerpo_principal, text="Seleccione la fecha Inicial:")
         self.titulo_fecha_inicio.place(x=270.0, y=96, width=200, height=38.0)
@@ -249,11 +269,8 @@ class FormularioFutbol(tk.Toplevel):
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
-
+        
         button_window = canvas.create_window(650, 103, anchor='nw', window=button_backtesting, width=196, height=38)
-        # button_6.bind("<Button-1>", lambda event: seleccionar_años())
-
-
 
         button_image_directo = PhotoImage(
             file="src/imagenes/assets/boton_cantidad_operaciones.png")
@@ -276,42 +293,35 @@ class FormularioFutbol(tk.Toplevel):
         )
 
 
-
-        button_image_start = PhotoImage(
-            file="src/imagenes/assets/boton_comun_mkt.png")
-        button_start = Button(
-            canvas,
-            text="Iniciar estrategia",
-            fg="#FFFFFF",
-            image=button_image_start,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.lanzarEstrategia,
-            compound=tk.CENTER,
-            font=("Calistoga Regular", 12)
-        )
-
         self.rentabilidad_futbol = tk.StringVar()
         self.rentabilidad_futbol.set("0")
 
         self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_futbol)
-        self.rentabilidad_label.place(x=35, y=300)
+        # self.rentabilidad_label.place(x=35, y=300)
+        def toggle_frames():
+            if self.current_frame.equals(self.frame_without_filter):
+                self.current_frame = self.frame_with_filter
+            else:
+                self.current_frame = self.frame_without_filter
 
+            # Limpiar el widget Treeview
+            for row in self.tree.get_children():
+                self.tree.delete(row)
+
+            # Añadir todos los datos del DataFrame al widget Treeview
+            for index, row in self.current_frame.iterrows():
+                self.tree.insert("", "end", values=tuple(row))
+        
         # Crear el botón
-        self.filter_button = ttk.Button(self.cuerpo_principal, text="Mostrar Operaciones", command=self.apply_filter)
-        self.filter_button.place(x=270, y=300)  # Ajusta las coordenadas x e y según sea necesario
+        self.operaciones_button = ttk.Button(self.cuerpo_principal, text="Mostrar Operaciones", command=toggle_frames)
+        # self.operaciones_button.place(x=270, y=300)  # Ajusta las coordenadas x e y según sea necesario
 
         # Crear el widget Treeview
         self.tree = ttk.Treeview(self.cuerpo_principal)
         # Añadir el widget Treeview al formulario
         # Añadir el widget Treeview al formulario en una ubicación específica
-        self.tree.place(x=35, y=350, width=1300)
+        # self.tree.place(x=35, y=350, width=1300)
 
-
-
-        button_window = canvas.create_window(650, 187, anchor='nw', window=button_start, width=197, height=38)
-        # button_8.bind("<Button-1>", lambda event: seleccionar_años())
-    
 
         button_image_16 = PhotoImage(
             file="src/imagenes/assets/boton_comun_lim_stop_key.png")
@@ -334,78 +344,64 @@ class FormularioFutbol(tk.Toplevel):
         )
         self.cuerpo_principal.mainloop()
 
+        button_window = canvas.create_window(650, 103, anchor='nw', window=button_16, width=196, height=38)
         
+
+    def visualizar(self):
+        # Hacer visible el botón, label y widget
+        self.operaciones_button.place(x=270, y=300)
+        self.rentabilidad_label.place(x=35, y=300)
+        self.tree.place(x=35, y=350, width=1300)
+
+    def treeview(self):
         
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
 
-        def borrar_texto(event):
-            text_box = event.widget
-            text_box.delete(0, tk.END)
-
-        def reescribir_texto(event):
-            text_box = event.widget
-
-            if text_box.get() == '':
-                if text_box == self.entry_fin_back:
-                    self.entry_fin_back.insert(0, self.texto_fin_back)
-                elif text_box == self.entry_lotaje:
-                    self.entry_lotaje.insert(0, self.texto_lotaje)
-
-
-
-
-        
-    
-    def tickdirecto(self):
-        
-        self.b.thread_orders(self.estrategia)
-        
-    def apply_filter(self):
-        # Obtener el DataFrame actual
-        frame, _=self.b.thread_Futbol(self.fecha_inicio_entry.get(), self.fecha_fin_entry.get(),self.pais_asoc,self.url_asoc,self.estrategia, self.combo_comprar.get(), self.combo_vender.get(),self.combo_equipos.get())
-        # Filtrar el DataFrame
-        frame = frame[frame['Decision'].isin(['1', '-1'])]
-
-        # Limpiar el widget Treeview
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
-        # Añadir los datos filtrados al widget Treeview
-        for index, row in frame.iterrows():
-            self.tree.insert("", "end", values=tuple(row))
-
-    
-    def coger_ticks(self):
-        inicio_txt = self.fecha_inicio_entry.get()
-        fin_txt = self.fecha_fin_entry.get()
-        equipo_txt = self.combo_equipos.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia_txt=self.estrategia
-        pais_txt=self.pais_asoc
-        url_txt=self.url_asoc
-        frecuencia_txt = "Daily"
-        cuando_comprar = self.combo_comprar.get()
-        cuando_vender = self.combo_vender.get()
-        print(equipo_txt, accion_txt, pais_txt, url_txt)
-
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-       
-        frame, rentabilidad=self.b.thread_Futbol(inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt, cuando_comprar, cuando_vender,equipo_txt)
-        print(frame)
-        self.rentabilidad_futbol.set(str(rentabilidad))
-
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
 
         # Configurar las columnas del widget Treeview
-        self.tree["columns"] = list(frame.columns)
+        self.tree["columns"] = list(self.current_frame.columns)
         self.tree["show"] = "headings"  # Desactivar la columna adicional
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=100)
 
-        # Añadir los datos del DataFrame al widget Treeview
-        for index, row in frame.iterrows():
-            self.tree.insert("", "end", values=tuple(row))
-       
-        
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
 
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+        
+    def coger_ticks(self):
+        
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        equipo_txt = self.combo_equipos.get()
+        accion_txt = self.acronimo
+        estrategia_txt = self.estrategia
+        pais_txt = self.pais_asoc
+        url_txt = self.url_asoc
+        frecuencia_txt = "Daily"
+        cuando_comprar = self.combo_comprar.get()
+        cuando_vender = self.combo_vender.get()
+       
+        print(equipo_txt, accion_txt, pais_txt, url_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        self.frame_without_filter, rentabilidad = self.b.thread_Futbol(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
+        self.rentabilidad_futbol.set(str(rentabilidad))
+
+        self.visualizar()
+        self.treeview()
+        
+       
+    def pararTicksDirecto(self):
+        self.b.kill_threads()
+    
+    def tickdirecto(self):
+        
+        self.b.thread_orders(self.estrategia)
     
     
