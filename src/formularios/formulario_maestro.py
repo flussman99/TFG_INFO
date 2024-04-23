@@ -90,7 +90,7 @@ class FormularioMaestroDesign(tk.Tk):
 
         # Botones del menú lateral
         
-        self.boton_backtesting = tk.Button(self.menu_lateral, state=tk.DISABLED)        
+        self.boton_backtesting = tk.Button(self.menu_lateral)        
         self.boton_operaciones = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_operaciones_creativas = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_perfil = tk.Button(self.menu_lateral, state=tk.DISABLED)
