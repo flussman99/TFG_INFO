@@ -124,7 +124,38 @@ urls_equipos = {
     'PSG': 'https://es.besoccer.com/equipo/partidos/paris-saint-germain-fc',
     'Olympique Lyon': 'https://es.besoccer.com/equipo/partidos/olympique-lyonnais',
     'Olympique Marsella': 'https://es.besoccer.com/equipo/partidos/olympique-marsella'
+}
 
+imagenes_equipos={
+    'Real Madrid': 'src/imagenes/Futbol/real-madrid-icono.png',
+    'Barcelona': 'src/imagenes/Futbol/barcelona-icono.png',
+    'Arsenal': 'src/imagenes/Futbol/arsenal-icono.png',
+    'Bayern Munich': 'src/imagenes/Futbol/bayern-munchen-icono.png',
+    'Atletico de Madrid': 'src/imagenes/Futbol/atletico-madrid-icono.png',
+    'Valencia': 'src/imagenes/Futbol/valencia-icono.png',
+    'Manchester United': 'src/imagenes/Futbol/manchester-united-icono.png',
+    'Manchester City': 'src/imagenes/Futbol/manchester-city-icono.png',
+    'Liverpool': 'src/imagenes/Futbol/liverpool-icono.png',
+    'Chelsea': 'src/imagenes/Futbol/chelsea-icono.png',
+    'Borussia Dortmund': 'src/imagenes/Futbol/borussia-dortmund-icono.png',
+    'RB Leipzig': 'src/imagenes/Futbol/rb-leipzig-icono.png',
+    'Bayer Leverkusen': 'src/imagenes/Futbol/bayer-leverkusen-icono.png',
+    'Juventus': 'src/imagenes/Futbol/juventus-icono.png',
+    'Roma': 'src/imagenes/Futbol/roma-icono.png',
+    'Napoles': 'src/imagenes/Futbol/napoli-icono.png',
+    'AC Milan': 'src/imagenes/Futbol/milan-icono.png',
+    'Inter de Milan': 'src/imagenes/Futbol/internazionale-icono.png',
+    'PSG': 'src/imagenes/Futbol/paris-saint-germain-icono.png',
+    'Olympique Lyon': 'src/imagenes/Futbol/olympique-lyonnais-icono.png',
+    'Olympique Marsella': 'src/imagenes/Futbol/olympique-marsella-icono.png'
+}
+
+imagenes_ligas={
+    'La Liga': "src\imagenes\Futbol\la-liga-icono.png",
+    'Premier League': 'src/imagenes/Futbol/premier-league-icono.png',
+    'Ligue 1': 'src/imagenes/Futbol/ligue-1-icono.png',
+    'Serie A': 'src/imagenes/Futbol/serie-a-icono.png',
+    'Bundesliga': 'src/imagenes/Futbol/bundesliga-icono.png'
 }
 
 data=[]
