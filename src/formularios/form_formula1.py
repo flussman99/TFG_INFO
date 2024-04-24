@@ -35,6 +35,8 @@ class FormularioFormula1(tk.Toplevel):
         panel_principal.grid_columnconfigure(0, weight=1)
 
 
+        self.paisAcciones = SF1_backtesting.pais_Accion
+
         canvas = Canvas(
             self.cuerpo_principal,
             bg = "#FFFFFF",
@@ -156,31 +158,32 @@ class FormularioFormula1(tk.Toplevel):
                 elif text_box == self.entry_lotaje:
                     self.entry_lotaje.insert(0, self.texto_lotaje)
 
-        self.estrategia = ''
+        self.estrategia = 0
 
         def on_checkbox_click(checkbox):
             if checkbox == checkbox_1:
                 checkbox_podio.deselect()
                 checkbox_5.deselect()
                 checkbox_puntos.deselect()
-                self.estrategia = "Primero"
+                self.estrategia = 1
             elif checkbox == checkbox_podio:
                 checkbox_1.deselect()
                 checkbox_5.deselect()
                 checkbox_puntos.deselect()
-                self.estrategia = "Podio"
+                self.estrategia = 3
             elif checkbox == checkbox_5:
                 checkbox_1.deselect()
                 checkbox_podio.deselect()
                 checkbox_puntos.deselect()
-                self.estrategia = "Top 5"
+                self.estrategia = 5
             elif checkbox == checkbox_puntos:
                 checkbox_1.deselect()
                 checkbox_podio.deselect()
                 checkbox_5.deselect()
-                self.estrategia = "Puntos"
+                self.estrategia = 10
 
-
+        self.rentabilidad_f1 = tk.StringVar()
+        self.rentabilidad_f1.set('0')
 
         self.mercados_var = tk.StringVar(value=mercados)
         self.combo_mercados = ttk.Combobox(canvas, textvariable=self.mercados_var, values=mercados)
@@ -552,6 +555,11 @@ class FormularioFormula1(tk.Toplevel):
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_años.get()
 
+    def obtenerPais(self, accion_txt):
+        mercado = accion_txt.split('.')[1]
+        pais = self.paisAcciones.get(mercado)
+        print(mercado, pais)
+        return pais
     
     def coger_ticks(self):
         
@@ -559,16 +567,23 @@ class FormularioFormula1(tk.Toplevel):
         accion_txt = self.combo_acciones.get()
         inicio_txt = self.entry_inicio_back.get()
         fin_txt = self.entry_fin_back.get()
-        estrategia_txt = 'Formula1.' + self.combo_piloto.get() + '.' + self.estrategia
+        estrategia_txt = 'Formula1'
+        piloto_txt = self.combo_piloto.get()
+        cuando_actuar = self.estrategia
+        pais_txt = self.obtenerPais(accion_txt)
 
         print("----------------------------------------")
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-
+        self.frame_without_filter, rentabilidad = self.b.thread_F1(inicio_txt,fin_txt,pais_txt,None,estrategia_txt, cuando_actuar, piloto_txt)
+        self.rentabilidad_f1.set(str(rentabilidad))
         #if parte backtestin
-        self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
+        # self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
 
         # self.informacion()
+    
+
+
     
     

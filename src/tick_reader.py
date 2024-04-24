@@ -96,13 +96,33 @@ def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,
     cola.put((frame, rentabilidad))
     print("[THREAD - tick_reader] - Ticks loaded")
 
+def thread_F1(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt,cola):
+    """Function executed by a thread. It fills the list of ticks and
+    it also computes the average spread.
+
+    Args:
+        pill2kill (Threading.Event): Event to stop the execution of the thread.
+        ticks (list): List of ticks to fill.
+        trading_data (dict): Trading data needed for loading ticks.
+    """
+   
+    print("[THREAD - tick_futbol] - Working")
+
+    load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
+    # Filling the list with previos ticks
+    
+    frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_actuar, '',piloto_txt)
+    rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
+    cola.put((frame, rentabilidad))
+    print("[THREAD - tick_reader] - Ticks loaded")
+
 
 def estrategias_Creativas(ticks: list, market: str,nombre:str,inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt):
     if nombre == 'Futbol':
         frame=SBS.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
        
-    elif nombre.startswith('Formula1.'):
-        Formula1.backtesting(nombre,ticks)
+    elif nombre == 'Formula1':
+        frame=Formula1.backtesting(nombre,ticks, inicio_txt, fin_txt, url, cuando_comprar, equipos_txt)
 
     frameToExcel(frame, f'{nombre}.xlsx')
     ticks.clear()       
