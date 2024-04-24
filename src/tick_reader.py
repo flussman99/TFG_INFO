@@ -277,14 +277,15 @@ def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
     Calcular rentabilidad total
     """
     rentabilidad_total = 0
-
+    
     for precio_apertura in precios_apertura:
         if precio_apertura != 0:
             rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
             # print("Rentabilidad obtenida")
             # print(rentabilidad)
             rentabilidad_total += rentabilidad
-
+            
+    rentabilidad_total = rentabilidad_total/len(precios_apertura)
     print("Rentabilidad total obtenida")
     print(rentabilidad_total)
     return rentabilidad_total

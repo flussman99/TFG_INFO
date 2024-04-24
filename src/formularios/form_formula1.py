@@ -571,6 +571,7 @@ class FormularioFormula1(tk.Toplevel):
         piloto_txt = self.combo_piloto.get()
         cuando_actuar = self.estrategia
         pais_txt = self.obtenerPais(accion_txt)
+        accion_txt = accion_txt.split('.')[0]
 
         print("----------------------------------------")
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)

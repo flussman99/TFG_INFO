@@ -179,7 +179,7 @@ def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:
         precioCompra= row['Precio']
 
         # Comparar las medias móviles
-        if resultado == combo_vender and posicion_abierta==True:
+        if resultado == combo_vender and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))

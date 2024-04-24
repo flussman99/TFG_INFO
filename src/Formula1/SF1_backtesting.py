@@ -183,22 +183,23 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_resu
 
     for i, row in piloto_frame.iterrows(): 
         resultado = row['Resultado']
-        precioCompra= row['Precio']
+
 
         # Find the corresponding price in ticks_frame
         price = ticks_frame.loc[ticks_frame['time'] >= row['Fecha'], 'price'].first_valid_index()
 
         if price is not None:
             # If a price was found, update the 'precio' column in piloto_frame
-            piloto_frame.at[i, 'precio'] = float(ticks_frame.loc[price, 'price'])
+            piloto_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
         if resultado[0] == 'DNF' or resultado[0] == 'DNS' or resultado[0] == 'No participo' or resultado[0] == ' ' or resultado[0] == 'N':
             resultado = 30
-        else:
-            if '*' in resultado[0]:
+        elif '*' in resultado[0]:
             # Eliminar el asterisco si está presente
-                resultado = resultado[0].replace('*', '')
-
+            resultado = int(resultado[0].replace('*', ''))
+        else:
             resultado = int(resultado[0])
+
+        precioCompra = piloto_frame.at[i, 'Precio']
             
         if resultado <= combo_resultado and len(compras) < 10:
             decisiones.append("1")#COMPRO
@@ -207,7 +208,9 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_resu
             posicion_abierta=True
         elif resultado > combo_resultado and posicion_abierta == True:
             decisiones.append("-1")#VENDO
-            rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
+            posicion_abierta=False
+            print(compras)
+            rentabilidad.append(tr.calcular_rentabilidad(compras,precioCompra))
             compras.clear()
         else:
             decisiones.append("NO SE REALIZA OPERACION")
