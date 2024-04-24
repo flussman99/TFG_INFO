@@ -11,7 +11,7 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
-
+import webbrowser
 
 
 class FormularioInicioSesion():
@@ -29,6 +29,7 @@ class FormularioInicioSesion():
         self.bool_inicio = bool_inicio
         self.panel_inicio = abrir_panel_inicio
         self.cambiar_estado_sesion = cambiar_estado_sesion
+        self.panel_principal = panel_principal
 
         # Dimensiones del frame
         self.frame_width = 1
@@ -121,8 +122,137 @@ class FormularioInicioSesion():
         self.entry_contra.pack(pady=5, padx=(0, 10), fill="x")
         
         #BOTON INICIAR SESION
-        self.boton_iniciar_sesion = tk.Button(self.frame_azul, text="    INICIAR SESIÓN   ", bg="#2d367b", fg="white", font=("Calibri", 20, "bold"), relief="flat", activebackground="#2d367b", activeforeground="white", command=self.verificar)
+        self.boton_iniciar_sesion = tk.Button(self.frame_azul, text="    INICIAR SESIÓN   ", cursor="hand2", bg="#2d367b", fg="white", font=("Calibri", 20, "bold"), relief="flat", activebackground="#2d367b", activeforeground="white", command=self.verificar)
         self.boton_iniciar_sesion.pack(pady=(20,0))
+
+        # Label para llevar a página de Registro
+        self.label_registro = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Si no tienes cuenta: Regístrate aquí", cursor="hand2", font=("Helvetica", int(self.font_size*0.25)), fg="#0000FF")
+        self.label_registro.pack(padx=0)
+        self.label_registro.bind("<Button-1>", self.abrir_registro)
+
+        
+        
+
+    def abrir_registro(self, event=None):
+        # Cerrar el frame actual de inicio de sesión
+        self.frame_azul.destroy()
+        self.font_size = int(min(self.frame_width, self.frame_height) * 0.2) 
+        # Crear un nuevo frame para el registro
+        # Crear un frame interno para el panel azul
+        self.frame_azul = tk.Frame(self.panel_principal, bg=COLOR_CUERPO_PRINCIPAL, bd=0, highlightthickness=0)
+        self.frame_azul.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.6, relheight=0.8)
+
+        # Título
+        self.label_titulo = tk.Label(self.frame_azul, text="REGISTRO NUEVO USUARIO", font=("Berlin Sans FB", int(self.font_size*0.2), "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b", pady=10)
+        self.label_titulo.pack()
+        
+        #Marco
+        self.marco = tk.LabelFrame(self.frame_azul, text="Datos personales", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b")
+        self.marco.config(bd=2,pady=2, bg=COLOR_CUERPO_PRINCIPAL)
+        self.marco.pack()
+
+        # Nombre
+        self.label_nombre = tk.Label(self.marco, text="Nombre: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_nombre.grid(row=1, column=0,sticky='s',padx=10,pady=4)
+        self.entry_nombre = tk.Entry(self.marco, width=25)
+        self.entry_nombre.grid(row=1, column=1, padx=10, pady=4)
+
+        # Usuario
+        self.label_user = tk.Label(self.marco, text="Usuario: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_user.grid(row=2, column=0,sticky='s',padx=10,pady=4)
+        self.entry_user = tk.Entry(self.marco, width=25)
+        self.entry_user.grid(row=2, column=1, padx=10, pady=4)
+
+        # Contraseña
+        self.label_contra = tk.Label(self.marco, text="Contraseña: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_contra.grid(row=3, column=0,sticky='s',padx=10,pady=4)
+        self.entry_contra = tk.Entry(self.marco, width=25, show="*")
+        self.entry_contra.grid(row=3, column=1, padx=10, pady=4)
+
+        # Repetir Contraseña
+        self.label_contra_rep = tk.Label(self.marco, text="Repetir Contraseña: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_contra_rep.grid(row=4, column=0,sticky='s',padx=10,pady=4)
+        self.entry_contra_rep = tk.Entry(self.marco, width=25, show="*")
+        self.entry_contra_rep.grid(row=4, column=1, padx=10, pady=4)
+
+        # Usuario MetaTrader
+        self.label_user_mt = tk.Label(self.marco, text="Usuario MetaTrader: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_user_mt.grid(row=5, column=0,sticky='s',padx=10,pady=4)
+        self.entry_user_mt = tk.Entry(self.marco, width=25)
+        self.entry_user_mt.grid(row=5, column=1, padx=10, pady=4)
+
+        # Contraseña MetaTrader
+        self.label_contra_mt = tk.Label(self.marco, text="Contraseña MetaTrader: ", font=("Calibri", int(self.font_size*0.2)), fg="#2d367b", bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_contra_mt.grid(row=6, column=0,sticky='s',padx=10,pady=4)
+        self.entry_contra_mt = tk.Entry(self.marco, width=25, show="*")
+        self.entry_contra_mt.grid(row=6, column=1, padx=10, pady=4)
+
+        #Enlace a la página de registro de MetaTrader
+        self.label_mt_url = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Enlace a MetaTrader", cursor="hand2", font=("Helvetica", int(self.font_size*0.2)), fg="#0000FF")
+        self.label_mt_url.pack(padx=0,pady=0)
+        self.label_mt_url.bind("<Button-1>", self.abrir_registro_mt)
+
+        # Botón de registro
+        self.boton_registrar = tk.Button(self.frame_azul, text="Registrarse", cursor="hand2", bg="#2d367b", fg="white", font=("Calibri", int(self.font_size*0.2), "bold"), command=self.registrar_usuario)
+        self.boton_registrar.pack(pady=20)
+
+
+    # Para abrir la página 
+    def abrir_registro_mt(self, event=None):
+        url = "https://www.metatrader.com/es/register"
+        webbrowser.open_new(url)
+
+    # Función de registro de un nuevo usuario
+    def registrar_usuario(self):
+        
+        # Obtenemos los valores de los Entry widgets
+        nombre = self.entry_nombre.get()
+        user = self.entry_user.get()
+        contra = self.entry_contra.get()
+        contra_rep = self.entry_contra_rep.get()
+        user_mt = self.entry_user_mt.get()
+        contra_mt = self.entry_contra_mt.get()
+        
+        # Verificamos que los campos no estén vacíos
+        if not (nombre and user and contra and user_mt and contra_mt):
+            # Mostramos un mensaje de error en caso de que algún campo esté vacío
+            messagebox.showwarning("Campos sin completar", "Por favor, rellene todos los campos")
+            return
+
+        # Verificamos que las contraseñas del nuevo usuario coincidan
+        if contra != contra_rep:
+            # Mostramos mensaje para decir que no coinciden
+            messagebox.showwarning("Contraseña no coincide", "Las contraseñas para tu nuevo usuario no coinciden. Por favor, verificalas")
+            return
+
+
+        try:
+            # Ejecutamos la consulta SQL para verificar si el usuario ya existe
+            cursor = self.conn.cursor()
+            consulta = "SELECT * FROM usuarios WHERE nombre_usuario = %s"
+            cursor.execute(consulta, (user,))
+            resultado = cursor.fetchall()
+
+            # Verificamos si se encontraron resultados
+            if resultado:
+                # El usuario ya existe, mostramos un mensaje de error
+                messagebox.showerror("Error", "El usuario ya existe")
+            else:
+                # El usuario no existe, se agrega a la base de datos
+                consulta = "INSERT INTO usuarios (nombre, user, contraseña, userMetaTrader, passwordMetaTrader) VALUES (%s, %s, %s, %s, %s)"
+                datos = (nombre, user, contra, user_mt, contra_mt)
+                cursor.execute(consulta, datos)
+                self.conn.commit()
+                messagebox.showinfo("Éxito", "Usuario registrado correctamente")
+
+        except mysql.connector.Error as error:
+            # Para manejar errores de la base de datos
+            messagebox.showerror("Error de la base de datos", str(error))
+
+        finally:
+            # Cerrar el cursor
+            if cursor:
+                cursor.close()
 
     def cerrar_Sesion(self):
         #Cerrar sesión
@@ -143,25 +273,38 @@ class FormularioInicioSesion():
 
     def on_parent_configure2(self):
         # Se llama cuando cambia el tamaño de la ventana
-        if (self.frame_width != self.frame_azul.winfo_width() or self.frame_height != self.frame_azul.winfo_height()):
-            self.update_font_size()
-            self.update_font()
-            self.frame_azul.after(100, self.update_imagenes)
+        if hasattr(self, 'frame_azul') and self.frame_azul.winfo_exists():
+            if (self.frame_width != self.frame_azul.winfo_width() or self.frame_height != self.frame_azul.winfo_height()):
+                self.update_font_size()
+                self.update_font()
+                self.update_imagenes()
         self.frame_azul.after(1000, self.on_parent_configure2)
 
+        if hasattr(self, 'marco') and self.marco.winfo_exists():
+            if (self.frame_width != self.marco.winfo_width() or self.frame_height != self.marco.winfo_height()):
+                self.update_font_size()
+                self.update_font()
+                self.update_imagenes()
+                self.marco.after(1000, self.on_parent_configure2)
+
     def update_imagenes(self):
-        # Actualiza el tamaño de las imágenes en función del tamaño de la ventana
-        self.imagen_usuario = util_img.leer_imagen("src/imagenes/extras/fondo_gris.png", (int(self.frame_width*1), int(self.frame_height*0.1)))
-        self.label_imagen_usuario.configure(image=self.imagen_usuario)
+        # Actualiza el tamaño de las imágenes en función del tamaño de la ventana si es que esas imágenes siguen existiendo (que no nos encontremos en el registro ni en el cerrar sesión)
+        if hasattr(self, 'label_imagen_usuario') and self.label_imagen_usuario.winfo_exists():
+            self.imagen_usuario = util_img.leer_imagen("src/imagenes/extras/fondo_gris.png", (int(self.frame_width*1), int(self.frame_height*0.1)))
+            self.label_imagen_usuario.configure(image=self.imagen_usuario)
+        
+        if hasattr(self, 'label_icono') and self.label_icono.winfo_exists():
+            self.icono_usuario = util_img.leer_imagen("src/imagenes/extras/usuario_inicio.png", (int(self.frame_width*0.05), int(self.frame_height*0.05)))
+            self.label_icono.configure(image=self.icono_usuario)
 
-        self.icono_usuario = util_img.leer_imagen("src/imagenes/extras/usuario_inicio.png", (int(self.frame_width*0.05), int(self.frame_height*0.05)))
-        self.label_icono.configure(image=self.icono_usuario)
+        if hasattr(self, 'label_imagen_contra') and self.label_imagen_contra.winfo_exists():
+            self.imagen_contra = util_img.leer_imagen("src/imagenes/extras/fondo_gris.png", (int(self.frame_width*1), int(self.frame_height*0.1)))
+            self.label_imagen_contra.configure(image=self.imagen_contra)
 
-        self.imagen_contra = util_img.leer_imagen("src/imagenes/extras/fondo_gris.png", (int(self.frame_width*1), int(self.frame_height*0.1)))
-        self.label_imagen_contra.configure(image=self.imagen_contra)
+        if hasattr(self, 'label_icono2') and self.label_icono2.winfo_exists():
+            self.icono_contra = util_img.leer_imagen("src/imagenes/extras/candado_inicio.png", (int(self.frame_width*0.05), int(self.frame_height*0.05)))
+            self.label_icono2.configure(image=self.icono_contra)
 
-        self.icono_contra = util_img.leer_imagen("src/imagenes/extras/candado_inicio.png", (int(self.frame_width*0.05), int(self.frame_height*0.05)))
-        self.label_icono2.configure(image=self.icono_contra)
 
     def update_font_size(self):
         # Actualiza el tamaño de la fuente en función del tamaño de la ventana
@@ -171,7 +314,12 @@ class FormularioInicioSesion():
         self.font_size = int(min(self.frame_width, self.frame_height) * 0.2)
 
     def update_font(self):
-        self.label_bienvenido.configure(font=("Berlin Sans FB",  int(self.font_size*0.6), "bold"))
+        if hasattr(self, 'label_bienvenido') and self.label_bienvenido.winfo_exists():
+            self.label_bienvenido.configure(font=("Berlin Sans FB",  int(self.font_size*0.6), "bold"))
+        
+        if hasattr(self, 'label_titulo') and self.label_titulo.winfo_exists():
+            self.label_titulo.configure(font=("Berlin Sans FB",  int(self.font_size*0.3), "bold"))
+
 
     #Hay que hacer que pueda logarse cualquier otro usuario
     def verificar(self):
