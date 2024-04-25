@@ -63,6 +63,7 @@ class FormularioFormula1(tk.Toplevel):
         acciones, mercados = self.b.get_trading_data()
         self.años_dif = 0
         self.fecha_lim = datetime.today()
+        self.fecha_ini = datetime.today()
 
         def filter_options(event):
 
@@ -114,12 +115,15 @@ class FormularioFormula1(tk.Toplevel):
             selected_year = self.combo_años.get().upper()
             firstDayNxtYear = datetime(int(selected_year) + 1, 1, 1)
             self.fecha_lim = firstDayNxtYear - timedelta(days=1)
+            self.fecha_ini = datetime(int(selected_year), 1, 1)
 
             self.entry_fin_back.config(maxdate=self.fecha_lim)
+            self.entry_fin_back.config(mindate=self.fecha_ini)
             self.entry_fin_back.set_date(self.fecha_lim)
-            
+
             self.entry_inicio_back.config(maxdate=self.fecha_lim)
-            self.entry_inicio_back.set_date(self.fecha_lim)
+            self.entry_inicio_back.config(mindate=self.fecha_ini)
+            self.entry_inicio_back.set_date(self.fecha_ini)
 
             # Update combo_acciones options
             self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(selected_year)
@@ -292,7 +296,8 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=self.fecha_lim
+            maxdate=self.fecha_lim,
+            mindate=self.fecha_ini
         )
         self.entry_inicio_back.place(
             x=349.0,
@@ -309,7 +314,8 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=self.fecha_lim
+            maxdate=self.fecha_lim,
+            mindate=self.fecha_ini
         )
         self.entry_fin_back.place(
             x=500.0,
