@@ -36,6 +36,7 @@ class FormularioFormula1(tk.Toplevel):
 
 
         self.paisAcciones = SF1_backtesting.pais_Accion
+        self.accionesAPI = SF1_backtesting.acciones_api
 
         canvas = Canvas(
             self.cuerpo_principal,
@@ -60,8 +61,8 @@ class FormularioFormula1(tk.Toplevel):
         self.b = bt(1) #como mejorarlo?
         # Lista de opciones para el ComboBox
         acciones, mercados = self.b.get_trading_data()
-
-
+        self.años_dif = 0
+        self.fecha_lim = datetime.today()
 
         def filter_options(event):
 
@@ -111,6 +112,15 @@ class FormularioFormula1(tk.Toplevel):
         def filter_pilotos(event):
             # Get selected market
             selected_year = self.combo_años.get().upper()
+            firstDayNxtYear = datetime(int(selected_year) + 1, 1, 1)
+            self.fecha_lim = firstDayNxtYear - timedelta(days=1)
+
+            self.entry_fin_back.config(maxdate=self.fecha_lim)
+            self.entry_fin_back.set_date(self.fecha_lim)
+            
+            self.entry_inicio_back.config(maxdate=self.fecha_lim)
+            self.entry_inicio_back.set_date(self.fecha_lim)
+
             # Update combo_acciones options
             self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(selected_year)
             self.combo_piloto.current(0)
@@ -258,7 +268,7 @@ class FormularioFormula1(tk.Toplevel):
         self.años_var = tk.StringVar(value=años)
         self.combo_años = ttk.Combobox(canvas, textvariable=self.años_var, values=años)
         self.combo_años.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_años.current(0)  # Establece la opción por defecto
+        self.combo_años.current(len(self.combo_años['values'])-1)  # Establece la opción por defecto
         self.combo_años.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         self.original_años = años
@@ -272,7 +282,8 @@ class FormularioFormula1(tk.Toplevel):
 
 
 
-        fecha_ayer = datetime.now() - timedelta(days = 1)   
+         
+
 
         self.entry_inicio_back = DateEntry(
             canvas, 
@@ -281,7 +292,7 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=fecha_ayer
+            maxdate=self.fecha_lim
         )
         self.entry_inicio_back.place(
             x=349.0,
@@ -298,7 +309,7 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=fecha_ayer
+            maxdate=self.fecha_lim
         )
         self.entry_fin_back.place(
             x=500.0,
@@ -561,6 +572,13 @@ class FormularioFormula1(tk.Toplevel):
         print(mercado, pais)
         return pais
     
+    def obtenerAccion(self, accion_txt):
+        accionApi = self.accionesAPI.get(accion_txt)
+        if(accionApi == ''):
+            accionApi = accion_txt
+        print(accionApi)
+        return accionApi
+    
     def coger_ticks(self):
         
         frecuencia_txt = "Daily"
@@ -570,8 +588,12 @@ class FormularioFormula1(tk.Toplevel):
         estrategia_txt = 'Formula1'
         piloto_txt = self.combo_piloto.get()
         cuando_actuar = self.estrategia
+        accion_txt = self.obtenerAccion(accion_txt)
         pais_txt = self.obtenerPais(accion_txt)
         accion_txt = accion_txt.split('.')[0]
+
+        print(pais_txt)
+        print(accion_txt)
 
         print("----------------------------------------")
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)

@@ -24,11 +24,17 @@ meses = {
     'December': '12'
 }
 
+acciones_api = {
+    'RNO.PAR': 'RENA.PAR',#france
+    'AML.LSE': 'ASTO.LSE',#uk
+    'RACE.NYSE': 'RACE.MIL'#italy
+}
+
 acciones_escuderias = {
     'Mercedes-AMG Petronas Formula One Team': 'HPQ.NYSE',
     'Mercedes AMG Petronas Motorsport': 'QCOM.NYSE',
     'Mercedes AMG Petronas F1 Team': 'QCOM.NYSE',
-    'Scuderia Ferrari': 'RACE.NYSE',
+    'Scuderia Ferrari': 'RACE.NYSE', 
     'Scuderia Ferrari Mission Winnow': 'RACE.NYSE',
     'Oracle Red Bull Racing': 'HMC.NYSE', #Honda es su motorista exclusivo, ellos no cotizan
     'Red Bull Racing Honda': 'RNO.PAR',
@@ -39,10 +45,10 @@ acciones_escuderias = {
     'McLaren Honda': 'HMC.NYSE',
     'Aston Martin Aramco Cognizant Formula One Team': 'AML.LSE',
     'Aston Martin Cognizant Formula One Team': 'AML.LSE',
-    'BWT Racing Point F1 Team': '',
-    'SportPesa Racing Point F1 Team': '',
-    'Racing Point Force India F1 Team': '',
-    'Sahara Force India F1 Team': '',
+    'BWT Racing Point F1 Team': 'AML.LSE',
+    'SportPesa Racing Point F1 Team': 'AML.LSE',
+    'Racing Point Force India F1 Team': 'AML.LSE',
+    'Sahara Force India F1 Team': 'AML.LSE',
     'BWT Alpine F1 Team': 'RNO.PAR',
     'Alpine F1 Team': 'RNO.PAR',
     'Renault DP World F1 Team': 'RNO.PAR',
@@ -55,16 +61,16 @@ acciones_escuderias = {
     'Aston Martin Red Bull Racing': 'HMC.NYSE',
     'Red Bull Toro Rosso Honda': 'HMC.NYSE',
     'Scuderia Toro Rosso': 'RNO.PAR',
-    'Alfa Romeo F1 Team Stake': 'STLA.NYSE', #Pertenece al grupo Stellantis
-    'Alfa Romeo F1 Team ORLEN': 'STLA.NYSE', #Pertenece al grupo Stellantis
-    'Alfa Romeo Racing ORLEN': 'STLA.NYSE', #Pertenece al grupo Stellantis
-    'Alfa Romeo Racing': 'STLA.NYSE', #Pertenece al grupo Stellantis
-    'Alfa Romeo Sauber F1 Team': 'STLA.NYSE', #Pertenece al grupo Stellantis
+    'Alfa Romeo F1 Team Stake': 'RACE.NYSE', #Motorista Ferrari
+    'Alfa Romeo F1 Team ORLEN': 'RACE.NYSE', 
+    'Alfa Romeo Racing ORLEN': 'RACE.NYSE', 
+    'Alfa Romeo Racing': 'RACE.NYSE', 
+    'Alfa Romeo Sauber F1 Team': 'RACE.NYSE', 
     'Sauber F1 Team': 'AMX.NYSE', #Claro era su patrocinador, siendo parte de la matriz América Móvil
     'Caterham F1 Team': 'AIR.MAD', #Airbus era su patrocinador principal
-    'MoneyGram Haas F1 Team': 'TLT.NAS', #Haas no tiene patrocinadores que coticen en bolsa, pero al dejar claro su apoyo a los EEUU, contamos con los bonos del país a +20 años
-    'Haas F1 Team': 'TLT.NAS',
-    'Uralkali Haas F1 Team': 'TLT.NAS',
+    'MoneyGram Haas F1 Team': 'RACE.NYSE', #Haas usa motores de Ferrari
+    'Haas F1 Team': 'RACE.NYSE', #NO ESTAAAA
+    'Uralkali Haas F1 Team': 'RACE.NYSE',
     'Williams Racing': 'PG.NYSE', #Duracell, uno de los principales patrocinadores, pertenece a Procter & Gamble
     'ROKiT Williams Racing': 'PG.NYSE', #Duracell, uno de los principales patrocinadores, pertenece a Procter & Gamble
     'Williams Martini Racing': 'PG.NYSE' #Duracell, uno de los principales patrocinadores, pertenece a Procter & Gamble
@@ -76,7 +82,8 @@ pais_Accion = {
     'PAR': 'france',
     'NAS': 'united states',
     'LSE': 'united kingdom', 
-    'MAD': 'spain'
+    'MAD': 'spain',
+    'MIL': 'italy'
 }
 
 imagenes_pilotos = {
@@ -249,6 +256,7 @@ def obtener_listado_años():
         if match:
             year = match.group(1)
             years.append(year)
+    years.append(2024)
 
     return years
     
