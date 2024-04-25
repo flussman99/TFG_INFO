@@ -151,10 +151,10 @@ imagenes_equipos={
 }
 
 imagenes_ligas={
-    'La Liga': "src\imagenes\Futbol\la-liga-icono.png",
-    'Premier League': 'src/imagenes/Futbol/premier-league-icono.png',
-    'Ligue 1': 'src/imagenes/Futbol/ligue-1-icono.png',
-    'Serie A': 'src/imagenes/Futbol/serie-a-icono.png',
+    'La Liga': "src/imagenes/Futbol/la-liga-icono.png",
+    'Premier League': 'src/imagenes/Futbol/premier-icono.png',
+    'Ligue 1': 'src/imagenes/Futbol/ligue1-icono.png',
+    'Serie A': 'src/imagenes/Futbol/serieA-icono.png',
     'Bundesliga': 'src/imagenes/Futbol/bundesliga-icono.png'
 }
 
