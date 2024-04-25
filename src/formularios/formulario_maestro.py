@@ -69,7 +69,7 @@ class FormularioMaestroDesign(tk.Tk):
         self.bool_inicio = False
 
         # Etiqueta de informacion
-        self.labelUsuario = tk.Label(self.barra_superior, text="INCIAR SESIÓN", cursor="hand2")
+        self.labelUsuario = tk.Label(self.barra_superior, text="INICIAR SESIÓN", cursor="hand2")
         self.labelUsuario.bind("<Button-1>", self.abrir_panel_inicio_sesion)
         self.labelUsuario.config(fg="#fff", font=("Roboto", 10, "bold"), bg=COLOR_BARRA_SUPERIOR, padx=10, width=20)
         self.labelUsuario.pack(side=tk.RIGHT)
