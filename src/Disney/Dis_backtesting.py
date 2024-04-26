@@ -213,3 +213,40 @@ def backtesting():
             df.to_excel(movies_file_name + '.xlsx', index=False)
             # Mostrar el DataFrame
             print(df)
+
+
+# import requests
+# import json
+# import pandas as pd
+
+# # API key de TMDb (necesitas registrarte en su sitio web para obtener una)
+# api_key = 'c8a6e89190cb7be8e6b92a4c8d032df3'
+
+# # Listas para almacenar los nombres de las películas y sus ratings
+# movie_titles = []
+# movie_ratings = []
+
+# # Iterar sobre los años desde 2014 hasta el año actual
+# for year in range(2014, 2025):  # Cambia 2025 al año actual si deseas incluir este año
+#     # Endpoint de búsqueda de películas de Disney para el año dado
+#     url = f'https://api.themoviedb.org/3/discover/movie?api_key={api_key}&with_companies=2&primary_release_year={year}'
+
+#     # Realizar la solicitud HTTP
+#     response = requests.get(url)
+
+#     # Convertir la respuesta a formato JSON
+#     data = response.json()
+
+#     # Iterar sobre los resultados para extraer el título y el rating de cada película
+#     for result in data['results']:
+#         title = result['title']
+#         movie_titles.append(title)
+        
+#         rating = result['vote_average']  # TMDb proporciona una puntuación promedio
+#         movie_ratings.append(rating)
+
+# # Crear un DataFrame con los títulos y ratings de las películas
+# df = pd.DataFrame({'Title': movie_titles, 'Rating': movie_ratings})
+
+# # Mostrar el DataFrame
+# print(df)
