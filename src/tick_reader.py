@@ -76,7 +76,7 @@ def estrategias(ticks: list, market: str,nombre:str):
     return frame
 
 
-def thread_Futbol(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt,cola):
+def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt,cola):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -143,10 +143,6 @@ def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt
         # Convertir el DataFrame a una lista de diccionarios y añadirlo a la lista 'ticks'
         ticks.extend(prices_frame.to_dict('records'))
 
- 
-    
-    
-
 
 def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
 # Loading data
@@ -187,69 +183,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     # if not_needed_ticks > 0:
     #     for i in range(not_needed_ticks):
     #         del ticks[0]
-
-
-
-
-def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
-    
-    # Loading data
-    timezone = pytz.timezone("Etc/UTC")
-    fecha_inicio = txt_to_int_fecha(inicio_txt)
-    fecha_fin = txt_to_int_fecha(fin_txt)
-
-    utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
-    print(utc_from)
-    utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
-
-    loaded_ticks = yf.download("TSLA", utc_from, utc_to,interval="1m")
-    loaded_ticks.reset_index(inplace=True)
-
-    loaded_ticks['Datetime'] = loaded_ticks['Datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
-
-
-    if loaded_ticks is None:
-        print("Error loading the ticks")
-        return -1
-
-    # create DataFrame out of the obtained data
-    ticks_frame = pd.DataFrame(loaded_ticks)
-   
-    loaded_ticks['Datetime'] = pd.to_datetime(loaded_ticks['Datetime']).apply(lambda x: int(x.timestamp()))
-
-
-    print(ticks_frame)
-    print(loaded_ticks)
-
-    # mostrar todos los ticks con todas las columnas
-    # print("\nDisplay dataframe with ticks")
-
-    # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
-    second_to_include = 0
-
-    for index, row in loaded_ticks.iterrows():
-        if row['Datetime'] > second_to_include + time_period:
-            ticks.append([pd.to_datetime(row['Datetime'], unit='s'), row['Close']])
-            second_to_include = row['Datetime']
-
- 
-    print("\nDisplay dataframe with ticks tratados")
-    final_frame=pd.DataFrame(ticks)
-
-    print(final_frame)
-    # # Removing the ticks that we do not need
-    # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-    # if not_needed_ticks > 0:
-    #     for i in range(not_needed_ticks):
-    #         del ticks[0]
-
-
-
-                            #Funciones de ticks EN DIRECTO
-
-
-        
    
 
 def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
@@ -303,6 +236,68 @@ def txt_to_int_fecha(fecha):
 
 
 
+
+
+
+
+
+
+# def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
+    
+#     # Loading data
+#     timezone = pytz.timezone("Etc/UTC")
+#     fecha_inicio = txt_to_int_fecha(inicio_txt)
+#     fecha_fin = txt_to_int_fecha(fin_txt)
+
+#     utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
+#     print(utc_from)
+#     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
+
+#     loaded_ticks = yf.download("TSLA", utc_from, utc_to,interval="1m")
+#     loaded_ticks.reset_index(inplace=True)
+
+#     loaded_ticks['Datetime'] = loaded_ticks['Datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+#     if loaded_ticks is None:
+#         print("Error loading the ticks")
+#         return -1
+
+#     # create DataFrame out of the obtained data
+#     ticks_frame = pd.DataFrame(loaded_ticks)
+   
+#     loaded_ticks['Datetime'] = pd.to_datetime(loaded_ticks['Datetime']).apply(lambda x: int(x.timestamp()))
+
+
+#     print(ticks_frame)
+#     print(loaded_ticks)
+
+#     # mostrar todos los ticks con todas las columnas
+#     # print("\nDisplay dataframe with ticks")
+
+#     # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
+#     second_to_include = 0
+
+#     for index, row in loaded_ticks.iterrows():
+#         if row['Datetime'] > second_to_include + time_period:
+#             ticks.append([pd.to_datetime(row['Datetime'], unit='s'), row['Close']])
+#             second_to_include = row['Datetime']
+
+ 
+#     print("\nDisplay dataframe with ticks tratados")
+#     final_frame=pd.DataFrame(ticks)
+
+#     print(final_frame)
+#     # # Removing the ticks that we do not need
+#     # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
+#     # if not_needed_ticks > 0:
+#     #     for i in range(not_needed_ticks):
+#     #         del ticks[0]
+
+
+
+#                             #Funciones de ticks EN DIRECTO
 
 
                                     #Funciones que no se usan

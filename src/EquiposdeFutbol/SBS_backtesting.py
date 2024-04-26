@@ -258,7 +258,32 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     return equipos_frame
     
 
+def thread_futbol(pill2kill, ticks: list, trading_data: dict):
+    print("[THREAD - tick_reader] - Taking ticks")
+    
+    while not pill2kill.wait(trading_data['time_period']):
+        a=0
+        # Every trading_data['time_period'] seconds we add a tick to the list
+        # tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
+        # print(tick)
+        # if tick is not None:
+        #     ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+        #     print("Nuevo tick añadido:", ticks[-1])
+        #     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+        #     # print(prices_frame)
 
+        #     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+        #     prices_frame["RSI"] = rsi.rsi()
+        #     CUR_RSI=rsi.rsi()
+
+        #     macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
+        #     prices_frame['macd'] = macd.macd()
+        #     prices_frame['macd_signal'] = macd.macd_signal()
+        #     CUR_MACD=macd.macd()
+        #     CUR_SIGNAL=macd.macd_signal()
+
+
+        #     print(prices_frame)
 
 
 def leerUrl(url):

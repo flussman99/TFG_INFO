@@ -4,6 +4,7 @@ import tick_reader as tr
 import ordenes as orders
 #importslope_abs_rel, orders
 import Rsi_Macd, MediaMovil,Bandas_Bollinger,Estocastico
+from EquiposdeFutbol import SBS_backtesting as SBS
 import pandas as pd
 import os
 import queue
@@ -17,6 +18,7 @@ class Bot:
     ticksMedia = []
     ticksBandas = []
     ticksEstocasticos = []
+    ticksFutbol = []
     pill2kill = threading.Event()
     almacenar_frame_rentabilidad = queue.Queue()
     
@@ -90,12 +92,12 @@ class Bot:
     def thread_tick_reader(self, inicio_txt, fin_txt,estrategia_txt):
         """Function to launch the tick reader thread.
         """
+        tr.thread_tick_reader(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad)
         
-        
-        t = threading.Thread(target=tr.thread_tick_reader, 
-                             args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad))
-        self.threads.append(t)
-        t.start()
+        # t = threading.Thread(target=tr.thread_tick_reader, 
+        #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad))
+        # self.threads.append(t)
+        # t.start()
         print('Thread - tick_reader. LAUNCHED')
 
         # Obtener el resultado de la almacenar_frame_rentabilidad
@@ -104,10 +106,10 @@ class Bot:
         return frame, rentabilidad
         
     
-    def thread_Futbol(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
+    def thread_creativas(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
         """Function to launch the tick reader thread.
         """
-        tr.thread_Futbol(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
+        tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
         # t = threading.Thread(target=tr.thread_Futbol, 
         #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
         # self.threads.append(t)
@@ -176,8 +178,15 @@ class Bot:
         self.threads.append(t)
         t.start()
         print('Thread - Estocastico. LAUNCHED')    
+
+    def thread_Futbol(self):
     
-    
+        t = threading.Thread(target=SBS.thread_futbol, 
+                            args=(self.pill2kill, self.ticksFutbol, self.trading_data))
+        self.threads.append(t)
+        t.start()
+        print('Thread - Estocastico. LAUNCHED')    
+
     def thread_orders(self,estrategia_directo):
         t = threading.Thread(target=orders.thread_orders, 
                              args=(self.pill2kill, self.trading_data,estrategia_directo))
