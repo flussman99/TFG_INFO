@@ -151,10 +151,10 @@ imagenes_equipos={
 }
 
 imagenes_ligas={
-    'La Liga': "src\imagenes\Futbol\la-liga-icono.png",
-    'Premier League': 'src/imagenes/Futbol/premier-league-icono.png',
-    'Ligue 1': 'src/imagenes/Futbol/ligue-1-icono.png',
-    'Serie A': 'src/imagenes/Futbol/serie-a-icono.png',
+    'La Liga': "src/imagenes/Futbol/la-liga-icono.png",
+    'Premier League': 'src/imagenes/Futbol/premier-icono.png',
+    'Ligue 1': 'src/imagenes/Futbol/ligue1-icono.png',
+    'Serie A': 'src/imagenes/Futbol/serieA-icono.png',
     'Bundesliga': 'src/imagenes/Futbol/bundesliga-icono.png'
 }
 
@@ -179,7 +179,7 @@ def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:
         precioCompra= row['Precio']
 
         # Comparar las medias móviles
-        if resultado == combo_vender and posicion_abierta==True:
+        if resultado == combo_vender and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
