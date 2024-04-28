@@ -242,7 +242,7 @@ def obtener_accion_escuderia(piloto, año):
             html = file.read()
 
         escuderia = obtener_escuderia_piloto(html, piloto)
-    
+
     return acciones_escuderias[escuderia]
 
 
@@ -256,7 +256,7 @@ def obtener_listado_años():
         if match:
             year = match.group(1)
             years.append(year)
-    years.append(2024)
+
 
     return years
     
@@ -305,6 +305,7 @@ def obtener_resultados_piloto(html, nombre):
 
     return datos_piloto
 
+#Cambiar que si no compite coge la ultima escuderia por orden alfabetico
 def obtener_escuderia_piloto(html, nombre):
 
     soup = BeautifulSoup(html, 'html.parser')
@@ -325,7 +326,21 @@ def obtener_escuderia_piloto(html, nombre):
 
     return escuderia_piloto
 
+def obtener_periodo_valido(piloto, año_base):
+    años = obtener_listado_años()
+    accion_base = obtener_accion_escuderia(piloto, str(año_base))
+    año_min = int(año_base)
+    año_max = int(año_base)
+    for año in años:
+        accion_año = obtener_accion_escuderia(piloto, str(año))
+        año = int(año)
+        if accion_año == accion_base:
+            if año_max < año:
+                año_max = año
+            elif año_min > año:
+                año_min = año
 
+    return año_min, año_max
 
 
 def datosPiloto(piloto):

@@ -119,20 +119,6 @@ class Bot:
         frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
         
         return frame, rentabilidad
-    
-    def thread_F1(self, inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_actuar, piloto_txt):
-        """Function to launch the tick reader thread.
-        """
-        tr.thread_F1(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt, self.almacenar_frame_rentabilidad)
-        # t = threading.Thread(target=tr.thread_Futbol, 
-        #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
-        # self.threads.append(t)
-        # t.start()
-        print('Thread - tick_reader. LAUNCHED')
-        # Obtener el resultado de la almacenar_frame_rentabilidad
-        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
-        
-        return frame, rentabilidad
 
     # def ticks_directo(self , estrategia):
     #     """Function to launch the tick reader thread.

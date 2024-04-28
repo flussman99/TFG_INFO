@@ -5,7 +5,6 @@ import Rsi_Macd
 import MediaMovil 
 import Bandas_Bollinger
 import Estocastico
-import Formula1.SF1_backtesting as Formula1
 import pytz
 import openpyxl
 import pandas as pd
@@ -18,6 +17,8 @@ from config import API_KEY
 # import investpy
 import requests
 from EquiposdeFutbol import SBS_backtesting as SBS
+from Formula1 import SF1_backtesting as SF1
+from Disney import Dis_backtesting as DIS
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
@@ -121,7 +122,9 @@ def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_
     if nombre == 'Futbol':
         frame=SBS.backtesting(ticks, inicio_txt, fin_txt,url,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     elif nombre == 'Formula1':
-        frame=Formula1.backtesting(ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar, equipos_pilotos_txt)
+        frame=SF1.backtesting(ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar, equipos_pilotos_txt)
+    elif nombre == 'Disney':
+        frame=DIS.backtesting(nombre,ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar)
 
     frameToExcel(frame, f'{nombre}.xlsx')
     ticks.clear()       

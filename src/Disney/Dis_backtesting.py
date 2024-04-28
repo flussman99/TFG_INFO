@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import re
 import numpy as np
+import tick_reader as tr
 
 data = []
 compras = []
@@ -47,7 +48,69 @@ def get_movie_ratings(movie_titles):
     
     return ratings
 
-def backtesting():
+def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rating: int):
+    # Crear un DataFrame de la lista prices
+    ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
+
+    ticks_frame.to_excel('tick.xlsx', index=False)
+    
+    decisiones = []
+    rentabilidad = []
+    posicion_abierta=False
+
+    peliculas_frame=datosPeliculas()
+    peliculas_frame['Release Date'] = pd.to_datetime(peliculas_frame['Release Date'])
+
+    # Initialize a new column 'precio' in peliculas_frame with NaN values
+    peliculas_frame = peliculas_frame[peliculas_frame['Release Date'].between(inicio, fin)]
+    peliculas_frame['Precio'] = np.nan
+    # Iterate over the rows in peliculas_frame
+
+
+    for i, row in peliculas_frame.iterrows(): 
+        rating = row['Rating']
+
+
+        # Find the corresponding price in ticks_frame
+        price = ticks_frame.loc[ticks_frame['time'] >= row['Release Date'], 'price'].first_valid_index()
+
+        if price is not None:
+            # If a price was found, update the 'precio' column in peliculas_frame
+            peliculas_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
+        # if rating[0] == 'DNF' or rating[0] == 'DNS' or rating[0] == 'No participo' or rating[0] == ' ' or rating[0] == 'N':
+        #     rating = 30
+        # elif '*' in rating[0]:
+        #     # Eliminar el asterisco si está presente
+        #     rating = int(rating[0].replace('*', ''))
+        # else:
+        #     rating = int(rating[0])
+
+        precioCompra = peliculas_frame.at[i, 'Precio']
+            
+        if rating >= combo_rating and len(compras) < 10:
+            decisiones.append("1")#COMPRO
+            rentabilidad.append(None)
+            compras.append(precioCompra)
+            posicion_abierta=True
+        elif rating < combo_rating and posicion_abierta == True:
+            decisiones.append("-1")#VENDO
+            posicion_abierta=False
+            print(compras)
+            rentabilidad.append(tr.calcular_rentabilidad(compras,precioCompra))
+            compras.clear()
+        else:
+            decisiones.append("NO SE REALIZA OPERACION")
+            rentabilidad.append(None)
+    compras.clear()
+
+    # Agregar la lista de decisiones como una nueva columna al DataFrame
+    peliculas_frame['Decision'] = decisiones
+    peliculas_frame['Rentabilidad']= rentabilidad
+    print("frame Disney",peliculas_frame)
+    return peliculas_frame
+
+
+def datosPeliculas():
     base_dir = os.path.abspath('src\Disney\html')
     html_films_files = [os.path.join(base_dir, file) for file in html_movies_files]
 
@@ -87,3 +150,4 @@ def backtesting():
             df = pd.DataFrame({'Title': titles, 'Release Date': release_dates, 'Rating': ratings})
             df.to_excel(movies_file_name + '.xlsx', index=False)
             print(df)
+    return df

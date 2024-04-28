@@ -112,10 +112,9 @@ class FormularioFormula1(tk.Toplevel):
         
         def filter_pilotos(event):
             # Get selected market
-            selected_year = self.combo_años.get().upper()
-            firstDayNxtYear = datetime(int(selected_year) + 1, 1, 1)
-            self.fecha_lim = firstDayNxtYear - timedelta(days=1)
-            self.fecha_ini = datetime(int(selected_year), 1, 1)
+            min_year, max_year = SF1_backtesting.obtener_periodo_valido(self.combo_piloto.get(), self.combo_años.get())
+            self.fecha_lim = datetime(max_year, 12, 31)
+            self.fecha_ini = datetime(min_year, 1, 1)
 
             self.entry_fin_back.config(maxdate=self.fecha_lim)
             self.entry_fin_back.config(mindate=self.fecha_ini)
@@ -126,7 +125,7 @@ class FormularioFormula1(tk.Toplevel):
             self.entry_inicio_back.set_date(self.fecha_ini)
 
             # Update combo_acciones options
-            self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(selected_year)
+            self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
             self.combo_piloto.current(0)
             seleccionar_accion(event)
 
@@ -573,6 +572,7 @@ class FormularioFormula1(tk.Toplevel):
         estrategia=self.combo_años.get()
 
     def obtenerPais(self, accion_txt):
+        print(accion_txt)
         mercado = accion_txt.split('.')[1]
         pais = self.paisAcciones.get(mercado)
         print(mercado, pais)
@@ -606,6 +606,7 @@ class FormularioFormula1(tk.Toplevel):
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
         self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,None,estrategia_txt, cuando_actuar, '', piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        
         self.rentabilidad_f1.set(str(rentabilidad))
         #if parte backtestin
         # self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
