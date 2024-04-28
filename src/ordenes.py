@@ -341,8 +341,8 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
     while not pill2kill.wait(30):
 
         #cerrar_todas_las_posiciones(trading_data)
-
-        if check_buy(estrategia_directo):
+        market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
+        if market_open and check_buy(estrategia_directo):            
             buy = open_buy(trading_data)
             lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
             if buy is not None:

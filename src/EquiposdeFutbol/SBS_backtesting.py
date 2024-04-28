@@ -8,6 +8,7 @@ import requests
 import numpy as np
 import tick_reader as tr
 import MetaTrader5 as mt5
+from config import API_KEY 
 
 # Spanish month names
 month_names = {
@@ -159,8 +160,9 @@ imagenes_ligas={
     'Bundesliga': 'src/imagenes/Futbol/bundesliga-icono.png'
 }
 
-data=[]
+data=[]#guardo los partidos
 compras=[]
+FRAMEDIRECTO=pd.DataFrame()
 
 
 def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
@@ -202,9 +204,7 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
     
 
 
-
-
-def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str, modo):
+def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
 
     # leerHtml(equipos_txt)
     leerUrl(url)
@@ -260,18 +260,28 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
 
     return equipos_frame
     
-def ultimoPartido(ticks:list,inicio: str, fin: str,equipos_txt:str):
-    fecha_actual = pd.Timestamp.now()
-    print(fecha_actual)
+
+def ultimoPartido(ticks:list,inicio: str, fin: str,equipos_txt:str,url):
+    leerUrl(url)#cojo los partidos
+    equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
+    last_row = equipos_frame.tail(1)
+    print(last_row)
+    equipos_frame = last_row
+    data.clear()#ya lo tengo que limpiar
+    return last_row
+
 def thread_futbol(pill2kill, ticks: list, trading_data: dict, cuando_comprar,url):
     print("[THREAD - tick_reader] - Taking ticks")
-    fecha_actual = pd.Timestamp.now()
-    print(fecha_actual)
-    ultimoPartido
-        
+    leerUrl(url)#cojo los partidos
+    equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
+    data.clear()#ya lo tengo que limpiar
     
+    last_row = equipos_frame.tail(1)
+    print(last_row)
+    
+
     while not pill2kill.wait(trading_data['time_period']):
-        a=0
+        ultimoPartido
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         print(tick)
@@ -295,6 +305,18 @@ def thread_futbol(pill2kill, ticks: list, trading_data: dict, cuando_comprar,url
 
         #     print(prices_frame)
 
+
+def check_buy() -> bool:
+    return False
+
+    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
+    #     return True
+    # return False
+
+
+def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+    
+    return False
 
 def leerUrl(url):
 
@@ -710,18 +732,6 @@ def convert_date(date_str):
     return f"{year}-{month}-{day.zfill(2)}"
 
 
-
-def check_buy() -> bool:
-    return False
-
-    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-    #     return True
-    # return False
-
-
-def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
-    
-    return False
 
     # if CUR_SIGNAL.iloc[-1] <= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] > 65:
     #     return True

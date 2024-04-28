@@ -298,6 +298,11 @@ class FormularioFutbol(tk.Toplevel):
         self.rentabilidad_futbol.set("0")
 
         self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_futbol)
+
+        self.rentabilidad_indicador_futbol = tk.StringVar()
+        self.rentabilidad_indicador_futbol.set("0")
+
+        self.rentabilidad_label_indicador = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_indicador_futbol)
         # self.rentabilidad_label.place(x=35, y=300)
         def toggle_frames():
             if self.current_frame.equals(self.frame_without_filter):
@@ -352,6 +357,7 @@ class FormularioFutbol(tk.Toplevel):
         # Hacer visible el botón, label y widget
         self.operaciones_button.place(x=270, y=300)
         self.rentabilidad_label.place(x=35, y=300)
+        self.rentabilidad_label_indicador.place(x=100, y=300)
         self.tree.place(x=35, y=350, width=1300)
 
     def treeview(self):
@@ -391,8 +397,10 @@ class FormularioFutbol(tk.Toplevel):
        
         print(equipo_txt, accion_txt, pais_txt, url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
         self.rentabilidad_futbol.set(str(rentabilidad))
+
+        self.rentabilidad_indicador_futbol.set(str(rentabilidad_indicador))
 
         self.visualizar()
         self.treeview()

@@ -116,9 +116,9 @@ class Bot:
         # t.start()
         print('Thread - tick_reader. LAUNCHED')
         # Obtener el resultado de la almacenar_frame_rentabilidad
-        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
+        frame, rentabilidad , rentabilidad_indicador= self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
         
-        return frame, rentabilidad
+        return frame, rentabilidad, rentabilidad_indicador
 
     # def ticks_directo(self , estrategia):
     #     """Function to launch the tick reader thread.
