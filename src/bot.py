@@ -193,10 +193,10 @@ class Bot:
         t.start()
         print('Thread - Estocastico. LAUNCHED')    
 
-    def thread_Futbol(self):
+    def thread_Futbol(self,cuando_comprar,url):
     
         t = threading.Thread(target=SBS.thread_futbol, 
-                            args=(self.pill2kill, self.ticksFutbol, self.trading_data))
+                            args=(self.pill2kill, self.ticksFutbol, self.trading_data, cuando_comprar,url))
         self.threads.append(t)
         t.start()
         print('Thread - Estocastico. LAUNCHED')    

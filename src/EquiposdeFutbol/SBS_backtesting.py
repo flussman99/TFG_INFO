@@ -7,6 +7,7 @@ import os
 import requests
 import numpy as np
 import tick_reader as tr
+import MetaTrader5 as mt5
 
 # Spanish month names
 month_names = {
@@ -162,7 +163,7 @@ data=[]
 compras=[]
 
 
-def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
+def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
     
     
     equipos_frame=datosEquipos(ticks,inicio, fin,url,equipos_txt) 
@@ -203,11 +204,13 @@ def backtesting(nombre:str, ticks: list,inicio: str, fin: str,url,combo_comprar:
 
 
 
-def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
+def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str, modo):
+
     # leerHtml(equipos_txt)
     leerUrl(url)
     print(data)
     dataframe=crearDf(ticks,inicio, fin,equipos_txt)
+
     return dataframe
 
 
@@ -257,17 +260,24 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
 
     return equipos_frame
     
-
-def thread_futbol(pill2kill, ticks: list, trading_data: dict):
+def ultimoPartido(ticks:list,inicio: str, fin: str,equipos_txt:str):
+    fecha_actual = pd.Timestamp.now()
+    print(fecha_actual)
+def thread_futbol(pill2kill, ticks: list, trading_data: dict, cuando_comprar,url):
     print("[THREAD - tick_reader] - Taking ticks")
+    fecha_actual = pd.Timestamp.now()
+    print(fecha_actual)
+    ultimoPartido
+        
     
     while not pill2kill.wait(trading_data['time_period']):
         a=0
         # Every trading_data['time_period'] seconds we add a tick to the list
-        # tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        # print(tick)
-        # if tick is not None:
-        #     ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
+        print(tick)
+        if tick is not None:
+            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+
         #     print("Nuevo tick añadido:", ticks[-1])
         #     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
         #     # print(prices_frame)

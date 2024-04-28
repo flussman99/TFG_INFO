@@ -47,7 +47,7 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     
     load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
  
-    frame=estrategias(ticks,trading_data['market'],estrategia_txt)
+    frame=estrategias(ticks,estrategia_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
 
     cola.put((frame, rentabilidad))
@@ -56,7 +56,7 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     
 
 
-def estrategias(ticks: list, market: str,nombre:str):
+def estrategias(ticks: list, nombre:str):
     #Escoger estrategia a aplicar
     
     if nombre == 'RSI':
@@ -76,7 +76,7 @@ def estrategias(ticks: list, market: str,nombre:str):
     return frame
 
 
-def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipos_txt,cola):
+def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt,cola):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -91,38 +91,37 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
     
-    frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar,cuando_vender,equipos_txt)
+    frame= estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad))
     print("[THREAD - tick_reader] - Ticks loaded")
 
-def thread_F1(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt,cola):
-    """Function executed by a thread. It fills the list of ticks and
-    it also computes the average spread.
+# def thread_F1(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt,cola):
+#     """Function executed by a thread. It fills the list of ticks and
+#     it also computes the average spread.
 
-    Args:
-        pill2kill (Threading.Event): Event to stop the execution of the thread.
-        ticks (list): List of ticks to fill.
-        trading_data (dict): Trading data needed for loading ticks.
-    """
+#     Args:
+#         pill2kill (Threading.Event): Event to stop the execution of the thread.
+#         ticks (list): List of ticks to fill.
+#         trading_data (dict): Trading data needed for loading ticks.
+#     """
    
-    print("[THREAD - tick_futbol] - Working")
+#     print("[THREAD - tick_futbol] - Working")
 
-    load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
-    # Filling the list with previos ticks
+#     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
+#     # Filling the list with previos ticks
     
-    frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_actuar, '',piloto_txt)
-    rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
-    cola.put((frame, rentabilidad))
-    print("[THREAD - tick_reader] - Ticks loaded")
+#     frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_actuar, '',piloto_txt)
+#     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
+#     cola.put((frame, rentabilidad))
+#     print("[THREAD - tick_reader] - Ticks loaded")
 
 
-def estrategias_Creativas(ticks: list, market: str,nombre:str,inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt):
+def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt):
     if nombre == 'Futbol':
-        frame=SBS.backtesting(nombre,ticks, inicio_txt, fin_txt,url,cuando_comprar,cuando_vender,equipos_txt)
-       
+        frame=SBS.backtesting(ticks, inicio_txt, fin_txt,url,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     elif nombre == 'Formula1':
-        frame=Formula1.backtesting(nombre,ticks, inicio_txt, fin_txt, url, cuando_comprar, equipos_txt)
+        frame=Formula1.backtesting(ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar, equipos_pilotos_txt)
 
     frameToExcel(frame, f'{nombre}.xlsx')
     ticks.clear()       

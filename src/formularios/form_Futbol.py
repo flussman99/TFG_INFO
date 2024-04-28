@@ -402,6 +402,25 @@ class FormularioFutbol(tk.Toplevel):
         self.b.kill_threads()
     
     def tickdirecto(self):
-        self.b.thread_Futbol(self.estrategia)
+        pais_txt = self.pais_asoc
+        cuando_comprar = self.combo_comprar.get()
+        url_txt = self.url_asoc
+        nombre_accion_API = self.acronimo #nombre para la API de investpy
+        print(nombre_accion_API)
+        frecuencia_txt = "Daily"
+        self.cambioParaMt5()
+        print(self.acronimo)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, self.acronimo)#le pasamos el acronimo por si ha cambiado de nombre para MT5
+        self.b.thread_Futbol(self.estrategia, cuando_comprar,url_txt,nombre_accion_API,pais_txt)
     
-    
+    def cambioParaMt5(self):
+        if(self.acronimo == "ALVG"):
+            self.acronimo = "ALV"
+        elif(self.acronimo == "EVKn"):
+            self.acronimo = "EVK"
+        elif(self.acronimo == "VOWG"):
+            self.acronimo = "VOW3"
+        elif(self.acronimo == "BAYGn"):
+            self.acronimo = "BAYN"
+        elif(self.acronimo == "BMWG"):
+            self.acronimo = "BMW" 

@@ -169,7 +169,7 @@ html_pilotTeams_files = [
 ]
 
 
-def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_resultado: int, piloto: str):
+def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, piloto: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
 
