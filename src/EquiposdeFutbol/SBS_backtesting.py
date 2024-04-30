@@ -163,7 +163,11 @@ imagenes_ligas={
 data=[]#guardo los partidos
 compras=[]
 FRAMEDIRECTO=pd.DataFrame()
-
+FECHA_ULTIMO_PARTIDO=None
+COMBO_COMPRAR=None
+COMBO_VENDER=None
+RESULTADO_ULTIMO_PARTIDO=None
+NUEVO_PARTIDO=False
 
 def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
     
@@ -182,12 +186,12 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
         precioCompra= row['Precio']
 
         # Comparar las medias móviles
-        if resultado == combo_vender and posicion_abierta == True:
+        if comprobar(resultado,combo_vender) and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
             compras.clear()
-        elif len(compras) < 10 and resultado == combo_comprar :  
+        elif len(compras) < 10 and comprobar(resultado,combo_comprar) :  
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
@@ -202,6 +206,19 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
     print("frame futbol",equipos_frame)
     return equipos_frame
     
+def comprobar(resultado,operar):
+
+    if "/" in operar:
+        resultado1 = operar.split("/")[1]
+        resultado2 = operar.split("/")[2]
+        if resultado == resultado1 or resultado == resultado2:
+            return True
+    else:
+        if resultado == operar:
+            return True
+
+    return False
+
 
 
 def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
@@ -261,54 +278,59 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     return equipos_frame
     
 
-def ultimoPartido(ticks:list,inicio: str, fin: str,equipos_txt:str,url):
+def ultimoPartido(equipos_txt:str,url,cola):
     leerUrl(url)#cojo los partidos
     equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
-    last_row = equipos_frame.tail(1)
-    print(last_row)
-    equipos_frame = last_row
+    equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
     data.clear()#ya lo tengo que limpiar
-    return last_row
+    last_row = equipos_frame.iloc[-1]
+    if(last_row['Fecha']!=FECHA_ULTIMO_PARTIDO):
+        FECHA_ULTIMO_PARTIDO = last_row['Fecha']
+        print(FECHA_ULTIMO_PARTIDO)
+        # Asignar el Resultado a cada partido
+        if last_row['Equipo Local'] == equipos_txt:
+                if int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
+                    last_row['Resultado'] = 'Ganado'
+                elif int(last_row['ResultadoLocal']) < int(last_row['ResultadoVisitante']):
+                    last_row['Resultado'] = 'Perdido'
+                else:
+                    last_row['Resultado'] = 'Empatado'
+        else:
+            if int(last_row['ResultadoVisitante']) > int(last_row['ResultadoLocal']):
+                last_row['Resultado'] = 'Ganado'
+            elif int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
+                last_row['Resultado'] = 'Perdido'
+            else:
+                last_row['Resultado'] = 'Empatado'
+        
+        RESULTADO_ULTIMO_PARTIDO = last_row['Resultado']
+        print(RESULTADO_ULTIMO_PARTIDO)
+        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, last_row], ignore_index=True)#GUARDO EL ULTIMO
+        print(last_row)
+        cola.put(FRAMEDIRECTO)
+        NUEVO_PARTIDO = True
+    
 
-def thread_futbol(pill2kill, ticks: list, trading_data: dict, cuando_comprar,url):
-    print("[THREAD - tick_reader] - Taking ticks")
-    leerUrl(url)#cojo los partidos
-    equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
-    data.clear()#ya lo tengo que limpiar
-    
-    last_row = equipos_frame.tail(1)
-    print(last_row)
-    
+def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,comobo_vender,cola):
+    COMBO_COMPRAR=combo_comprar #lo que ha elegido el usuario
+    COMBO_VENDER=comobo_vender
+    ultimoPartido(equipos_txt,url,cola)
 
     while not pill2kill.wait(trading_data['time_period']):
-        ultimoPartido
-        # Every trading_data['time_period'] seconds we add a tick to the list
-        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        print(tick)
-        if tick is not None:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-
-        #     print("Nuevo tick añadido:", ticks[-1])
-        #     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-        #     # print(prices_frame)
-
-        #     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-        #     prices_frame["RSI"] = rsi.rsi()
-        #     CUR_RSI=rsi.rsi()
-
-        #     macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
-        #     prices_frame['macd'] = macd.macd()
-        #     prices_frame['macd_signal'] = macd.macd_signal()
-        #     CUR_MACD=macd.macd()
-        #     CUR_SIGNAL=macd.macd_signal()
-
-
-        #     print(prices_frame)
+        ultimoPartido(equipos_txt,url,cola)
+        print("Checking matches...")
+        print(FRAMEDIRECTO)
 
 
 def check_buy() -> bool:
-    return False
 
+    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVO_PARTIDO=False
+        return True
+    else:
+        NUEVO_PARTIDO=False
+        return False
+    
     # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
     #     return True
     # return False
@@ -316,8 +338,12 @@ def check_buy() -> bool:
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
     
-    return False
-
+    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_VENDER)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVO_PARTIDO=False
+        return True
+    else:
+        NUEVO_PARTIDO=False
+        return False
 def leerUrl(url):
 
     print(url)

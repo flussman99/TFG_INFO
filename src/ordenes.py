@@ -3,6 +3,8 @@ import datetime as date
 import MetaTrader5 as mt5
 import pandas as pd
 from EquiposdeFutbol import SBS_backtesting as SBS
+from Formula1 import SF1_backtesting as F1
+# from Disney import Disney_backtesting as Disney
 
 
 
@@ -16,6 +18,10 @@ comprasRSI = []
 comprasMedia = []
 comprasBandas = []
 comprasEstocasticos = []
+comprasFutbol = []
+comprasDisney = []
+comprasFormula1 = []
+
 
 def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
@@ -259,6 +265,10 @@ def check_buy(nombre:str) -> bool:
         return Estocastico.check_buy()
     elif nombre == 'Futbol':
         return SBS.check_buy()
+    elif nombre == 'Formula1':
+        return F1.check_buy()
+    # elif nombre == 'Disney':
+    #     return Disney.check_buy()
 
 
 def check_sell(nombre : str) -> bool:
@@ -272,6 +282,13 @@ def check_sell(nombre : str) -> bool:
         return Bandas_Bollinger.check_sell()
     elif nombre == 'Estocastico':
         return Estocastico.check_sell()
+    elif nombre == 'Futbol':
+        return SBS.check_sell()
+    elif nombre == 'Formula1':
+        return F1.check_sell()
+    # elif nombre == 'Disney':
+    #     return Disney.check_sell()
+    
    
     
 def elegirListGuardarCompras(estrategia, buy):
@@ -287,6 +304,17 @@ def elegirListGuardarCompras(estrategia, buy):
     elif estrategia == 'Estocastico':
         comprasEstocasticos.append(buy)
         return comprasEstocasticos
+    elif estrategia == 'Futbol':
+        comprasFutbol.append(buy)
+        return comprasFutbol
+    elif estrategia == 'Formula1':
+        comprasFormula1.append(buy)
+        return comprasFormula1
+    elif estrategia == 'Disney':
+        comprasDisney.append(buy)
+        return comprasDisney
+    
+
 
 def cerrar_posicion(orders: dict):
     """Esta función cierra la posición que recibe como argumento"""

@@ -92,11 +92,9 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
 
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
-    
-    
-    
 
     rentabilidad_indicador=load_IBEX35(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
+    
     frame= estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad, rentabilidad_indicador))

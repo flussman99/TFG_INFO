@@ -21,6 +21,7 @@ class Bot:
     ticksFutbol = []
     pill2kill = threading.Event()
     almacenar_frame_rentabilidad = queue.Queue()
+    frame_directo=queue.Queue()
     
     trading_data = {
         "lotage": 1.0,
@@ -129,6 +130,17 @@ class Bot:
     #     t.start()
     #     print('Thread - tick_reader. LAUNCHED')
 
+    def thread_Futbol(self,equipo,url,cuando_comprar,cuando_vender,frame_directo):
+    
+        t = threading.Thread(target=SBS.thread_futbol, 
+                            args=(self.pill2kill, self.trading_data, equipo, url, cuando_comprar,cuando_vender,frame_directo))
+        
+        self.threads.append(t)
+        t.start()
+        frame=self.frame_directo.get()
+        print('Thread - Estocastico. LAUNCHED')    
+
+        return frame
     
     def thread_slope_abs_rel(self):
         """Function to launch the thread for calculating the slope
@@ -179,13 +191,7 @@ class Bot:
         t.start()
         print('Thread - Estocastico. LAUNCHED')    
 
-    def thread_Futbol(self,cuando_comprar,url):
     
-        t = threading.Thread(target=SBS.thread_futbol, 
-                            args=(self.pill2kill, self.ticksFutbol, self.trading_data, cuando_comprar,url))
-        self.threads.append(t)
-        t.start()
-        print('Thread - Estocastico. LAUNCHED')    
 
     def thread_orders(self,estrategia_directo):
         t = threading.Thread(target=orders.thread_orders, 
