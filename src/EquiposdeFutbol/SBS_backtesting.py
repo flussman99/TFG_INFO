@@ -58,7 +58,7 @@ pais = {
 
 } 
 
-acronimo_acciones = {
+acronimo_acciones_api = {
     'Grupo ACS(ACS)': 'ACS',
     'Adidas(ADS)': 'ADS',
     'Nike(NKE)': 'NKE',
@@ -76,7 +76,28 @@ acronimo_acciones = {
     'Ebay Inc(EBAY)': 'EBAY',
     'Bayerische Motoren Werke(BMW)': 'BMWG',#BMW en metatrader
     'McDonalds(MCD)': 'MCD',
-    'Orange(ORAN)': 'ORAN',
+    'Orange(ORA)': 'ORAN',
+}
+
+acronimo_acciones_mt5 = {
+    'Grupo ACS(ACS)': 'ACS.MAD',
+    'Adidas(ADS)': 'ADS.ETR',
+    'Nike(NKE)': 'NKE.NYSE',
+    'Deutsche Bank(DTE)': 'DTE.ETR',#este es DTE en metatrader
+    'Allianz(ALV)': 'ALV.ETR',#ALV en metatrader
+    'Coca cola(KO)': 'KO.NYSE',
+    'DXC Technology(DXC)': 'DXC.NYSE',
+    'Standar Chartered(STAN)': 'STAN.LSE',
+    'Electronic Arts(EA)': 'EA.NAS',
+    'Trivago(TRVG)': 'TRVG.NAS',
+    'Evonik Industries(EVK)': 'EVK.ETR',#EVK en metatrader
+    'Volkswagen(VOW3)': 'VOW3.ETR',#VOW3 en metatrader
+    'Bayer AG(BAYN)': 'BAYN.ETR',#BAYN en metatrader
+    'Toyota(TM)': 'TM.NYSE',
+    'Ebay Inc(EBAY)': 'EBAY.NAS',
+    'Bayerische Motoren Werke(BMW)': 'BMW.ETR',#BMW en metatrader
+    'McDonalds(MCD)': 'MCD.NYSE',
+    'Orange(ORAN)': 'ORA.PAR',
 }
 
 
@@ -162,12 +183,13 @@ imagenes_ligas={
 
 data=[]#guardo los partidos
 compras=[]
-FRAMEDIRECTO=pd.DataFrame()
+
 FECHA_ULTIMO_PARTIDO=None
 COMBO_COMPRAR=None
 COMBO_VENDER=None
 RESULTADO_ULTIMO_PARTIDO=None
 NUEVO_PARTIDO=False
+FRAMEDIRECTO=pd.DataFrame()
 
 def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
     
@@ -279,41 +301,56 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     
 
 def ultimoPartido(equipos_txt:str,url,cola):
+    global FECHA_ULTIMO_PARTIDO,RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,FRAMEDIRECTO
+
     leerUrl(url)#cojo los partidos
     equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
-    equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
+    # equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
     data.clear()#ya lo tengo que limpiar
     last_row = equipos_frame.iloc[-1]
-    if(last_row['Fecha']!=FECHA_ULTIMO_PARTIDO):
+    if(FECHA_ULTIMO_PARTIDO is None or last_row['Fecha']!=FECHA_ULTIMO_PARTIDO):
         FECHA_ULTIMO_PARTIDO = last_row['Fecha']
         print(FECHA_ULTIMO_PARTIDO)
         # Asignar el Resultado a cada partido
         if last_row['Equipo Local'] == equipos_txt:
-                if int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
-                    last_row['Resultado'] = 'Ganado'
-                elif int(last_row['ResultadoLocal']) < int(last_row['ResultadoVisitante']):
-                    last_row['Resultado'] = 'Perdido'
-                else:
-                    last_row['Resultado'] = 'Empatado'
+            if int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Ganado'
+            elif int(last_row['ResultadoLocal']) < int(last_row['ResultadoVisitante']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Perdido'
+            else:
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Empatado'
         else:
             if int(last_row['ResultadoVisitante']) > int(last_row['ResultadoLocal']):
-                last_row['Resultado'] = 'Ganado'
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Ganado'
             elif int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
-                last_row['Resultado'] = 'Perdido'
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Perdido'
             else:
-                last_row['Resultado'] = 'Empatado'
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Empatado'
         
-        RESULTADO_ULTIMO_PARTIDO = last_row['Resultado']
+        RESULTADO_ULTIMO_PARTIDO = equipos_frame.at[equipos_frame.index[-1], 'Resultado']
         print(RESULTADO_ULTIMO_PARTIDO)
-        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, last_row], ignore_index=True)#GUARDO EL ULTIMO
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
+        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]].drop(['ResultadoLocal', 'ResultadoVisitante'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         print(last_row)
         cola.put(FRAMEDIRECTO)
         NUEVO_PARTIDO = True
+    else:
+        print("No hay partido nuevo")
     
+def inicializar_variables(combo_comprar,comobo_vender):
+    global COMBO_COMPRAR,COMBO_VENDER,FECHA_ULTIMO_PARTIDO,RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,FRAMEDIRECTO
+    #van a ser lo que haya establecido el usuario de orgne
+    COMBO_COMPRAR=combo_comprar
+    COMBO_VENDER=comobo_vender
+    #inicializao las variables cada vez que le pulso el boton de ticks en directo para que se reinicie todo y no se qued con los valores anteriores
+    FECHA_ULTIMO_PARTIDO=None
+    RESULTADO_ULTIMO_PARTIDO=None
+    NUEVO_PARTIDO=False
+    FRAMEDIRECTO=pd.DataFrame()
 
 def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,comobo_vender,cola):
-    COMBO_COMPRAR=combo_comprar #lo que ha elegido el usuario
-    COMBO_VENDER=comobo_vender
+
+    inicializar_variables(combo_comprar,comobo_vender)
     ultimoPartido(equipos_txt,url,cola)
 
     while not pill2kill.wait(trading_data['time_period']):
@@ -323,12 +360,14 @@ def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,co
 
 
 def check_buy() -> bool:
+    global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
+    print(NUEVO_PARTIDO)
 
     if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
-        NUEVO_PARTIDO=False
+        NUEVO_PARTIDO=False#si he invertido una vez por el partido no invierto mas
         return True
     else:
-        NUEVO_PARTIDO=False
+        NUEVO_PARTIDO=False#si hl resultado no es el que buscba el usuario para invertir no invertimos y esperamos al siguiente partido
         return False
     
     # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :

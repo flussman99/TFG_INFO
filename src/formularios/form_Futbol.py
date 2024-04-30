@@ -65,7 +65,8 @@ class FormularioFutbol(tk.Toplevel):
         self.estrategia='Futbol'
         self.pais_asoc = None  # or any default value you want
         self.url_asoc = None  # or any default value you want
-        self.acronimo=None
+        self.acronimo_api=None
+        self.acronimo_mt5=None
         self.frame_without_filter=None
         self.current_frame = None
         self.frame_with_filter=None
@@ -75,7 +76,8 @@ class FormularioFutbol(tk.Toplevel):
         acciones=SBS.acciones
         pais=SBS.pais
         url=SBS.urls_equipos
-        acronimos_acciones=SBS.acronimo_acciones
+        acronimos_acciones_api=SBS.acronimo_acciones_api
+        acronimos_acciones_mt5=SBS.acronimo_acciones_mt5
         imagenes_liga=SBS.imagenes_ligas
         imagenes_equipos=SBS.imagenes_equipos
 
@@ -119,7 +121,7 @@ class FormularioFutbol(tk.Toplevel):
         def actualizar_pais_url_acronimo(event):
             self.pais_asoc = obtener_pais()
             self.url_asoc = obtener_url()
-            self.acronimo=obtener_acronimo()
+            self.acronimo_api, self.acronimo_mt5 = obtener_acronimo()
     
             
         def actualizar_acciones(event):
@@ -138,9 +140,10 @@ class FormularioFutbol(tk.Toplevel):
 
         def obtener_acronimo():
             accion_seleccionada = self.combo_acciones.get()
-            acronimo_seleccionado = acronimos_acciones.get(accion_seleccionada)
+            acronimo_seleccionado_api = acronimos_acciones_api.get(accion_seleccionada)
+            acronimo_sleccionado_mt5 = acronimos_acciones_mt5.get(accion_seleccionada)
             # print(acronimo_seleccionado)
-            return acronimo_seleccionado
+            return acronimo_seleccionado_api, acronimo_sleccionado_mt5
 
         def obtener_pais():
             acronimo_seleccionado = obtener_acronimo()
@@ -362,7 +365,7 @@ class FormularioFutbol(tk.Toplevel):
         self.tree.place(x=35, y=350, width=1300)
 
     def treeview(self,modo):
-        if(modo.equals("Backtesting")):
+        if(modo=="Backtesting"):
             self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
 
             # Set the initial DataFrame to display
@@ -390,7 +393,7 @@ class FormularioFutbol(tk.Toplevel):
         inicio_txt = self.fecha_inicio_entry.get()
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
-        accion_txt = self.acronimo
+        accion_txt = self.acronimo_api
         estrategia_txt = self.estrategia
         pais_txt = self.pais_asoc
         url_txt = self.url_asoc
@@ -399,7 +402,7 @@ class FormularioFutbol(tk.Toplevel):
         cuando_vender = self.combo_vender.get()
        
         print(equipo_txt, accion_txt, pais_txt, url_txt)
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
         self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
         self.rentabilidad_futbol.set(str(rentabilidad))
 
@@ -415,27 +418,16 @@ class FormularioFutbol(tk.Toplevel):
     def tickdirecto(self):
         cuando_comprar = self.combo_comprar.get()
         cuando_vender = self.combo_vender.get()
+        accion_txt = self.acronimo_mt5
         url_txt = self.url_asoc
+        estrategia_txt = self.estrategia
         equipo_txt = self.combo_equipos.get()
-        nombre_accion_API = self.acronimo #nombre para la API de investpy
-        print(nombre_accion_API)
         frecuencia_txt = "Daily"
-        self.cambioParaMt5()
-        print(self.acronimo)
-        self.b.establecer_frecuencia_accion(frecuencia_txt, self.acronimo)#le pasamos el acronimo por si ha cambiado de nombre para MT5
-        self.frame_directo=self.b.thread_Futbol(self.estrategia, equipo_txt, url_txt, cuando_comprar,cuando_vender)
+        print(equipo_txt, accion_txt, estrategia_txt,url_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        self.frame_directo=self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
+        self.b.thread_orders(estrategia_txt)
 
         self.visualizar()
         self.treeview("Directo")
     
-    def cambioParaMt5(self):
-        if(self.acronimo == "ALVG"):
-            self.acronimo = "ALV"
-        elif(self.acronimo == "EVKn"):
-            self.acronimo = "EVK"
-        elif(self.acronimo == "VOWG"):
-            self.acronimo = "VOW3"
-        elif(self.acronimo == "BAYGn"):
-            self.acronimo = "BAYN"
-        elif(self.acronimo == "BMWG"):
-            self.acronimo = "BMW" 

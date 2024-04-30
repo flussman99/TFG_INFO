@@ -130,15 +130,15 @@ class Bot:
     #     t.start()
     #     print('Thread - tick_reader. LAUNCHED')
 
-    def thread_Futbol(self,equipo,url,cuando_comprar,cuando_vender,frame_directo):
+    def thread_Futbol(self,equipo,url,cuando_comprar,cuando_vender):
     
         t = threading.Thread(target=SBS.thread_futbol, 
-                            args=(self.pill2kill, self.trading_data, equipo, url, cuando_comprar,cuando_vender,frame_directo))
+                            args=(self.pill2kill, self.trading_data, equipo, url, cuando_comprar,cuando_vender,self.frame_directo))
         
         self.threads.append(t)
         t.start()
         frame=self.frame_directo.get()
-        print('Thread - Estocastico. LAUNCHED')    
+        print('Thread - Futbol. LAUNCHED')    
 
         return frame
     
@@ -202,12 +202,26 @@ class Bot:
         print("Hilos en la lista threads:", self.threads)
     
     def kill_threads(self):
-        """Function to kill all the loaded threads.
         """
+        Function to kill all the loaded threads.
+        """
+        # Print a message to indicate that the threads are being stopped
         print('Threads - Stopping threads')
+        
+        # Set the `pill2kill` event, which will cause the threads to stop
         self.pill2kill.set()
+        
+        # Wait for each thread to finish
         for thread in self.threads:
             thread.join()
+        
+        # Clear the list of threads
+        self.threads.clear()
+
+        self.pill2kill=threading.Event()
+        
+        # Print the list of threads to confirm that they have been stopped
+        print("Hilos en la lista threads:", self.threads)
     
     def wait(self):
         """Function to make the thread wait.
