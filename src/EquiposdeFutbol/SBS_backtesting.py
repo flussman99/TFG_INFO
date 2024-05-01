@@ -8,6 +8,7 @@ import requests
 import numpy as np
 import tick_reader as tr
 import MetaTrader5 as mt5
+from config import API_KEY 
 
 # Spanish month names
 month_names = {
@@ -57,7 +58,7 @@ pais = {
 
 } 
 
-acronimo_acciones = {
+acronimo_acciones_api = {
     'Grupo ACS(ACS)': 'ACS',
     'Adidas(ADS)': 'ADS',
     'Nike(NKE)': 'NKE',
@@ -75,7 +76,28 @@ acronimo_acciones = {
     'Ebay Inc(EBAY)': 'EBAY',
     'Bayerische Motoren Werke(BMW)': 'BMWG',#BMW en metatrader
     'McDonalds(MCD)': 'MCD',
-    'Orange(ORAN)': 'ORAN',
+    'Orange(ORA)': 'ORAN',
+}
+
+acronimo_acciones_mt5 = {
+    'Grupo ACS(ACS)': 'ACS.MAD',
+    'Adidas(ADS)': 'ADS.ETR',
+    'Nike(NKE)': 'NKE.NYSE',
+    'Deutsche Bank(DTE)': 'DTE.ETR',#este es DTE en metatrader
+    'Allianz(ALV)': 'ALV.ETR',#ALV en metatrader
+    'Coca cola(KO)': 'KO.NYSE',
+    'DXC Technology(DXC)': 'DXC.NYSE',
+    'Standar Chartered(STAN)': 'STAN.LSE',
+    'Electronic Arts(EA)': 'EA.NAS',
+    'Trivago(TRVG)': 'TRVG.NAS',
+    'Evonik Industries(EVK)': 'EVK.ETR',#EVK en metatrader
+    'Volkswagen(VOW3)': 'VOW3.ETR',#VOW3 en metatrader
+    'Bayer AG(BAYN)': 'BAYN.ETR',#BAYN en metatrader
+    'Toyota(TM)': 'TM.NYSE',
+    'Ebay Inc(EBAY)': 'EBAY.NAS',
+    'Bayerische Motoren Werke(BMW)': 'BMW.ETR',#BMW en metatrader
+    'McDonalds(MCD)': 'MCD.NYSE',
+    'Orange(ORAN)': 'ORA.PAR',
 }
 
 
@@ -159,9 +181,15 @@ imagenes_ligas={
     'Bundesliga': 'src/imagenes/Futbol/bundesliga-icono.png'
 }
 
-data=[]
+data=[]#guardo los partidos
 compras=[]
 
+FECHA_ULTIMO_PARTIDO=None
+COMBO_COMPRAR=None
+COMBO_VENDER=None
+RESULTADO_ULTIMO_PARTIDO=None
+NUEVO_PARTIDO=False
+FRAMEDIRECTO=pd.DataFrame()
 
 def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_vender:str,equipos_txt:str):
     
@@ -180,12 +208,12 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
         precioCompra= row['Precio']
 
         # Comparar las medias móviles
-        if resultado == combo_vender and posicion_abierta == True:
+        if comprobar(resultado,combo_vender) and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
             compras.clear()
-        elif len(compras) < 10 and resultado == combo_comprar :  
+        elif len(compras) < 10 and comprobar(resultado,combo_comprar) :  
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
@@ -200,11 +228,22 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
     print("frame futbol",equipos_frame)
     return equipos_frame
     
+def comprobar(resultado,operar):
+
+    if "/" in operar:
+        resultado1 = operar.split("/")[1]
+        resultado2 = operar.split("/")[2]
+        if resultado == resultado1 or resultado == resultado2:
+            return True
+    else:
+        if resultado == operar:
+            return True
+
+    return False
 
 
 
-
-def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str, modo):
+def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
 
     # leerHtml(equipos_txt)
     leerUrl(url)
@@ -260,42 +299,90 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
 
     return equipos_frame
     
-def ultimoPartido(ticks:list,inicio: str, fin: str,equipos_txt:str):
-    fecha_actual = pd.Timestamp.now()
-    print(fecha_actual)
-def thread_futbol(pill2kill, ticks: list, trading_data: dict, cuando_comprar,url):
-    print("[THREAD - tick_reader] - Taking ticks")
-    fecha_actual = pd.Timestamp.now()
-    print(fecha_actual)
-    ultimoPartido
+
+def ultimoPartido(equipos_txt:str,url,cola):
+    global FECHA_ULTIMO_PARTIDO,RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,FRAMEDIRECTO
+
+    leerUrl(url)#cojo los partidos
+    equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
+    # equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
+    data.clear()#ya lo tengo que limpiar
+    last_row = equipos_frame.iloc[-1]
+    if(FECHA_ULTIMO_PARTIDO is None or last_row['Fecha']!=FECHA_ULTIMO_PARTIDO):
+        FECHA_ULTIMO_PARTIDO = last_row['Fecha']
+        print(FECHA_ULTIMO_PARTIDO)
+        # Asignar el Resultado a cada partido
+        if last_row['Equipo Local'] == equipos_txt:
+            if int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Ganado'
+            elif int(last_row['ResultadoLocal']) < int(last_row['ResultadoVisitante']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Perdido'
+            else:
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Empatado'
+        else:
+            if int(last_row['ResultadoVisitante']) > int(last_row['ResultadoLocal']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Ganado'
+            elif int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Perdido'
+            else:
+                equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Empatado'
         
+        RESULTADO_ULTIMO_PARTIDO = equipos_frame.at[equipos_frame.index[-1], 'Resultado']
+        print(RESULTADO_ULTIMO_PARTIDO)
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
+        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]].drop(['ResultadoLocal', 'ResultadoVisitante'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
+        print(last_row)
+        cola.put(FRAMEDIRECTO)
+        NUEVO_PARTIDO = True
+    else:
+        print("No hay partido nuevo")
     
+def inicializar_variables(combo_comprar,comobo_vender):
+    global COMBO_COMPRAR,COMBO_VENDER,FECHA_ULTIMO_PARTIDO,RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,FRAMEDIRECTO
+    #van a ser lo que haya establecido el usuario de orgne
+    COMBO_COMPRAR=combo_comprar
+    COMBO_VENDER=comobo_vender
+    #inicializao las variables cada vez que le pulso el boton de ticks en directo para que se reinicie todo y no se qued con los valores anteriores
+    FECHA_ULTIMO_PARTIDO=None
+    RESULTADO_ULTIMO_PARTIDO=None
+    NUEVO_PARTIDO=False
+    FRAMEDIRECTO=pd.DataFrame()
+
+def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,comobo_vender,cola):
+
+    inicializar_variables(combo_comprar,comobo_vender)
+    ultimoPartido(equipos_txt,url,cola)
+
     while not pill2kill.wait(trading_data['time_period']):
-        a=0
-        # Every trading_data['time_period'] seconds we add a tick to the list
-        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        print(tick)
-        if tick is not None:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-
-        #     print("Nuevo tick añadido:", ticks[-1])
-        #     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-        #     # print(prices_frame)
-
-        #     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-        #     prices_frame["RSI"] = rsi.rsi()
-        #     CUR_RSI=rsi.rsi()
-
-        #     macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
-        #     prices_frame['macd'] = macd.macd()
-        #     prices_frame['macd_signal'] = macd.macd_signal()
-        #     CUR_MACD=macd.macd()
-        #     CUR_SIGNAL=macd.macd_signal()
+        ultimoPartido(equipos_txt,url,cola)
+        print("Checking matches...")
+        print(FRAMEDIRECTO)
 
 
-        #     print(prices_frame)
+def check_buy() -> bool:
+    global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
+    print(NUEVO_PARTIDO)
+
+    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVO_PARTIDO=False#si he invertido una vez por el partido no invierto mas
+        return True
+    else:
+        NUEVO_PARTIDO=False#si hl resultado no es el que buscba el usuario para invertir no invertimos y esperamos al siguiente partido
+        return False
+    
+    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
+    #     return True
+    # return False
 
 
+def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+    
+    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_VENDER)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVO_PARTIDO=False
+        return True
+    else:
+        NUEVO_PARTIDO=False
+        return False
 def leerUrl(url):
 
     print(url)
@@ -710,18 +797,6 @@ def convert_date(date_str):
     return f"{year}-{month}-{day.zfill(2)}"
 
 
-
-def check_buy() -> bool:
-    return False
-
-    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-    #     return True
-    # return False
-
-
-def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
-    
-    return False
 
     # if CUR_SIGNAL.iloc[-1] <= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] > 65:
     #     return True

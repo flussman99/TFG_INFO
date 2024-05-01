@@ -19,6 +19,7 @@ import requests
 from EquiposdeFutbol import SBS_backtesting as SBS
 from Formula1 import SF1_backtesting as SF1
 from Disney import Dis_backtesting as DIS
+
 # Global variables
 MAX_TICKS_LEN = 200
 MAX_LEN_SPREAD = 20
@@ -91,10 +92,12 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
 
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
+
+    rentabilidad_indicador=load_IBEX35(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
     
     frame= estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
-    cola.put((frame, rentabilidad))
+    cola.put((frame, rentabilidad, rentabilidad_indicador))
     print("[THREAD - tick_reader] - Ticks loaded")
 
 # def thread_F1(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt,cola):
@@ -130,7 +133,48 @@ def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_
     ticks.clear()       
     return frame
 
+def load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt):
+    print(time_period, inicio_txt, fin_txt, pais_txt)
 
+    url = "https://api.scraperlink.com/investpy/"
+    params = {
+        "email": "tfginfotrading@gmail.com",
+        "type": "historical_data",
+        "product": "indices",
+        "symbol": "IBEX",
+        "from_date": inicio_txt,
+        "to_date": fin_txt,
+        "time_frame": time_period        
+    }
+    headers = {
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        loaded_ticks = pd.DataFrame(data['data'])
+        loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
+        loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')
+        prices_frame = loaded_ticks[['price', 'time']]
+        precio_cierre = prices_frame.iloc[0] 
+        precio_apertura = prices_frame.iloc[-1]
+        print(precio_apertura['price'])
+        print(precio_cierre['price'])
+
+        precio_cierre = float(precio_cierre['price'].replace(',', ''))
+        precio_apertura = float(precio_apertura['price'].replace(',', ''))
+        
+        rentabilidad_IBEX = calcularIBEX35(precio_cierre, precio_apertura)
+        # Convertir el DataFrame a una lista de diccionarios y añadirlo a la lista 'ticks'
+
+    return rentabilidad_IBEX
+
+        
+def calcularIBEX35(precio_cierre,precio_apertura):
+    rentabilidad=((precio_cierre-precio_apertura)/precio_apertura)*100              
+    return round(rentabilidad,2)
       
 def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt, pais_txt):
 
@@ -230,7 +274,7 @@ def rentabilidad_total(rentabilidades):
      # Mostrar la rentabilidad total
     suma_rentabilidades = rentabilidades.sum()
     print("La suma de rentabilidades es:", suma_rentabilidades)
-    return suma_rentabilidades
+    return round(suma_rentabilidades,2)
 
 def frameToExcel(prices_frame, excel_filename):
     """

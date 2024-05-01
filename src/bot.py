@@ -21,6 +21,7 @@ class Bot:
     ticksFutbol = []
     pill2kill = threading.Event()
     almacenar_frame_rentabilidad = queue.Queue()
+    frame_directo=queue.Queue()
     
     trading_data = {
         "lotage": 1.0,
@@ -116,9 +117,9 @@ class Bot:
         # t.start()
         print('Thread - tick_reader. LAUNCHED')
         # Obtener el resultado de la almacenar_frame_rentabilidad
-        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
+        frame, rentabilidad , rentabilidad_indicador= self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
         
-        return frame, rentabilidad
+        return frame, rentabilidad, rentabilidad_indicador
 
     # def ticks_directo(self , estrategia):
     #     """Function to launch the tick reader thread.
@@ -129,6 +130,17 @@ class Bot:
     #     t.start()
     #     print('Thread - tick_reader. LAUNCHED')
 
+    def thread_Futbol(self,equipo,url,cuando_comprar,cuando_vender):
+    
+        t = threading.Thread(target=SBS.thread_futbol, 
+                            args=(self.pill2kill, self.trading_data, equipo, url, cuando_comprar,cuando_vender,self.frame_directo))
+        
+        self.threads.append(t)
+        t.start()
+        frame=self.frame_directo.get()
+        print('Thread - Futbol. LAUNCHED')    
+
+        return frame
     
     def thread_slope_abs_rel(self):
         """Function to launch the thread for calculating the slope
@@ -179,13 +191,7 @@ class Bot:
         t.start()
         print('Thread - Estocastico. LAUNCHED')    
 
-    def thread_Futbol(self,cuando_comprar,url):
     
-        t = threading.Thread(target=SBS.thread_futbol, 
-                            args=(self.pill2kill, self.ticksFutbol, self.trading_data, cuando_comprar,url))
-        self.threads.append(t)
-        t.start()
-        print('Thread - Estocastico. LAUNCHED')    
 
     def thread_orders(self,estrategia_directo):
         t = threading.Thread(target=orders.thread_orders, 
@@ -196,12 +202,26 @@ class Bot:
         print("Hilos en la lista threads:", self.threads)
     
     def kill_threads(self):
-        """Function to kill all the loaded threads.
         """
+        Function to kill all the loaded threads.
+        """
+        # Print a message to indicate that the threads are being stopped
         print('Threads - Stopping threads')
+        
+        # Set the `pill2kill` event, which will cause the threads to stop
         self.pill2kill.set()
+        
+        # Wait for each thread to finish
         for thread in self.threads:
             thread.join()
+        
+        # Clear the list of threads
+        self.threads.clear()
+
+        self.pill2kill=threading.Event()
+        
+        # Print the list of threads to confirm that they have been stopped
+        print("Hilos en la lista threads:", self.threads)
     
     def wait(self):
         """Function to make the thread wait.
