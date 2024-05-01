@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
-from formularios.formulario_backtesting_creativas import FormularioBackTestingCreativas
+from formularios.formulario_backtesting_opciones import FormularioBackTestingOpciones
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -99,7 +99,7 @@ class FormularioBackTesting():
 
     def abrir_panel_backTesting_creativas(self):   
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingCreativas(self.frame_principal) 
+        FormularioBackTestingOpciones(self.frame_principal) 
 
     def limpiar_panel(self,panel):
     # Función para limpiar el contenido del panel
