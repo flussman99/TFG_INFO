@@ -93,8 +93,8 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
 
-    rentabilidad_indicador=load_IBEX35(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
-    
+    #rentabilidad_indicador=load_SP500(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
+    rentabilidad_indicador= calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
     frame= estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad, rentabilidad_indicador))
@@ -175,7 +175,65 @@ def load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt):
 def calcularIBEX35(precio_cierre,precio_apertura):
     rentabilidad=((precio_cierre-precio_apertura)/precio_apertura)*100              
     return round(rentabilidad,2)
-      
+
+
+def load_SP500(time_period, inicio_txt, fin_txt, pais_txt):
+    print(time_period, inicio_txt, fin_txt, pais_txt)
+
+    url = "https://api.scraperlink.com/investpy/"
+    params = {
+        "email": "tfginfotrading@gmail.com",
+        "type": "historical_data",
+        "product": "indices",
+        "symbol": "SPX",
+        "from_date": inicio_txt,
+        "to_date": fin_txt,
+        "time_frame": time_period        
+    }
+    headers = {
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        loaded_ticks = pd.DataFrame(data['data'])
+        loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
+        loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')
+        prices_frame = loaded_ticks[['price', 'time']]
+        precio_cierre = prices_frame.iloc[0] 
+        precio_apertura = prices_frame.iloc[-1]
+        print(precio_apertura['price'])
+        print(precio_cierre['price'])
+
+        precio_cierre = float(precio_cierre['price'].replace(',', ''))
+        precio_apertura = float(precio_apertura['price'].replace(',', ''))
+        
+        rentabilidad_SP = calcularSP(precio_cierre, precio_apertura)
+        # Convertir el DataFrame a una lista de diccionarios y añadirlo a la lista 'ticks'
+
+    return rentabilidad_SP
+
+def calcularSP(precio_cierre,precio_apertura):
+    rentabilidad=((precio_cierre-precio_apertura)/precio_apertura)*100              
+    return round(rentabilidad,2)
+
+def calcular_rentabilidad_plazo_fijo(fecha_inicio, fecha_final):
+   
+    print(fecha_final,fecha_inicio)
+    # Calcular la cantidad de días entre las dos fechas
+
+    fecha_inicio = dt.datetime.strptime(fecha_inicio, '%Y/%m/%d')
+    fecha_final = dt.datetime.strptime(fecha_final, '%Y/%m/%d')
+    dias = (fecha_final - fecha_inicio).days
+    
+    # Calcular la rentabilidad utilizando la misma fórmula
+    rentabilidad = (3 / 100 / 365) * dias
+    return round(rentabilidad,2)*100
+
+
+
 def load_ticks_invest(ticks: list, market: str, time_period ,inicio_txt, fin_txt, pais_txt):
 
     print(market, time_period, inicio_txt, fin_txt, pais_txt)
