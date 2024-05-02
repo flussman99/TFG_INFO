@@ -22,6 +22,8 @@ class FormularioBackTestingFutbol():
 
     def __init__(self, panel_principal):
 
+        self.b = bt(1)
+
         self.frame_width = 0
         self.frame_height = 0
 
@@ -30,51 +32,18 @@ class FormularioBackTestingFutbol():
         self.frame_principal.pack(fill=tk.BOTH, expand=True)
 
         # Frame superior 
-        self.frame_superior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_superior.pack(fill=tk.BOTH, expand=True)
+        self.frame_superior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL, width=399, height=276)
+        self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_titulo = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_titulo.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
-        self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray")
-        self.frame_inferior.pack(fill=tk.BOTH, expand=True)
+        self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray", width=399, height=276)
+        self.frame_inferior.pack(fill=tk.BOTH)
 
-        #ComboBoxs
-        self.crear_combo_boxs()
-
-        #esperar 100 milisegundos y llamar a la función on_parent_configure
-        panel_principal.after(100, self.on_parent_configure2)   
-
-        #Llamada a la función on_parent_configure cuando se redimensiona la ventana
-        panel_principal.bind("<Configure>", self.on_parent_configure)
-
-    def crear_combo_boxs(self):
-        #Inicializar variables
-        self.label_fecha_inicio = None
-        self.label_fecha_fin = None
-        self.fecha_inicio_entry = None
-        self.fecha_fin_entry = None
-
-        #Crear frame para añadir todo los combo boxs
-        self.frame_combo_boxs = tk.Frame(self.frame_superior, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_combo_boxs.place(relx=0.05, rely=0.3)
-
-        #seguir
-        self.operacion_futbol()
-
-    def operacion_futbol(self):
-        #Inicializar variables
-        self.ligas=SBS.ligas
-        self.acciones=SBS.acciones
-        self.pais=SBS.pais
-        self.url=SBS.urls_equipos
-        self.acronimos_acciones=SBS.acronimo_acciones
-        self.imagenes_liga=SBS.imagenes_ligas
-        self.imagenes_equipos=SBS.imagenes_equipos
-
-
+        #VARIABLES
         #Inicializar Labels
         self.label_liga = None
         self.label_equipo = None
@@ -94,6 +63,53 @@ class FormularioBackTestingFutbol():
         self.imagen_equipo = None
         self.imagen_accion = None
 
+        #Inicializar variables
+        self.label_fecha_inicio = None
+        self.label_fecha_fin = None
+        self.fecha_inicio_entry = None
+        self.fecha_fin_entry = None
+
+        #Variables SBS
+        self.ligas=SBS.ligas
+        self.acciones=SBS.acciones
+        self.pais=SBS.pais
+        self.url=SBS.urls_equipos
+        self.acronimos_acciones=SBS.acronimo_acciones_api
+        self.imagenes_liga=SBS.imagenes_ligas
+        self.imagenes_equipos=SBS.imagenes_equipos
+
+        #Variables de la tabla
+        self.frame_without_filter=None
+        self.current_frame = None
+        self.frame_with_filter=None
+        self.frame_directo=None
+        self.tree = None
+
+        #Botones
+        self.boton_empezar_backtesting = None
+        self.boton_mostrar_operaciones = None
+        self.boton_guardar_backtesting = None
+
+
+        #ComboBoxs
+        self.crear_combo_boxs()
+
+        #esperar 100 milisegundos y llamar a la función on_parent_configure
+        panel_principal.after(100, self.on_parent_configure2)   
+
+        #Llamada a la función on_parent_configure cuando se redimensiona la ventana
+        panel_principal.bind("<Configure>", self.on_parent_configure)
+
+    def crear_combo_boxs(self):
+
+        #Crear frame para añadir todo los combo boxs
+        self.frame_combo_boxs = tk.Frame(self.frame_superior, bg=COLOR_CUERPO_PRINCIPAL)
+        self.frame_combo_boxs.place(relx=0.05, rely=0.3)
+
+        #seguir
+        self.operacion_futbol()
+
+    def operacion_futbol(self):
         #label de "Elige la liga"
         self.label_liga = tk.Label(self.frame_combo_boxs, text="Elige la liga", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_liga.grid(row=0, column=0, padx=10, pady=2, sticky="w")
@@ -194,7 +210,7 @@ class FormularioBackTestingFutbol():
         #ComboBox de metodos comprar
         self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
         self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-        self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Empate", "Ganado o Empate", "Perdido o Empate", "Ganado o Perdido"]
+        self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
         #label de "Elige cuando vender"
         self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -203,7 +219,7 @@ class FormularioBackTestingFutbol():
         #ComboBox de metodos vender
         self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
         self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-        self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empate", "Ganado o Empate", "Perdido o Empate", "Ganado o Perdido"]
+        self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
         #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
         self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_vender)
@@ -218,17 +234,17 @@ class FormularioBackTestingFutbol():
         
         #Quitar opciones dependiendo de lo que se eliga en vender, opciones especiales en cada caso
         if self.metodo_vender == "Ganado":
-            self.combo_metodos_comprar["values"] = ["Perdido", "Empate", "Perdido o Empate"]
+            self.combo_metodos_comprar["values"] = ["Perdido", "Empatado", "Empatado/Perdido"]
         elif self.metodo_vender == "Perdido":
-            self.combo_metodos_comprar["values"] = ["Ganado", "Empate", "Ganado o Empate"]
-        elif self.metodo_vender == "Empate":
-            self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Ganado o Perdido"]
-        elif self.metodo_vender == "Ganado o Empate":
+            self.combo_metodos_comprar["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
+        elif self.metodo_vender == "Empatado":
+            self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
+        elif self.metodo_vender == "Ganado o Empatado":
             self.combo_metodos_comprar["values"] = ["Perdido"]
-        elif self.metodo_vender == "Perdido o Empate":
+        elif self.metodo_vender == "Perdido o Empatado":
             self.combo_metodos_comprar["values"] = ["Ganado"]
         elif self.metodo_vender == "Ganado o Perdido":
-            self.combo_metodos_comprar["values"] = ["Empate"]
+            self.combo_metodos_comprar["values"] = ["Empatado"]
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
@@ -243,17 +259,17 @@ class FormularioBackTestingFutbol():
 
         #Quitar opciones dependiendo de lo que se eliga en comprar, opciones especiales en cada caso 
         if self.metodo_comprar == "Ganado":
-            self.combo_metodos_vender["values"] = ["Perdido", "Empate", "Perdido o Empate"]
+            self.combo_metodos_vender["values"] = ["Perdido", "Empatado", "Empatado/Perdido"]
         elif self.metodo_comprar == "Perdido":
-            self.combo_metodos_vender["values"] = ["Ganado", "Empate", "Ganado o Empate"]
-        elif self.metodo_comprar == "Empate":
-            self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Ganado o Perdido"]
-        elif self.metodo_comprar == "Ganado o Empate":
+            self.combo_metodos_vender["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
+        elif self.metodo_comprar == "Empatado":
+            self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
+        elif self.metodo_comprar == "Ganado o Empatado":
             self.combo_metodos_vender["values"] = ["Perdido"]
-        elif self.metodo_comprar == "Perdido o Empate":
+        elif self.metodo_comprar == "Perdido o Empatado":
             self.combo_metodos_vender["values"] = ["Ganado"]
         elif self.metodo_comprar == "Ganado o Perdido":
-            self.combo_metodos_vender["values"] = ["Empate"]       
+            self.combo_metodos_vender["values"] = ["Empatado"]       
         
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
@@ -303,12 +319,109 @@ class FormularioBackTestingFutbol():
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
         self.boton_empezar_backtesting.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
 
-        # Boton de "Empezar backtesting"
-        self.boton_guardar_backtesting = tk.Button(self.frame_combo_boxs, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_guardar_backtesting.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+    def crear_interfaz_inferior(self):
+        # Frame para mostrar los datos
+        self.frame_datos = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL, width=399)
+        self.frame_datos.pack(fill=tk.BOTH, expand=True)
+
+        # Label de "Rentabilidad"
+        self.label_rentabilidad = tk.Label(self.frame_datos, text="Rentabilidad", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad.pack(side="left", padx=(10, 0), pady=5)
+
+        # Rentabilidad
+        self.rentabilidad_futbol = tk.StringVar()
+        self.rentabilidad_futbol.set("0")
+        self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
+
+        # Boton de "Mostrar Operaciones"
+        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
+        self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
+
+        # Boton de "Guardar"
+        self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
+        self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
+
+        #Crear un widget Treeview
+        self.tree = ttk.Treeview(self.frame_inferior)
+        self.tree.pack(side="left", fill="x")
 
     def empezar_backtesting(self):
-        pass
+
+        # Verificar si la interfaz de usuario ya ha sido creada
+        if not hasattr(self, 'frame_datos'):
+            # Si no ha sido creada, entonces crearla
+            self.crear_interfaz_inferior()
+        else:
+            # Si ya ha sido creada, limpiar el Treeview
+            if self.tree is not None:
+                for item in self.tree.get_children():
+                    self.tree.delete(item)
+
+        # Llamar a la función para obtener nuevos datos
+        self.coger_ticks()
+
+    def treeview(self,modo):
+        if(modo=="Backtesting"):
+            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Comprar', 'Vender'])]
+
+            # Set the initial DataFrame to display
+            self.current_frame = self.frame_without_filter
+        else:
+            self.current_frame = self.frame_directo
+
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(self.current_frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+    
+    def coger_ticks(self):
+        
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        equipo_txt = self.combo_equipos.get()
+        accion_txt = self.acronimos_acciones[self.combo_accion.get()]
+        estrategia_txt = 'Futbol'
+        pais_txt = self.pais[accion_txt]
+        url_txt = self.url[equipo_txt]
+        frecuencia_txt = "Daily"
+        cuando_comprar = self.combo_metodos_comprar.get()
+        cuando_vender = self.combo_metodos_vender.get()
+       
+        print(equipo_txt, accion_txt, pais_txt, url_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
+        
+        
+        self.rentabilidad_futbol.set(str(rentabilidad))
+        self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
+
+
+        self.treeview("Backtesting")
+     
+    def toggle_frames(self):
+        if self.current_frame.equals(self.frame_without_filter):
+            self.current_frame = self.frame_with_filter
+        else:
+            self.current_frame = self.frame_without_filter
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
 
     def guardar_backtesting(self):
         pass
@@ -334,6 +447,11 @@ class FormularioBackTestingFutbol():
         self.frame_principal.after(1000, self.on_parent_configure2)
 
     def update(self):
+
+        #Ajustas el tamaño de los frames
+        self.frame_superior.configure(width=self.frame_width, height=self.frame_height*0.5)
+        self.frame_inferior.configure(width=self.frame_width, height=self.frame_height*0.5)
+
         #Ajustar el tamaño del titulo
         self.label_titulo.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
@@ -346,8 +464,10 @@ class FormularioBackTestingFutbol():
             #Ajustar botones tanto el tamaño como el texto
             self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
-            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.015))
+            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.01))
+            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
         
         #Ajustar label elegir liga
         if self.label_liga is not None:
