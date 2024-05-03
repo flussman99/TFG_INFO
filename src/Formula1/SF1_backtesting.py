@@ -172,22 +172,16 @@ html_pilotTeams_files = [
 def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_resultado: int, piloto: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
-
-    ticks_frame.to_excel('tick.xlsx', index=False)
     
     decisiones = []
     rentabilidad = []
     posicion_abierta=False
 
-    piloto_frame=datosPiloto(piloto)
-    piloto_frame['Fecha'] = pd.to_datetime(piloto_frame['Fecha'])
+    piloto_frame=datosPiloto(piloto, inicio, fin)
+    
 
-    # Initialize a new column 'precio' in piloto_frame with NaN values
-    piloto_frame = piloto_frame[piloto_frame['Fecha'].between(inicio, fin)]
-    piloto_frame['Precio'] = np.nan
+
     # Iterate over the rows in piloto_frame
-
-
     for i, row in piloto_frame.iterrows(): 
         resultado = row['Resultado']
 
@@ -289,9 +283,8 @@ def obtener_listado_pilotos(año):
     return nombres_pilotos
 
 
-def obtener_resultados_piloto(html, nombre):
+def obtener_resultados_piloto(soup, nombre):
     # Parsea el HTML
-    soup = BeautifulSoup(html, 'html.parser')
 
     # Encuentra las filas que contienen el texto específico
     datos_piloto = []
@@ -343,19 +336,18 @@ def obtener_periodo_valido(piloto, año_base):
     return año_min, año_max
 
 
-def datosPiloto(piloto):
+def datosPiloto(piloto, inicio, fin):
     base_dir = os.path.abspath('src\Formula1\html')
 
     # Convert the HTML files list to full file paths
     html_results_files = [os.path.join(base_dir, file) for file in html_standings_files]
     html_dates_files = [os.path.join(base_dir, file) for file in html_calendars_files]
-    html_teams_files = [os.path.join(base_dir, file) for file in html_pilotTeams_files]
     año = 2014
     cabeceras = ['Circuito', 'Fecha', 'Resultado']
     df = pd.DataFrame(columns=cabeceras)
 
-    for result_file_name, date_file_name, teams_file_name in zip(html_results_files, html_dates_files, html_teams_files):
-        if os.path.exists(result_file_name) and os.path.exists(date_file_name) and os.path.exists(teams_file_name):
+    for result_file_name, date_file_name in zip(html_results_files, html_dates_files):
+        if os.path.exists(result_file_name) and os.path.exists(date_file_name):
             
             
             with open(result_file_name, 'r', encoding='utf-8') as file_results:
@@ -364,16 +356,13 @@ def datosPiloto(piloto):
             with open(date_file_name, 'r', encoding='utf-8') as file_dates:
                 html_content_dates = file_dates.read()
 
-            with open(teams_file_name, 'r', encoding='utf-8') as file_teams:
-                html_content_teams = file_teams.read()
-
 
             soup_tabla_principal = BeautifulSoup(html_content_results, 'html.parser')
             soup_tabla_fechas = BeautifulSoup(html_content_dates, 'html.parser')
 
             # Buscar las filas de la tabla principal que contengan el texto específico
             # Extraer los datos de las filas y transponerlos en una columna
-            filas_con_texto = obtener_resultados_piloto(html_content_results, piloto)
+            filas_con_texto = obtener_resultados_piloto(soup_tabla_principal, piloto)
             filas_con_texto = filas_con_texto[3:]
 
 
@@ -403,6 +392,12 @@ def datosPiloto(piloto):
             año = año + 1
 
         df = pd.concat([df, nuevo_df], ignore_index=True)
+
+
+    df['Fecha'] = pd.to_datetime(df['Fecha'])
+    # Initialize a new column 'precio' in piloto_frame with NaN values
+    df = df[df['Fecha'].between(inicio, fin)]
+    df['Precio'] = np.nan
 
     return df
 
