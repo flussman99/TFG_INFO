@@ -3,6 +3,8 @@ import datetime as date
 import MetaTrader5 as mt5
 import pandas as pd
 from EquiposdeFutbol import SBS_backtesting as SBS
+from Formula1 import SF1_backtesting as F1
+# from Disney import Disney_backtesting as Disney
 
 
 
@@ -16,6 +18,10 @@ comprasRSI = []
 comprasMedia = []
 comprasBandas = []
 comprasEstocasticos = []
+comprasFutbol = []
+comprasDisney = []
+comprasFormula1 = []
+
 
 def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
@@ -259,6 +265,10 @@ def check_buy(nombre:str) -> bool:
         return Estocastico.check_buy()
     elif nombre == 'Futbol':
         return SBS.check_buy()
+    elif nombre == 'Formula1':
+        return F1.check_buy()
+    # elif nombre == 'Disney':
+    #     return Disney.check_buy()
 
 
 def check_sell(nombre : str) -> bool:
@@ -272,6 +282,13 @@ def check_sell(nombre : str) -> bool:
         return Bandas_Bollinger.check_sell()
     elif nombre == 'Estocastico':
         return Estocastico.check_sell()
+    elif nombre == 'Futbol':
+        return SBS.check_sell()
+    elif nombre == 'Formula1':
+        return F1.check_sell()
+    # elif nombre == 'Disney':
+    #     return Disney.check_sell()
+    
    
     
 def elegirListGuardarCompras(estrategia, buy):
@@ -287,6 +304,17 @@ def elegirListGuardarCompras(estrategia, buy):
     elif estrategia == 'Estocastico':
         comprasEstocasticos.append(buy)
         return comprasEstocasticos
+    elif estrategia == 'Futbol':
+        comprasFutbol.append(buy)
+        return comprasFutbol
+    elif estrategia == 'Formula1':
+        comprasFormula1.append(buy)
+        return comprasFormula1
+    elif estrategia == 'Disney':
+        comprasDisney.append(buy)
+        return comprasDisney
+    
+
 
 def cerrar_posicion(orders: dict):
     """Esta función cierra la posición que recibe como argumento"""
@@ -338,11 +366,11 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
     print("[THREAD - orders] - Checking operations")
     #operacion_abierta=0
     #trading_data['time_period']
-    while not pill2kill.wait(30):
+    while not pill2kill.wait(20):
 
         #cerrar_todas_las_posiciones(trading_data)
-
-        if check_buy(estrategia_directo):
+        # market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
+        if check_buy(estrategia_directo):            
             buy = open_buy(trading_data)
             lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
             if buy is not None:

@@ -605,7 +605,8 @@ class FormularioFormula1(tk.Toplevel):
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,None,estrategia_txt, cuando_actuar, cuando_actuar, piloto_txt)
+        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,None,estrategia_txt, cuando_actuar, '', piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        
         self.rentabilidad_f1.set(str(rentabilidad))
         #if parte backtestin
         # self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)

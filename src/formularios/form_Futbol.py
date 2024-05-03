@@ -65,16 +65,19 @@ class FormularioFutbol(tk.Toplevel):
         self.estrategia='Futbol'
         self.pais_asoc = None  # or any default value you want
         self.url_asoc = None  # or any default value you want
-        self.acronimo=None
+        self.acronimo_api=None
+        self.acronimo_mt5=None
         self.frame_without_filter=None
         self.current_frame = None
         self.frame_with_filter=None
+        self.frame_directo=None
         
         ligas=SBS.ligas
         acciones=SBS.acciones
         pais=SBS.pais
         url=SBS.urls_equipos
-        acronimos_acciones=SBS.acronimo_acciones
+        acronimos_acciones_api=SBS.acronimo_acciones_api
+        acronimos_acciones_mt5=SBS.acronimo_acciones_mt5
         imagenes_liga=SBS.imagenes_ligas
         imagenes_equipos=SBS.imagenes_equipos
 
@@ -118,7 +121,7 @@ class FormularioFutbol(tk.Toplevel):
         def actualizar_pais_url_acronimo(event):
             self.pais_asoc = obtener_pais()
             self.url_asoc = obtener_url()
-            self.acronimo=obtener_acronimo()
+            self.acronimo_api, self.acronimo_mt5 = obtener_acronimo()
     
             
         def actualizar_acciones(event):
@@ -137,9 +140,10 @@ class FormularioFutbol(tk.Toplevel):
 
         def obtener_acronimo():
             accion_seleccionada = self.combo_acciones.get()
-            acronimo_seleccionado = acronimos_acciones.get(accion_seleccionada)
+            acronimo_seleccionado_api = acronimos_acciones_api.get(accion_seleccionada)
+            acronimo_sleccionado_mt5 = acronimos_acciones_mt5.get(accion_seleccionada)
             # print(acronimo_seleccionado)
-            return acronimo_seleccionado
+            return acronimo_seleccionado_api, acronimo_sleccionado_mt5
 
         def obtener_pais():
             acronimo_seleccionado = obtener_acronimo()
@@ -162,7 +166,7 @@ class FormularioFutbol(tk.Toplevel):
             comprar_seleccionado = self.comprar_var.get()
 
             # Define los posibles valores para 'vender'
-            valores = ['Perdido','Ganado', 'Empatado']
+            valores = ['Ganado', 'Empatado', 'Perdido', "Ganado/Empatado", "Ganado/Perdido", "Empatado/Perdido"]
 
             # Elimina el valor seleccionado en 'comprar' de los posibles valores para 'vender'
             valores.remove(comprar_seleccionado)
@@ -175,7 +179,7 @@ class FormularioFutbol(tk.Toplevel):
             vender_seleccionado = self.vender_var.get()
 
             # Define los posibles valores para 'comprar'
-            valores = ['Ganado', 'Empatado', 'Perdido']
+            valores = ['Ganado', 'Empatado', 'Perdido', "Ganado/Empatado", "Ganado/Perdido", "Empatado/Perdido"]
 
             # Elimina el valor seleccionado en 'vender' de los posibles valores para 'comprar'
             valores.remove(vender_seleccionado)
@@ -189,7 +193,7 @@ class FormularioFutbol(tk.Toplevel):
         
         # Crea el combobox 'comprar'
         self.comprar_var = tk.StringVar()
-        self.combo_comprar = ttk.Combobox(canvas, textvariable=self.comprar_var, values=['Ganado', 'Empatado', 'Perdido'])
+        self.combo_comprar = ttk.Combobox(canvas, textvariable=self.comprar_var, values=['Ganado', 'Empatado', 'Perdido', "Ganado/Empatado", "Ganado/Perdido", "Empatado/Perdido"])
         self.combo_comprar.place(x=34.0, y=131.0, width=200, height=38.0)
         self.combo_comprar.current(0)
         self.combo_comprar.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
@@ -204,7 +208,7 @@ class FormularioFutbol(tk.Toplevel):
 
         # Crea el combobox 'vender'
         self.vender_var = tk.StringVar()
-        self.combo_vender = ttk.Combobox(canvas, textvariable=self.vender_var, values=['Perdido', 'Empatado', 'Ganado'])
+        self.combo_vender = ttk.Combobox(canvas, textvariable=self.vender_var, values=['Ganado', 'Empatado', 'Perdido', "Ganado/Empatado", "Ganado/Perdido", "Empatado/Perdido"])
         self.combo_vender.place(x=34.0, y=224.0, width=200, height=38.0)
         self.combo_vender.current(0)
         self.combo_vender.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
@@ -298,6 +302,11 @@ class FormularioFutbol(tk.Toplevel):
         self.rentabilidad_futbol.set("0")
 
         self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_futbol)
+
+        self.rentabilidad_indicador_futbol = tk.StringVar()
+        self.rentabilidad_indicador_futbol.set("0")
+
+        self.rentabilidad_label_indicador = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_indicador_futbol)
         # self.rentabilidad_label.place(x=35, y=300)
         def toggle_frames():
             if self.current_frame.equals(self.frame_without_filter):
@@ -352,14 +361,17 @@ class FormularioFutbol(tk.Toplevel):
         # Hacer visible el botón, label y widget
         self.operaciones_button.place(x=270, y=300)
         self.rentabilidad_label.place(x=35, y=300)
+        self.rentabilidad_label_indicador.place(x=100, y=300)
         self.tree.place(x=35, y=350, width=1300)
 
-    def treeview(self):
-        
-        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
+    def treeview(self,modo):
+        if(modo=="Backtesting"):
+            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
 
-        # Set the initial DataFrame to display
-        self.current_frame = self.frame_without_filter
+            # Set the initial DataFrame to display
+            self.current_frame = self.frame_without_filter
+        else:
+            self.current_frame = self.frame_directo
 
         # Configurar las columnas del widget Treeview
         self.tree["columns"] = list(self.current_frame.columns)
@@ -381,7 +393,7 @@ class FormularioFutbol(tk.Toplevel):
         inicio_txt = self.fecha_inicio_entry.get()
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
-        accion_txt = self.acronimo
+        accion_txt = self.acronimo_api
         estrategia_txt = self.estrategia
         pais_txt = self.pais_asoc
         url_txt = self.url_asoc
@@ -390,18 +402,32 @@ class FormularioFutbol(tk.Toplevel):
         cuando_vender = self.combo_vender.get()
        
         print(equipo_txt, accion_txt, pais_txt, url_txt)
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
         self.rentabilidad_futbol.set(str(rentabilidad))
 
+        self.rentabilidad_indicador_futbol.set(str(rentabilidad_indicador))
+
         self.visualizar()
-        self.treeview()
+        self.treeview("Backtesting")
         
        
     def pararTicksDirecto(self):
         self.b.kill_threads()
     
     def tickdirecto(self):
-        self.b.thread_Futbol(self.estrategia)
-    
+        cuando_comprar = self.combo_comprar.get()
+        cuando_vender = self.combo_vender.get()
+        accion_txt = self.acronimo_mt5
+        url_txt = self.url_asoc
+        estrategia_txt = self.estrategia
+        equipo_txt = self.combo_equipos.get()
+        frecuencia_txt = "Daily"
+        print(equipo_txt, accion_txt, estrategia_txt,url_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        self.frame_directo=self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
+        self.b.thread_orders(estrategia_txt)
+
+        self.visualizar()
+        self.treeview("Directo")
     

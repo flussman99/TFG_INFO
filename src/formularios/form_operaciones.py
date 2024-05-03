@@ -511,9 +511,7 @@ class FormularioOperaciones(tk.Toplevel):
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_velas.get()
 
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-       
-        self.b.thread_orders(estrategia)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)  
         
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
@@ -523,6 +521,8 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_bandas()
         elif estrategia == 'Estocastico':
             self.b.thread_estocastico()
+        
+        self.b.thread_orders(estrategia)
 
     def getPrice(self):
         frecuencia_txt = self.combo_frecuencia.get()
