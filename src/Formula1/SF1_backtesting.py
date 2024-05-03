@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 import re
+import requests
 import numpy as np
 import tick_reader as tr
 
@@ -43,6 +44,7 @@ acciones_escuderias = {
     'McLaren Formula 1 Team': 'GOOG.NAS', #Google es su patrocinador principal, ellos no cotizan
     'McLaren F1 Team': 'GOOG.NAS',
     'McLaren Honda': 'HMC.NYSE',
+    'Aston Martin Aramco Formula One Team': 'AML.LSE',
     'Aston Martin Aramco Cognizant Formula One Team': 'AML.LSE',
     'Aston Martin Cognizant Formula One Team': 'AML.LSE',
     'BWT Racing Point F1 Team': 'AML.LSE',
@@ -56,12 +58,14 @@ acciones_escuderias = {
     'Renault Sport Formula One Team': 'RNO.PAR',
     'Renault Sport F1 Team': 'RNO.PAR',
     'Lotus F1 Team': 'RNO.PAR',
+    'Visa Cash App RB F1 Team': 'HMC.NYSE',
     'Scuderia AlphaTauri': 'HMC.NYSE',
     'Scuderia AlphaTauri Honda': 'HMC.NYSE',
     'Aston Martin Red Bull Racing': 'HMC.NYSE',
     'Red Bull Toro Rosso Honda': 'HMC.NYSE',
     'Scuderia Toro Rosso': 'RNO.PAR',
-    'Alfa Romeo F1 Team Stake': 'RACE.NYSE', #Motorista Ferrari
+    'Stake F1 Team Kick Sauber': 'RACE.NYSE', #Motorista Ferrari
+    'Alfa Romeo F1 Team Stake': 'RACE.NYSE', 
     'Alfa Romeo F1 Team ORLEN': 'RACE.NYSE', 
     'Alfa Romeo Racing ORLEN': 'RACE.NYSE', 
     'Alfa Romeo Racing': 'RACE.NYSE', 
@@ -165,11 +169,12 @@ html_pilotTeams_files = [
     '2020_teams.html',
     '2021_teams.html',
     '2022_teams.html',
-    '2023_teams.html'
+    '2023_teams.html',
+    '2024_teams.html'
 ]
 
 
-def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, piloto: str):
+def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, combo_venta: int, piloto: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
     
@@ -177,7 +182,7 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
     rentabilidad = []
     posicion_abierta=False
 
-    piloto_frame=datosPiloto(piloto, inicio, fin)
+    piloto_frame=datosPiloto(prices, inicio, fin, url, piloto)
     
 
 
@@ -250,7 +255,7 @@ def obtener_listado_años():
         if match:
             year = match.group(1)
             years.append(year)
-
+    years.append(2024)
 
     return years
     
@@ -285,18 +290,23 @@ def obtener_listado_pilotos(año):
 
 def obtener_resultados_piloto(soup, nombre):
     # Parsea el HTML
-
-    # Encuentra las filas que contienen el texto específico
-    datos_piloto = []
-    for fila in soup.find_all('tr'):
-        if nombre in fila.get_text():
-            datos = [td.get_text() for td in fila.find_all('td')]
-            datos_piloto.append(datos)
+    tabla_resultados = soup.find('table', class_="motor-sport-results msr_season_driver_results")
     
-    # Transponerlo para que sea una columna
-    datos_piloto = list(zip(*datos_piloto))
+    if tabla_resultados:
+        # Encuentra las filas que contienen el texto específico
+        datos_piloto = []
+        for fila in soup.find_all('tr'):
+            if nombre in fila.get_text():
+                datos = [td.get_text() for td in fila.find_all('td')]
+                datos_piloto.append(datos)
+        
+        # Transponerlo para que sea una columna
+        datos_piloto = list(zip(*datos_piloto))
+        datos_piloto = datos_piloto[3:]
+        encabezado_tabla = [th.get_text(strip=True) for th in soup.find('tr').find_all('th')]
+        encabezado_tabla = encabezado_tabla[3:]
 
-    return datos_piloto
+    return datos_piloto, encabezado_tabla
 
 #Cambiar que si no compite coge la ultima escuderia por orden alfabetico
 def obtener_escuderia_piloto(html, nombre):
@@ -335,8 +345,20 @@ def obtener_periodo_valido(piloto, año_base):
 
     return año_min, año_max
 
+def datosPiloto(ticks:list,inicio: str, fin: str, url:str,piloto:str):
 
-def datosPiloto(piloto, inicio, fin):
+    df_HTML = leerHTML(piloto, inicio, fin)
+    df_URL = leerURL(url, piloto, inicio, fin)
+    if list(df_HTML.columns) != list(df_URL.columns):
+        print("Los DataFrames no tienen las mismas columnas.")
+        return None
+    
+    df_HTML = df_HTML.append(df_URL, ignore_index=True)
+
+    return df_HTML
+
+
+def leerHTML(piloto, inicio, fin):
     base_dir = os.path.abspath('src\Formula1\html')
 
     # Convert the HTML files list to full file paths
@@ -362,13 +384,9 @@ def datosPiloto(piloto, inicio, fin):
 
             # Buscar las filas de la tabla principal que contengan el texto específico
             # Extraer los datos de las filas y transponerlos en una columna
-            filas_con_texto = obtener_resultados_piloto(soup_tabla_principal, piloto)
-            filas_con_texto = filas_con_texto[3:]
+            filas_con_texto, encabezado_tabla = obtener_resultados_piloto(soup_tabla_principal, piloto)
 
-
-            # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
-            encabezado_tabla = [th.get_text(strip=True) for th in soup_tabla_principal.find('tr').find_all('th')]
-            encabezado_tabla = encabezado_tabla[3:]
+            # Agregar las columnas adicionales para las fechas asociadas
             fechas_asociadas = [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
 
 
@@ -398,6 +416,62 @@ def datosPiloto(piloto, inicio, fin):
     # Initialize a new column 'precio' in piloto_frame with NaN values
     df = df[df['Fecha'].between(inicio, fin)]
     df['Precio'] = np.nan
+
+    return df
+
+def leerURL(url, piloto, inicio, fin):
+
+    print(url)
+    response = requests.get(url)
+    if response.status_code == 200:
+        respuesta = response.text
+        soup_tabla_principal = BeautifulSoup(respuesta, 'html.parser')
+        soup_tabla_fechas = BeautifulSoup(respuesta, 'html.parser')
+
+        año = 2024
+
+        cabeceras = ['Circuito', 'Fecha', 'Resultado']
+        df = pd.DataFrame(columns=cabeceras)
+
+        # Buscar las filas de la tabla principal que contengan el texto específico
+        # Extraer los datos de las filas y transponerlos en una columna
+        filas_con_texto, encabezado_tabla = obtener_resultados_piloto(soup_tabla_principal, piloto)
+        filas_con_texto = filas_con_texto[3:]
+
+
+        # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
+        tabla_fechas = soup_tabla_fechas.find('table', class_="motor-sport-results msr_season_summary tablesorter")
+        if tabla_fechas:
+            fechas_asociadas = [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
+
+
+        fechas_formateadas = []
+
+        # Formatear las fechas en el formato deseado
+        for fecha_texto in fechas_asociadas:
+            if fecha_texto:
+                fechas_formateadas.append(convert_date(fecha_texto, año))
+            else:
+                fechas_formateadas.append('')  # Mantener un espacio en blanco si no hay fecha
+
+
+        nuevo_df = pd.DataFrame(encabezado_tabla, columns=['Circuito'])
+        nuevo_df['Fecha'] = fechas_formateadas
+        if filas_con_texto == []:
+            filas_con_texto = ['No participo'] * len(fechas_formateadas)
+
+        nuevo_df['Resultado'] = filas_con_texto
+
+        df = pd.concat([df, nuevo_df], ignore_index=True)
+
+
+        df['Fecha'] = pd.to_datetime(df['Fecha'])
+        # Initialize a new column 'precio' in piloto_frame with NaN values
+        df = df[df['Fecha'].between(inicio, fin)]
+        df['Precio'] = np.nan
+                        
+    else:
+        print("Error al obtener la URL. Código de estado:", response.status_code) 
 
     return df
 

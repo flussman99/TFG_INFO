@@ -65,6 +65,7 @@ class FormularioFormula1(tk.Toplevel):
         self.fecha_lim = datetime.today()
         self.fecha_ini = datetime.today()
 
+
         def filter_options(event):
 
             combobox = event.widget
@@ -112,17 +113,7 @@ class FormularioFormula1(tk.Toplevel):
         
         def filter_pilotos(event):
             # Get selected market
-            min_year, max_year = SF1_backtesting.obtener_periodo_valido(self.combo_piloto.get(), self.combo_años.get())
-            self.fecha_lim = datetime(max_year, 12, 31)
-            self.fecha_ini = datetime(min_year, 1, 1)
-
-            self.entry_fin_back.config(maxdate=self.fecha_lim)
-            self.entry_fin_back.config(mindate=self.fecha_ini)
-            self.entry_fin_back.set_date(self.fecha_lim)
-
-            self.entry_inicio_back.config(maxdate=self.fecha_lim)
-            self.entry_inicio_back.config(mindate=self.fecha_ini)
-            self.entry_inicio_back.set_date(self.fecha_ini)
+            self.set_dates()
 
             # Update combo_acciones options
             self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
@@ -134,6 +125,8 @@ class FormularioFormula1(tk.Toplevel):
         def seleccionar_accion(event):
             selected_pilot = self.combo_piloto.get()
             año = self.combo_años.get()
+
+            self.set_dates()
 
             self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
             
@@ -197,6 +190,13 @@ class FormularioFormula1(tk.Toplevel):
 
         self.rentabilidad_f1 = tk.StringVar()
         self.rentabilidad_f1.set('0')
+
+        self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_f1)
+
+        self.rentabilidad_indicador_f1 = tk.StringVar()
+        self.rentabilidad_indicador_f1.set("0")
+
+        self.url = 'https://www.f1-fansite.com/f1-results/f1-standings-2024-championship/'
 
         self.mercados_var = tk.StringVar(value=mercados)
         self.combo_mercados = ttk.Combobox(canvas, textvariable=self.mercados_var, values=mercados)
@@ -523,8 +523,24 @@ class FormularioFormula1(tk.Toplevel):
             width=98.0,
             height=38.0
         )
+        self.set_dates()
+        
+        
         self.cuerpo_principal.mainloop()
     
+    def set_dates(self):
+        min_year, max_year = SF1_backtesting.obtener_periodo_valido(self.combo_piloto.get(), self.combo_años.get())
+        self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
+        self.fecha_ini = datetime(min_year, 1, 1)
+
+        self.entry_fin_back.config(maxdate=self.fecha_lim)
+        self.entry_fin_back.config(mindate=self.fecha_ini)
+        self.entry_fin_back.set_date(self.fecha_lim)
+
+        self.entry_inicio_back.config(maxdate=self.fecha_lim)
+        self.entry_inicio_back.config(mindate=self.fecha_ini)
+        self.entry_inicio_back.set_date(self.fecha_ini)
+
     def tickdirecto(self):
         piloto_txt = self.combo_piloto.get()
         accion_txt = self.combo_acciones.get()
@@ -605,13 +621,14 @@ class FormularioFormula1(tk.Toplevel):
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,None,estrategia_txt, cuando_actuar, '', piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_actuar, '', piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
         self.rentabilidad_f1.set(str(rentabilidad))
-        #if parte backtestin
-        # self.b.thread_tick_reader(inicio_txt, fin_txt,estrategia_txt)
 
-        # self.informacion()
+        self.rentabilidad_indicador_f1.set(str(rentabilidad_indicador))
+
+        #self.visualizar()
+        #self.treeview("Backtesting")
     
 
 
