@@ -163,24 +163,25 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_informacion(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioInformacion(self.cuerpo_principal,self.img_sitio_construccion) 
+        FormularioInformacion(self.cuerpo_principal)
 
     def abrir_panel_perfil(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioPerfil(self.cuerpo_principal,self.img_sitio_construccion)                     
+        FormularioPerfil(self.cuerpo_principal, self.user_id)                     
 
     def limpiar_panel(self,panel):
     # Función para limpiar el contenido del panel
         for widget in panel.winfo_children():
             widget.destroy()
 
-    def abilitar_botones(self):
+    def habilitar_botones(self):
         self.boton_backtesting.config(state="normal")
         self.boton_operaciones.config(state="normal")
         self.boton_operaciones_creativas.config(state="normal")
         self.boton_perfil.config(state="normal")
 
-    def cambiar_estado_sesion(self):
+    def cambiar_estado_sesion(self, user_id):
         self.bool_inicio = True
+        self.user_id = user_id
         self.labelUsuario.config(text="CERRAR SESIÓN")
-        self.abilitar_botones()
+        self.habilitar_botones()

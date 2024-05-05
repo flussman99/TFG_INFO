@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
 import webbrowser
+from formularios.formulario_perfil import FormularioPerfil 
 
 
 class FormularioInicioSesion():
@@ -326,7 +327,7 @@ class FormularioInicioSesion():
         usu = self.entry_usuario.get()
         password = self.entry_contra.get()
         cursor = self.conn.cursor()
-        sql = "SELECT nombre, userMetaTrader, passwordMetaTrader FROM Usuarios WHERE user = %s AND contraseña = %s"
+        sql = "SELECT nombre, userMetaTrader, passwordMetaTrader, id FROM Usuarios WHERE user = %s AND contraseña = %s"
         cursor.execute(sql, (usu,password))
         resultado = cursor.fetchone()
         server = "ICMarketsEU-Demo"
@@ -337,22 +338,13 @@ class FormularioInicioSesion():
             if not self.mt5_login(int(usermt5),passwordmt5,server):
                 messagebox.showerror(message="Conexión con cuenta de metatrader fallida", title="Mensaje")
             else:
-                #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje") 
-                self.cambiar_estado_sesion()
+                #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")
+                self.cambiar_estado_sesion(resultado[3])
                 self.panel_inicio()
         else:
             messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
         
-        cursor.close()
-        # with open("login.txt", 'r') as f:
-        #         lines = f.readlines()
-        #         usr = lines[0].strip()
-        #         key = lines[1].strip()
-        #         server = lines[2].strip()
-        # if(usu!=usr or password!=key):
-        #     messagebox.showerror(message="El usuario o la contraseña son incorrectos",title="Mensaje")
-        # else: 
-            #messagebox.showinfo(message="Sesión iniciada correctamente", title="Mensaje")  
+        cursor.close() 
         
     def desverificar(self):
         #Hacer lo que sea para cerrar sesion vaya
