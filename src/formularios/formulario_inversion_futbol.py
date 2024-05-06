@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 import util.util_imagenes as util_img
 import pandas as pd
@@ -17,15 +17,13 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_backtesting_mas_informacion import FormularioBackTestingMasInformacion
-import json
 
 
-class FormularioBackTestingFutbol():
+class FormularioInversionFutbol():
 
-    def __init__(self, panel_principal, id_user):
+    def __init__(self, panel_principal):
 
         self.b = bt(1)
-        self.id_user = id_user
 
         self.frame_width = 0
         self.frame_height = 0
@@ -53,6 +51,8 @@ class FormularioBackTestingFutbol():
         self.label_accion = None
         self.label_metodo_comprar = None
         self.label_metodo_vender = None
+        self.label_lotaje = None
+        self.label_inversion = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -67,10 +67,11 @@ class FormularioBackTestingFutbol():
         self.imagen_accion = None
 
         #Inicializar variables
-        self.label_fecha_inicio = None
-        self.label_fecha_fin = None
-        self.fecha_inicio_entry = None
-        self.fecha_fin_entry = None
+        self.label_stop_loss = None
+        self.label_take_profit = None
+        self.stop_loss_entry = None
+        self.take_profit_entry = None
+        self.lotaje_entry = None
 
         #Variables SBS
         self.ligas=SBS.ligas
@@ -89,9 +90,9 @@ class FormularioBackTestingFutbol():
         self.tree = None
 
         #Botones
-        self.boton_empezar_backtesting = None
+        self.boton_empezar_inversion = None
         self.boton_mostrar_operaciones = None
-        self.boton_guardar_backtesting = None
+        self.boton_guardar_inversion = None
 
 
         #ComboBoxs
@@ -224,12 +225,58 @@ class FormularioBackTestingFutbol():
         self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
         self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
+        #Label lotaje
+        self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_lotaje.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+        
+        #Entry lotaje
+        self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
+        self.lotaje_entry.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+
+        #Label inversion
+        self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_inversion.grid(row=2, column=3, padx=10, pady=2, sticky="w")
+
         #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
         self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_vender)
         self.combo_metodos_vender.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_comprar)
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
 
         #Ajustar vista
         self.on_parent_configure(event)
+
+    def actualizar_futbol_lotaje(self, event):
+        if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+            print("Deshabilitar boton")
+            print("-----------------------------------")
+
+        try:
+            aux = int(self.lotaje_entry.get())
+            self.lotaje_entry.configure(text=aux)    
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+    
+        #Cambiar texto inversion
+        self.valor_precio = self.getValorPrecio()
+        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
+        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
+            self.actualizar_futbol_ticks()
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+    def getValorPrecio(self):
+        return 5
+        #DAVID AQUI PILLAS EL PRECIO PERRA
 
     def actualizar_futbol_metodos_comprar(self, event):
         #Coger el metodo de vender seleccionado
@@ -250,7 +297,7 @@ class FormularioBackTestingFutbol():
             self.combo_metodos_comprar["values"] = ["Empatado"]
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
+        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
             self.actualizar_futbol_ticks()
 
         #Actualizar vista
@@ -276,7 +323,7 @@ class FormularioBackTestingFutbol():
         
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
+        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
             self.actualizar_futbol_ticks()
 
         #Actualizar vista
@@ -287,41 +334,30 @@ class FormularioBackTestingFutbol():
         self.metodo_comprar = self.combo_metodos_comprar.get()
         self.metodo_vender = self.combo_metodos_vender.get()
 
-        if (self.fecha_inicio_entry is None):
-            #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_inicio.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+        if (self.label_stop_loss is None):
+            #Entry stop loss
+            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
 
-            #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_fin.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+            self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
+            self.stop_loss_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+        
+        if (self.label_take_profit is None):
+            #Entry take profit
+            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
 
-            #Date fecha inicio
-            fecha_ayer = datetime.now() - timedelta(days = 1)
-            self.fecha_inicio_entry = DateEntry(
-                self.frame_combo_boxs, 
-                date_pattern='yyyy/mm/dd',
-                background='darkblue', 
-                foreground='white', 
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
-
-            #Date fecha fin
-            self.fecha_fin_entry = DateEntry(
-                self.frame_combo_boxs,
-                date_pattern='yyyy/mm/dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+            self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
+            self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
         # Boton de "Empezar backtesting"
-        self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+
+        if self.lotaje_entry.get() == "":
+            self.boton_empezar_inversion.configure(state="disabled")
+            print("Deshabilitar boton")
+            print("-----------------------------------")
 
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
@@ -343,8 +379,8 @@ class FormularioBackTestingFutbol():
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
 
         # Boton de "Guardar"
-        self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
-        self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
+        self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
+        self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
         #Boton "Más información"
         self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
@@ -434,76 +470,7 @@ class FormularioBackTestingFutbol():
             self.tree.insert("", "end", values=tuple(row))
 
     def guardar_backtesting(self):
-        
-        # Conexión a la base de datos
-        self.conn = mysql.connector.connect(
-                    host=DBConfig.HOST,
-                    user=DBConfig.USER,
-                    password=DBConfig.PASSWORD,
-                    database=DBConfig.DATABASE,
-                    port=DBConfig.PORT
-                )
-        
-        # Pasamos el frame de los datos a json
-        json_datos = self.current_frame.to_json(orient='records', lines=False)
-
-        # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Futbol"
-
-        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombre
-        while True:
-
-            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
-            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
-
-            if not nombre_inversión:
-            # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
-                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
-                continue
-            
-            if self.nombre_inversion_existe(nombre_inversión, self.conn):
-                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
-                continue
-            
-            break
-        
-        # Cogemos la fecha de inicio y la de fin de la inversión
-        fecha_ini = self.fecha_inicio_entry.get()
-        fecha_fin = self.fecha_fin_entry.get()
-
-        # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_futbol.get()
-
-        # Guardamos la inversión en la base de datos
-        cursor = self.conn.cursor()
-        try:
-            # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, datos, tipo, fecha_inicio, fecha_fin, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, json_datos, tipo, fecha_ini, fecha_fin, rentabilidad)
-            cursor.execute(consulta, datos)
-        except Exception as e:
-            print(e)
-        
-        # Cerramos el cursor y la conexxión
-        cursor.close()
-        self.conn.commit()
-        self.conn.close()
-
-    def nombre_inversion_existe(self, nombre_inversion, conn):
-        # Obtener el cursor para ejecutar consultas
-        cursor = self.conn.cursor()
-
-        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
-        datos = (self.id_user, nombre_inversion) 
-        cursor.execute(consulta, datos)
-        cantidad = cursor.fetchone()[0]
-
-        # Cerrar el cursor
-        cursor.close()
-
-        return cantidad > 0
-
+        pass
 
     def mas_informacion(self):
         self.limpiar_panel(self.frame_principal)     
@@ -544,20 +511,20 @@ class FormularioBackTestingFutbol():
         self.label_titulo_futbol.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
         #Ajustar info ticks
-        if self.label_fecha_inicio is not None:
-            self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
-            self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
+        if self.label_stop_loss is not None:
+            self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
+            self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
             #Ajustar botones tanto el tamaño como el texto
-            self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
-            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.01))
-            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
-            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
+            #self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            #self.boton_guardar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            #self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            #self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            #self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
+            #self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.01))
+            #self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
+            #self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
         
         #Ajustar label elegir liga
         if self.label_liga is not None:
@@ -582,7 +549,7 @@ class FormularioBackTestingFutbol():
                 if self.combo_accion is not None:
                     self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                     self.combo_accion.configure(width=int(self.frame_width * 0.02))
-
+                
                     #Ajustar metodo comprar
                     if self.combo_metodos_comprar is not None:
                         self.label_metodo_comprar.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
@@ -592,6 +559,19 @@ class FormularioBackTestingFutbol():
                     if self.combo_metodos_vender is not None:
                         self.label_metodo_vender.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
+
+                    #Ajustar lotaje
+                    if self.lotaje_entry is not None:
+                        self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                        self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+
+                        if self.lotaje_entry.get() != "":
+                            #Habilitar el boton de empezar inversion
+                            if self.boton_empezar_inversion is not None:
+                                self.boton_empezar_inversion.configure(state="normal")
+                                print("Habilitar boton")
+
+        
 
 
         

@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 from formularios.formulario_backtesting_futbol import FormularioBackTestingFutbol
 from formularios.formulario_backtesting_formula1 import FormularioBackTestingFormula1
+from formularios.formulario_inversion_futbol import FormularioInversionFutbol
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -64,6 +65,10 @@ class FormularioBackTestingOpciones():
         self.boton_empezar_backtesting_futbol = tk.Button(self.frame_opciones, text="Empezar Backtesting", font=("Aptos", 12), bg="green", fg="white", command=self.futbol) 
         self.boton_empezar_backtesting_futbol.grid(row=2, column=2, sticky="e")
 
+        #boton para "Empezar inversión"
+        self.boton_empezar_inversion_futbol = tk.Button(self.frame_opciones, text="Empezar Inversión", font=("Aptos", 12), bg="green", fg="white", command=self.invertirfutbol)
+        self.boton_empezar_inversion_futbol.grid(row=2, column=1, sticky="e")
+
         #frame para la descripción
         self.frame_descripcion_futbol = tk.Frame(self.frame_opciones, bg=COLOR_CUERPO_PRINCIPAL, width=200, height=100)
         self.frame_descripcion_futbol.grid(row=3, column=0, columnspan=3, sticky="nsew") 
@@ -110,6 +115,10 @@ class FormularioBackTestingOpciones():
     def futbol(self):
         self.limpiar_panel(self.frame_principal)     
         FormularioBackTestingFutbol(self.frame_principal)
+
+    def invertirfutbol(self):
+        self.limpiar_panel(self.frame_principal)
+        FormularioInversionFutbol(self.frame_principal)
 
     def formula1(self):
         self.limpiar_panel(self.frame_principal)     
