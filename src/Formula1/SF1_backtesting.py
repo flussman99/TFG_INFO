@@ -295,16 +295,14 @@ def obtener_resultados_piloto(soup, nombre):
     if tabla_resultados:
         # Encuentra las filas que contienen el texto específico
         datos_piloto = []
-        for fila in soup.find_all('tr'):
+        for fila in tabla_resultados.find_all('tr'):
             if nombre in fila.get_text():
                 datos = [td.get_text() for td in fila.find_all('td')]
                 datos_piloto.append(datos)
         
         # Transponerlo para que sea una columna
         datos_piloto = list(zip(*datos_piloto))
-        datos_piloto = datos_piloto[3:]
         encabezado_tabla = [th.get_text(strip=True) for th in soup.find('tr').find_all('th')]
-        encabezado_tabla = encabezado_tabla[3:]
 
     return datos_piloto, encabezado_tabla
 
@@ -354,7 +352,7 @@ def datosPiloto(ticks:list,inicio: str, fin: str, url:str,piloto:str):
         print("Los DataFrames no tienen las mismas columnas.")
         return None
     
-    df_HTML = df_HTML.append(df_URL, ignore_index=True)
+    df_HTML = pd.concat([df_HTML, df_URL], ignore_index=True)
 
     return df_HTML
 
@@ -386,7 +384,8 @@ def leerHTML(piloto, inicio, fin):
             # Buscar las filas de la tabla principal que contengan el texto específico
             # Extraer los datos de las filas y transponerlos en una columna
             filas_con_texto, encabezado_tabla = obtener_resultados_piloto(soup_tabla_principal, piloto)
-
+            filas_con_texto = filas_con_texto[3:]
+            encabezado_tabla = encabezado_tabla[3:]
             # Agregar las columnas adicionales para las fechas asociadas
             fechas_asociadas = [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
 
@@ -423,7 +422,14 @@ def leerHTML(piloto, inicio, fin):
 def leerURL(url, piloto):
 
     print(url)
-    response = requests.get(url)
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+
+    # Define the headers for your request with the User-Agent string
+    headers = {"User-Agent": user_agent}
+
+    # Make the request with the custom headers
+    response = requests.get(url, headers=headers)
+
     if response.status_code == 200:
         respuesta = response.text
         soup_tabla_principal = BeautifulSoup(respuesta, 'html.parser')
@@ -443,23 +449,24 @@ def leerURL(url, piloto):
         # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
         tabla_fechas = soup_tabla_fechas.find('table', class_="motor-sport-results msr_season_summary tablesorter")
         if tabla_fechas:
-            fechas_asociadas = [fecha.get_text(strip=True) for fecha in soup_tabla_fechas.find_all('td', class_='msr_col2')]
+            fechas_asociadas = [fecha.get_text(strip=True) for fecha in tabla_fechas.find_all('td', class_='msr_col2')]
 
-
-        fechas_formateadas = []
-
-        # Formatear las fechas en el formato deseado
-        for fecha_texto in fechas_asociadas:
-            if fecha_texto:
-                fechas_formateadas.append(convert_date(fecha_texto, año))
-            else:
-                fechas_formateadas.append('')  # Mantener un espacio en blanco si no hay fecha
+            fechas_formateadas = []
+            # Formatear las fechas en el formato deseado
+            for fecha_texto in fechas_asociadas:
+                if fecha_texto:
+                    fechas_formateadas.append(convert_date(fecha_texto, año))
+                else:
+                    fechas_formateadas.append('')  # Mantener un espacio en blanco si no hay fecha
 
 
         nuevo_df = pd.DataFrame(encabezado_tabla, columns=['Circuito'])
         nuevo_df['Fecha'] = fechas_formateadas
         if filas_con_texto == []:
             filas_con_texto = ['No participo'] * len(fechas_formateadas)
+        
+        print(filas_con_texto)
+        print(nuevo_df)
 
         nuevo_df['Resultado'] = filas_con_texto
 
