@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 from formularios.formulario_backtesting_futbol import FormularioBackTestingFutbol
+from formularios.formulario_backtesting_formula1 import FormularioBackTestingFormula1
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -110,7 +111,8 @@ class FormularioBackTestingOpciones():
         FormularioBackTestingFutbol(self.frame_principal)
 
     def formula1(self):
-        pass
+        self.limpiar_panel(self.frame_principal)     
+        FormularioBackTestingFormula1(self.frame_principal)
 
     def cine(self):
         pass
@@ -137,7 +139,7 @@ class FormularioBackTestingOpciones():
         self.label_formula1.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.15), "bold"))
         self.label_cine.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.15), "bold"))
 
-        #Ajustar el tamaño del frame de descripción
+        #Ajustar el tamaño del frame de descripción y el wraplength
         self.frame_descripcion_futbol.config(width=self.frame_width-25)
         self.descripcion_futbol.config(wraplength=self.frame_width-25)
         self.frame_descripcion_formula1.config(width=self.frame_width-25)
