@@ -114,7 +114,7 @@ class FormularioBackTestingOpciones():
 
     def futbol(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingFutbol(self.frame_principal)
+        FormularioBackTestingFutbol(self.frame_principal, self.user_id)
 
     def invertirfutbol(self):
         self.limpiar_panel(self.frame_principal)
@@ -122,7 +122,7 @@ class FormularioBackTestingOpciones():
 
     def formula1(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingFormula1(self.frame_principal)
+        FormularioBackTestingFormula1(self.frame_principal, self.user_id)
 
     def cine(self):
         pass

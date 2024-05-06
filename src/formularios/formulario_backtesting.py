@@ -100,7 +100,7 @@ class FormularioBackTesting():
 
     def abrir_panel_backTesting_creativas(self):   
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingOpciones(self.frame_principal) 
+        FormularioBackTestingOpciones(self.frame_principal, self.user_id) 
 
     def limpiar_panel(self,panel):
     # Función para limpiar el contenido del panel
