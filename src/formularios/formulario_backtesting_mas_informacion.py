@@ -91,30 +91,38 @@ class FormularioBackTestingMasInformacion():
         print("Dataframe: ", self.dataFrame)
 
 
-        # Graficar
-        # Crear un marco para la gráfica
+        # FRAMES
+        # Crear un marco general
         self.frame_general_graficas = tk.Frame(self.frame_resultados, bg="red")
         self.frame_general_graficas.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
+
         # Crear un marco para la gráfica de la izquierda
-        self.frame_grafica = tk.Frame(self.frame_general_graficas, bg="red")
+        self.frame_grafica = tk.Frame(self.frame_general_graficas, bg="red", width=200, height=100)
         self.frame_grafica.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Crear un marco para la gráfica de la derecha
-        self.frame_grafica_precios = tk.Frame(self.frame_general_graficas, bg="blue")
+        self.frame_grafica_precios = tk.Frame(self.frame_general_graficas, bg="blue", width=200, height=100)
         self.frame_grafica_precios.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+        # Crear un marco para la tabla
+        self.frame_tabla = tk.Frame(self.frame_general_graficas, bg="blue")
+        self.frame_tabla.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+    
+
+
         
         # Crear la figura de la gráfica
         df_valid_rentabilidad = self.dataFrame[~self.dataFrame['Rentabilidad'].isna()]
-        self.figura = plt.Figure(figsize=(5, 4), dpi=100)
+        self.figura = plt.Figure(figsize=(3, 2), dpi=100)
         self.ax = self.figura.add_subplot(111)
         self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
 
-        # Crear la lista de etiquetas con el formato "OpX rentabilidad"
-        etiquetas_rentabilidad = ['Op{} {:.2f}'.format(i+1, rentabilidad) for i, rentabilidad in enumerate(df_valid_rentabilidad['Rentabilidad'])]
+        # Graficar la rentabilidad
+        self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
 
-        # Numerar los puntos en la gráfica de rentabilidad
-        for i, txt in enumerate(etiquetas_rentabilidad):
-            self.ax.annotate(txt, (df_valid_rentabilidad['Fecha'].iloc[i], df_valid_rentabilidad['Rentabilidad'].iloc[i]))
+        # Numerar los puntos en la gráfica de rentabilidad con números simples
+        for i, rentabilidad in enumerate(df_valid_rentabilidad['Rentabilidad']):
+            self.ax.annotate(str(i+1), (df_valid_rentabilidad['Fecha'].iloc[i], rentabilidad), ha='center', va='bottom')
 
         self.ax.set_title('Rentabilidad de la operación creativa')
         self.ax.set_xlabel('Fecha')
@@ -122,18 +130,9 @@ class FormularioBackTestingMasInformacion():
         self.ax.grid()
         self.canvas = FigureCanvasTkAgg(self.figura, master=self.frame_grafica)
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        #Tabla de resultados
-        print("Creando tabla de resultados")
-        self.frame_tabla = tk.Frame(self.frame_resultados, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_tabla.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
-
-        # Crear la tabla
-        self.tabla = ttk.Treeview(self.frame_tabla, columns=("Fecha", "Precio", "Decision", "Rentabilidad"), show='headings')
-        
-
-
+         
         #Grafica de los precios
         print("Graficando precios")
 
@@ -143,7 +142,7 @@ class FormularioBackTestingMasInformacion():
         valores_comprar = df_valid_precios.loc[df_valid_precios['Decision'] == 'Compra']
         valores_vender = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']
 
-        self.figura_precios = plt.Figure(figsize=(5, 4), dpi=100)
+        self.figura_precios = plt.Figure(figsize=(3, 2), dpi=100)
         self.ax_precios = self.figura_precios.add_subplot(111)
         self.ax_precios.plot(valores_comprar['Fecha'], valores_comprar['Precio'], color='b', marker='o')
         self.ax_precios.plot(valores_vender['Fecha'], valores_vender['Precio'], color='r', marker='o')
@@ -161,10 +160,49 @@ class FormularioBackTestingMasInformacion():
         self.ax_precios.grid()
         self.canvas_precios = FigureCanvasTkAgg(self.figura_precios, master=self.frame_grafica_precios)
         self.canvas_precios.draw()
-        self.canvas_precios.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas_precios.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
+ #Tabla de resultados
+        print("------------------------------------")
+        print("Creando tabla de resultados")
 
+
+        # Crear la tabla con matplotlib con las columnas: "Num Operación", "Rentabilidad", "Precio de Venta"
+        self.figura_tabla = plt.Figure(figsize=(5, 4), dpi=100)
+        self.ax_tabla = self.figura_tabla.add_subplot(111)
+        self.ax_tabla.axis('off')
+
+        # Obtener los datos de las columnas
+        num_operacion = [str(i + 1) for i in range(len(df_valid_rentabilidad))]
+        
+        #Obtener la rentabilidad y los precios de venta de las operaciones cuando Decision sea Venta
+        precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['Precio'].tolist()
+        rentabilidad = df_valid_rentabilidad['Rentabilidad'].tolist()
+        # Formatear los valores para que solo muestren dos decimales
+        rentabilidad = ["{:.2f}".format(valor) for valor in rentabilidad]
+
+        # Combinar los datos en una lista de listas para la tabla
+        data = []
+        for i in range(len(num_operacion)):
+            data.append([num_operacion[i], rentabilidad[i], precios_venta[i]])
+
+        print("------------------------------------")
+        print("------------------------------------")
+        print("------------------------------------")
+        print("------------------------------------")
+
+        print("Data: ", data)
+        # Crear la tabla con los datos
+        self.ax_tabla.table(cellText=data, colLabels=['Num Operación', 'Rentabilidad', 'Precio de Venta'], cellLoc='center', loc='center')
+
+        # Crear el lienzo de matplotlib en el marco
+        self.canvas_tabla = FigureCanvasTkAgg(self.figura_tabla, master=self.frame_tabla)
+        self.canvas_tabla.draw()
+        # Ajustar el relleno (padding) del widget pack a cero
+        self.canvas_tabla.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=0, pady=0)
+        # Configurar el borde del widget a cero
+        self.canvas_tabla.get_tk_widget().configure(borderwidth=0)
 
 
 
@@ -203,6 +241,16 @@ class FormularioBackTestingMasInformacion():
         self.frame_resultados.configure(width=self.frame_width-25)
         self.descripcion_rentabilidad.configure(wraplength=self.frame_width-25)
 
+        #Ajustar el tamaño de las graficas
+        self.frame_general_graficas.configure(width=self.frame_width-25)
+        self.frame_grafica.configure(width=(self.frame_width-25)/2)
+        self.frame_grafica_precios.configure(width=(self.frame_width-25)/2)
+        self.frame_tabla.configure(width=self.frame_width-25)
+
+        #Ajustar el tamaño de las graficas
+        self.canvas.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/4)
+        self.canvas_precios.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/4)
+        self.canvas_tabla.get_tk_widget().configure(width=self.frame_width-25, height=self.frame_height/4)
 
 
     def limpiar_panel(self,panel):
