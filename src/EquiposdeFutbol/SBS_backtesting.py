@@ -229,11 +229,11 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
     return equipos_frame
     
 def comprobar(resultado,operar):
+    
 
     if "/" in operar:
-        resultado1 = operar.split("/")[1]
-        resultado2 = operar.split("/")[2]
-        if resultado == resultado1 or resultado == resultado2:
+        operar_values = operar.split("/")
+        if resultado == operar_values[0] or resultado == operar_values[1]:
             return True
     else:
         if resultado == operar:
@@ -266,7 +266,7 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
     data.clear()#ya lo tengo que limpiar
     # Convertir la columna 'Fecha' a datetime
-    equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
+    # equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
 
     # Filtrar el DataFrame basado en las fechas de inicio y fin
     equipos_frame = equipos_frame[equipos_frame['Fecha'].between(inicio, fin)]
@@ -296,6 +296,7 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     # Guardar los datos en un archivo Excel
     # df.to_excel('de la url.xlsx', index=False)
     # Aquí puedes procesar los datos obtenidos de la URL
+    equipos_frame = equipos_frame.drop(columns=['ResultadoLocal', 'ResultadoVisitante'])
 
     return equipos_frame
     
