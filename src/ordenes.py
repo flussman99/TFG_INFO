@@ -183,6 +183,98 @@ def open_buy(trading_data: dict):
     return result
 
 
+
+
+
+def check_order(trading_data: dict)->bool:
+    """Function to open a buy operation.
+
+    Args:
+        trading_data (dict): Dictionary with all the needed data.
+
+    Returns:
+        A buy.
+    """
+    symbol_info = mt5.symbol_info(trading_data['market'])
+    if symbol_info is None:
+        print("[Thread - orders]", trading_data['market'], "not found, can not call order_check()")
+        return False
+    
+    counter = 0
+
+    # We only open the operation if the spread is 0
+    # we check the spread 300000 times
+    #nuestro margen de spread es del 0.5% por eso esta puesto el 0.005 ademas counter solo mirara 1 minuto los sprea sino no hago la operacion
+
+    spread= symbol_info.ask- symbol_info.bid
+
+    while (spread / symbol_info.ask) > 0.005:        
+        if counter<60:
+            counter += 1
+            symbol_info = mt5.symbol_info(trading_data['market'])
+        else:
+            now = date.datetime.now()
+            dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+            print("[Thread - orders]", dt_string, "- Spread too high. Spread =", spread)
+            print(symbol_info.ask)    
+            print(symbol_info.bid)    
+
+            return False
+        
+
+
+    point = mt5.symbol_info(trading_data['market']).point
+    price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
+
+    account_info = mt5.account_info()
+
+    if account_info is None:
+        print("[Thread - orders] Failed to get account info.")
+        return False
+
+    # Calcular el costo estimado de la operación de compra
+    cost = price * trading_data['lotage']
+
+    # Verificar si tienes suficiente dinero en la cuenta
+    if account_info.balance < cost:
+        print("[Thread - orders] Not enough money in the wallet to open the buy position.")
+        return False
+    
+
+    deviation = 20
+
+    #trading_data['lotage'],
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "symbol": trading_data['market'],
+        "volume": float(trading_data['lotage']),
+        "type": mt5.ORDER_TYPE_BUY,
+        "price": price,
+        "sl": float(price - price* 0.025),
+        "tp": float(price + price*0.01),
+        "deviation": deviation, #no sabemos q es
+        "magic": 234000,#no sabemos q es
+        "comment": "python script open",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+
+    # Sending the buy
+    print(request)
+    result=mt5.order_check(request)
+    result_dict=result._asdict()
+    for field in result_dict.keys():
+        print("   {}={}".format(field,result_dict[field]))
+    #print(result)
+
+    print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        print("Failed: retcode={}".format(result.retcode))
+        return False
+    
+    return True
+
+
 def open_sell(trading_data: dict):
     """Function to open a sell operation.
 
@@ -247,6 +339,9 @@ def open_sell(trading_data: dict):
         print("[Thread - orders] failed sell: {}".format(result.retcode))
         return None
     return sell
+
+
+
 
 
 def check_buy(nombre:str) -> bool:
@@ -370,7 +465,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
 
         #cerrar_todas_las_posiciones(trading_data)
         # market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
-        if check_buy(estrategia_directo):            
+        if check_order(trading_data) and check_buy(estrategia_directo):            
             buy = open_buy(trading_data)
             lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
             if buy is not None:

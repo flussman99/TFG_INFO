@@ -362,7 +362,7 @@ class FormularioInversiones(tk.Toplevel):
         frame, _ = self.b.thread_tick_reader(self.fecha_inicio_entry.get(), self.fecha_fin_entry.get(), self.combo_estrategia.get())
 
         # Filtrar el DataFrame
-        frame = frame[frame['Decision'].isin(['1', '-1'])]
+        frame = frame[frame['Decision'].isin(['Compra', 'Venta'])]
 
         # Limpiar el widget Treeview
         for row in self.tree.get_children():

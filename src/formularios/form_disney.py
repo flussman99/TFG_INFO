@@ -507,6 +507,7 @@ class FormularioDisney(tk.Toplevel):
             height=38.0
         )
         
+        self.url = 'src\Disney\html\Disney_Pelis_2010_2024.csv'
         
         self.cuerpo_principal.mainloop()
     

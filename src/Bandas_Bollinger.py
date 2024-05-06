@@ -41,14 +41,14 @@ def backtesting(market: str, prices: list):
         precioCompra= row['price']
         # Comparar las medias móviles
         if  upper < precioCompra and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
+            decisiones.append("Venta")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['price']))
             compras.clear()
 
         elif len(compras) < 10 and lower > precioCompra :
             if tiempo==0 or diftime(row['time'],tiempo):
-                decisiones.append("1")#COMPRO
+                decisiones.append("Compra")#COMPRO
                 rentabilidad.append(None)
                 compras.append(precioCompra)
                 posicion_abierta=True

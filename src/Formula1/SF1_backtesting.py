@@ -550,7 +550,7 @@ def check_buy() -> bool:
     # return False
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
-    
+    global RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,COMBO_COMPRAR   
     if(NUEVA_CARRERA and RESULTADO_ULTIMA_CARRERA > COMBO_VENDER):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
         NUEVA_CARRERA=False
         return True
