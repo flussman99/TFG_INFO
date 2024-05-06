@@ -21,8 +21,9 @@ from formularios.formulario_backtesting_mas_informacion import FormularioBackTes
 
 class FormularioBackTestingFormula1():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, user_id):
 
+        self.user_id = user_id
         self.b = bt(1)
 
         self.frame_width = 0
