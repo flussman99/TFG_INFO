@@ -240,11 +240,11 @@ class FormularioBackTestingFutbol():
             self.combo_metodos_comprar["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
         elif self.metodo_vender == "Empatado":
             self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
-        elif self.metodo_vender == "Ganado o Empatado":
+        elif self.metodo_vender == "Ganado/Empatado":
             self.combo_metodos_comprar["values"] = ["Perdido"]
-        elif self.metodo_vender == "Perdido o Empatado":
+        elif self.metodo_vender == "Empatado/Perdido":
             self.combo_metodos_comprar["values"] = ["Ganado"]
-        elif self.metodo_vender == "Ganado o Perdido":
+        elif self.metodo_vender == "Ganado/Perdido":
             self.combo_metodos_comprar["values"] = ["Empatado"]
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
@@ -265,11 +265,11 @@ class FormularioBackTestingFutbol():
             self.combo_metodos_vender["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
         elif self.metodo_comprar == "Empatado":
             self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
-        elif self.metodo_comprar == "Ganado o Empatado":
+        elif self.metodo_comprar == "Ganado/Empatado":
             self.combo_metodos_vender["values"] = ["Perdido"]
-        elif self.metodo_comprar == "Perdido o Empatado":
+        elif self.metodo_comprar == "Ganado/Perdido":
             self.combo_metodos_vender["values"] = ["Ganado"]
-        elif self.metodo_comprar == "Ganado o Perdido":
+        elif self.metodo_comprar == "Ganado/Perdido":
             self.combo_metodos_vender["values"] = ["Empatado"]       
         
         
@@ -368,11 +368,7 @@ class FormularioBackTestingFutbol():
 
     def treeview(self,modo):
         if(modo=="Backtesting"):
-<<<<<<< HEAD
             self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
-=======
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
->>>>>>> 8c407bb6996b6201dd00b490d584da40dbddb9a4
 
             # Set the initial DataFrame to display
             self.current_frame = self.frame_without_filter

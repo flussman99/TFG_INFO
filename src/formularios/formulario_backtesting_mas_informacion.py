@@ -96,18 +96,26 @@ class FormularioBackTestingMasInformacion():
         self.frame_general_graficas = tk.Frame(self.frame_resultados, bg="red")
         self.frame_general_graficas.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
         # Crear un marco para la gráfica de la izquierda
-        frame_grafica = tk.Frame(self.frame_general_graficas, bg="red")
-        frame_grafica.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self.frame_grafica = tk.Frame(self.frame_general_graficas, bg="red")
+        self.frame_grafica.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Crear un marco para la gráfica de la derecha
-        frame_grafica_precios = tk.Frame(self.frame_general_graficas, bg="blue")
-        frame_grafica_precios.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
+        self.frame_grafica_precios = tk.Frame(self.frame_general_graficas, bg="blue")
+        self.frame_grafica_precios.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        
         # Crear la figura de la gráfica
         df_valid_rentabilidad = self.dataFrame[~self.dataFrame['Rentabilidad'].isna()]
         self.figura = plt.Figure(figsize=(5, 4), dpi=100)
         self.ax = self.figura.add_subplot(111)
         self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
+
+        # Crear la lista de etiquetas con el formato "OpX rentabilidad"
+        etiquetas_rentabilidad = ['Op{} {:.2f}'.format(i+1, rentabilidad) for i, rentabilidad in enumerate(df_valid_rentabilidad['Rentabilidad'])]
+
+        # Numerar los puntos en la gráfica de rentabilidad
+        for i, txt in enumerate(etiquetas_rentabilidad):
+            self.ax.annotate(txt, (df_valid_rentabilidad['Fecha'].iloc[i], df_valid_rentabilidad['Rentabilidad'].iloc[i]))
+
         self.ax.set_title('Rentabilidad de la operación creativa')
         self.ax.set_xlabel('Fecha')
         self.ax.set_ylabel('Rentabilidad')
@@ -116,15 +124,37 @@ class FormularioBackTestingMasInformacion():
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
+        #Tabla de resultados
+        print("Creando tabla de resultados")
+        self.frame_tabla = tk.Frame(self.frame_resultados, bg=COLOR_CUERPO_PRINCIPAL)
+        self.frame_tabla.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
+
+        # Crear la tabla
+        self.tabla = ttk.Treeview(self.frame_tabla, columns=("Fecha", "Precio", "Decision", "Rentabilidad"), show='headings')
+        
+
+
         #Grafica de los precios
         print("Graficando precios")
 
 
         # Crear la figura de la gráfica, puntos con 
         df_valid_precios = self.dataFrame[~self.dataFrame['Precio'].isna()]
+        valores_comprar = df_valid_precios.loc[df_valid_precios['Decision'] == 'Compra']
+        valores_vender = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']
+
         self.figura_precios = plt.Figure(figsize=(5, 4), dpi=100)
         self.ax_precios = self.figura_precios.add_subplot(111)
-        self.ax_precios.plot(df_valid_precios['Fecha'], df_valid_precios['Precio'], color='b', marker='o')
+        self.ax_precios.plot(valores_comprar['Fecha'], valores_comprar['Precio'], color='b', marker='o')
+        self.ax_precios.plot(valores_vender['Fecha'], valores_vender['Precio'], color='r', marker='o')
+
+        # Crear la lista de etiquetas con el formato "OpX precio"
+        etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['Precio'])]
+
+        # Numerar los puntos
+        for i, txt in enumerate(etiquetas):
+            self.ax_precios.annotate(txt, (valores_vender['Fecha'].iloc[i], valores_vender['Precio'].iloc[i]))
+
         self.ax_precios.set_title('Precio de la operación creativa')
         self.ax_precios.set_xlabel('Fecha')
         self.ax_precios.set_ylabel('Precio')
