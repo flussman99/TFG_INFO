@@ -69,9 +69,12 @@ class FormularioFutbol(tk.Toplevel):
         self.acronimo_mt5=None
         self.frame_without_filter=None
         self.current_frame = None
+        self.current_frame2=None
         self.frame_with_filter=None
         self.frame_directo=None
+        self.frame_ticks=None
         
+        frame=SBS.FRAMEDIRECTO
         ligas=SBS.ligas
         acciones=SBS.acciones
         pais=SBS.pais
@@ -328,6 +331,7 @@ class FormularioFutbol(tk.Toplevel):
 
         # Crear el widget Treeview
         self.tree = ttk.Treeview(self.cuerpo_principal)
+        self.tree_ticks = ttk.Treeview(self.cuerpo_principal)
         # Añadir el widget Treeview al formulario
         # Añadir el widget Treeview al formulario en una ubicación específica
         # self.tree.place(x=35, y=350, width=1300)
@@ -362,7 +366,8 @@ class FormularioFutbol(tk.Toplevel):
         self.operaciones_button.place(x=270, y=300)
         self.rentabilidad_label.place(x=35, y=300)
         self.rentabilidad_label_indicador.place(x=100, y=300)
-        self.tree.place(x=35, y=350, width=1300)
+        self.tree.place(x=35, y=350, width=800)
+        self.tree_ticks.place(x=835, y=350, width=700)
 
     def treeview(self,modo):
         if(modo=="Backtesting"):
@@ -387,7 +392,27 @@ class FormularioFutbol(tk.Toplevel):
         # Añadir todos los datos del DataFrame al widget Treeview
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
-        
+
+    def treeview_ticks(self):
+        self.current_frame2 = self.frame_ticks
+
+        # Configurar las columnas del widget Treeview
+        self.tree_ticks["columns"] = list(self.current_frame2.columns)
+        self.tree_ticks["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree_ticks["columns"]:
+            self.tree_ticks.heading(col, text=col)
+            self.tree_ticks.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree_ticks.get_children():
+            self.tree_ticks.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame2.iterrows():
+            self.tree_ticks.insert("", "end", values=tuple(row))
+
+
+    
     def coger_ticks(self):
         
         inicio_txt = self.fecha_inicio_entry.get()
@@ -411,7 +436,7 @@ class FormularioFutbol(tk.Toplevel):
         self.visualizar()
         self.treeview("Backtesting")
         
-       
+    
     def pararTicksDirecto(self):
         self.b.kill_threads()
     
@@ -426,8 +451,8 @@ class FormularioFutbol(tk.Toplevel):
         print(equipo_txt, accion_txt, estrategia_txt,url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.frame_directo=self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
-        self.b.thread_orders(estrategia_txt)
-
+        self.frame_ticks=self.b.thread_orders(estrategia_txt)       
         self.visualizar()
         self.treeview("Directo")
+        self.treeview_ticks()
     

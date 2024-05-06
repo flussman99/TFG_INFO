@@ -230,7 +230,6 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
     
 def comprobar(resultado,operar):
     
-
     if "/" in operar:
         operar_values = operar.split("/")
         if resultado == operar_values[0] or resultado == operar_values[1]:
@@ -251,7 +250,6 @@ def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
     dataframe=crearDf(ticks,inicio, fin,equipos_txt)
 
     return dataframe
-
 
 
 def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
@@ -332,7 +330,7 @@ def ultimoPartido(equipos_txt:str,url,cola):
         print(RESULTADO_ULTIMO_PARTIDO)
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
         FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]].drop(['ResultadoLocal', 'ResultadoVisitante'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
-        print(last_row)
+        # print(FRAMEDIRECTO)
         cola.put(FRAMEDIRECTO)
         NUEVO_PARTIDO = True
     else:
@@ -354,10 +352,11 @@ def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,co
     inicializar_variables(combo_comprar,comobo_vender)
     ultimoPartido(equipos_txt,url,cola)
 
-    while not pill2kill.wait(trading_data['time_period']):
+    while not pill2kill.wait(20):
         ultimoPartido(equipos_txt,url,cola)
         print("Checking matches...")
         print(FRAMEDIRECTO)
+        yield FRAMEDIRECTO
 
 
 def check_buy() -> bool:
@@ -373,6 +372,7 @@ def check_buy() -> bool:
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+    global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
     
     if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_VENDER)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
         NUEVO_PARTIDO=False

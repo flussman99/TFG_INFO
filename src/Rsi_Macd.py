@@ -170,7 +170,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     
     print("[THREAD - tick_reader] - Taking ticks")
     
-    while not pill2kill.wait(trading_data['time_period']):
+    while not pill2kill.wait(20):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         print(tick)
@@ -204,8 +204,8 @@ def check_buy() -> bool:
     #operacion abierta se comprueba en ordenes.
 
     if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-        return True
-    return False
+        return False
+    return True
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy

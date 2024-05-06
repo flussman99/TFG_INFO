@@ -31,6 +31,8 @@ class FormularioOperaciones(tk.Toplevel):
         panel_principal.grid_rowconfigure(1, weight=1)  
         panel_principal.grid_columnconfigure(0, weight=1)
 
+        self.frame_ticks = None
+        self.current_frame2 = None
 
         canvas = Canvas(
             self.cuerpo_principal,
@@ -476,6 +478,9 @@ class FormularioOperaciones(tk.Toplevel):
 
         self.original_frecuencia = frecuencia
 
+        self.tree_ticks = ttk.Treeview(self.cuerpo_principal)
+        self.tree_ticks.place(x=35, y=350, width=700)
+
         # Función para manejar la selección en el ComboBox
         def seleccionar_frecuencia(event):
             selected_item = self.mercados_var.get()
@@ -506,6 +511,25 @@ class FormularioOperaciones(tk.Toplevel):
         )
         self.cuerpo_principal.mainloop()
     
+
+    def treeview_ticks(self):
+        self.current_frame2 = self.frame_ticks
+
+        # Configurar las columnas del widget Treeview
+        self.tree_ticks["columns"] = list(self.current_frame2.columns)
+        self.tree_ticks["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree_ticks["columns"]:
+            self.tree_ticks.heading(col, text=col)
+            self.tree_ticks.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree_ticks.get_children():
+            self.tree_ticks.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame2.iterrows():
+            self.tree_ticks.insert("", "end", values=tuple(row))
+
     def tickdirecto(self):
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
@@ -522,7 +546,12 @@ class FormularioOperaciones(tk.Toplevel):
         elif estrategia == 'Estocastico':
             self.b.thread_estocastico()
         
-        self.b.thread_orders(estrategia)
+        self.frame_ticks=self.b.thread_orders(estrategia)
+        print("interfaz")
+        print(self.frame_ticks)
+
+        self.treeview_ticks()
+
 
     def getPrice(self):
         frecuencia_txt = self.combo_frecuencia.get()
