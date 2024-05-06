@@ -68,6 +68,9 @@ class FormularioBackTestingFormula1():
         self.fecha_inicio_entry = None
         self.fecha_fin_entry = None
 
+        self.fecha_lim = datetime.today()
+        self.fecha_ini = datetime.today()
+
         #Variables SBS
         self.acciones=SF1.acciones_escuderias
         self.standing=SF1.html_standings_files
@@ -75,6 +78,9 @@ class FormularioBackTestingFormula1():
         self.pilotosTeams=SF1.html_pilotTeams_files
         self.imagenes_pilotos=SF1.imagenes_pilotos
         self.imagenes_escuderias=SF1.imagenes_escuderias
+        self.paisAcciones = SF1.pais_Accion
+        self.accionesAPI = SF1.acciones_api
+        self.url = 'https://www.f1-fansite.com/f1-results/f1-standings-2024-championship'
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -165,7 +171,11 @@ class FormularioBackTestingFormula1():
         self.label_imagen_piloto.place(relx=0.8, rely=0.1)
 
         #Label de accion
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + SF1.obtener_accion_escuderia(self.piloto, self.ano), font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
+        print(self.accion)
+        print(self.piloto)
+        print("--------------------ACCIONcita--------------------")
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
 
         #continuar
@@ -220,7 +230,7 @@ class FormularioBackTestingFormula1():
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_futbol_ticks()
+            self.actualizar_formula1_ticks()
 
         #Actualizar vista
         self.on_parent_configure(event)
@@ -244,10 +254,176 @@ class FormularioBackTestingFormula1():
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_futbol_ticks()
+            self.actualizar_formula1_ticks()
 
         #Actualizar vista
         self.on_parent_configure(event)
+
+    def set_dates(self):
+        min_year, max_year = SF1.obtener_periodo_valido(self.piloto, self.combo_anos.get())
+        self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
+        self.fecha_ini = datetime(min_year, 1, 1)
+
+        self.fecha_fin_entry.config(maxdate=self.fecha_lim)
+        self.fecha_fin_entry.config(mindate=self.fecha_ini)
+        self.fecha_fin_entry.set_date(self.fecha_lim)
+
+        self.fecha_inicio_entry.config(maxdate=self.fecha_lim)
+        self.fecha_inicio_entry.config(mindate=self.fecha_ini)
+        self.fecha_inicio_entry.set_date(self.fecha_ini)
+    
+    def actualizar_formula1_ticks(self):
+        if (self.fecha_inicio_entry is None):
+            #Label fecha inicio
+            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+            self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+
+            #label fecha fin
+            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+            self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+
+            #Date fecha inicio
+            fecha_ayer = datetime.now() - timedelta(days = 1)
+            self.fecha_inicio_entry = DateEntry(
+                self.frame_combo_boxs, 
+                date_pattern='yyyy/mm/dd',
+                background='darkblue', 
+                foreground='white', 
+                borderwidth=2,
+                maxdate=self.fecha_lim,
+                mindate=self.fecha_ini
+            )
+            self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
+
+            #Date fecha fin
+            self.fecha_fin_entry = DateEntry(
+                self.frame_combo_boxs,
+                date_pattern='yyyy/mm/dd',
+                background='darkblue',
+                foreground='white',
+                borderwidth=2,
+                maxdate=self.fecha_lim,
+                mindate=self.fecha_ini
+            )
+            self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
+
+            self.set_dates()
+
+        # Boton de "Empezar backtesting"
+        self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_backtesting.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+
+    def empezar_backtesting(self):
+
+        # Verificar si la interfaz de usuario ya ha sido creada
+        if not hasattr(self, 'frame_datos'):
+            # Si no ha sido creada, entonces crearla
+            self.crear_interfaz_inferior()
+        else:
+            # Si ya ha sido creada, limpiar el Treeview
+            if self.tree is not None:
+                for item in self.tree.get_children():
+                    self.tree.delete(item)
+
+        # Llamar a la función para obtener nuevos datos
+        self.coger_ticks()
+
+    def crear_interfaz_inferior(self):
+        # Frame para mostrar los datos
+        self.frame_datos = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL, width=399)
+        self.frame_datos.pack(fill=tk.BOTH, expand=True)
+
+        # Label de "Rentabilidad"
+        self.label_rentabilidad = tk.Label(self.frame_datos, text="Rentabilidad", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad.pack(side="left", padx=(10, 0), pady=5)
+
+        # Rentabilidad
+        self.rentabilidad_futbol = tk.StringVar()
+        self.rentabilidad_futbol.set("0")
+        self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
+
+        # Boton de "Mostrar Operaciones"
+        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
+        self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
+
+        # Boton de "Guardar"
+        self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
+        self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
+
+        #Boton "Más información"
+        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
+        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
+
+        #Crear un widget Treeview
+        self.tree = ttk.Treeview(self.frame_inferior)
+        self.tree.pack(side="left", fill="x")
+
+    def toggle_frames(self):
+        if self.current_frame.equals(self.frame_without_filter):
+            self.current_frame = self.frame_with_filter
+        else:
+            self.current_frame = self.frame_without_filter
+        print("-----------------------------------")
+        print(self.current_frame)
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+
+
+    def obtenerPais(self, accion_txt):
+        print(accion_txt)
+        mercado = accion_txt.split('.')[1]
+        pais = self.paisAcciones.get(mercado)
+        print(mercado, pais)
+        return pais
+    
+    def obtenerAccion(self, accion_txt):
+        accionApi = self.accionesAPI.get(accion_txt)
+        if(accionApi == ''):
+            accionApi = accion_txt
+        print(accionApi)
+        return accionApi
+
+    def coger_ticks(self):
+        
+        frecuencia_txt = "Daily"
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        estrategia_txt = 'Formula1'
+        piloto_txt = self.piloto
+        cuando_comprar = self.combo_metodos_comprar.get()
+        cuando_vender = self.combo_metodos_vender.get()
+        pais_txt = self.obtenerPais(self.accion)
+        self.accion = self.accion.split('.')[0]
+
+        print(pais_txt)
+        print(self.accion)
+
+        print("----------------------------------------")
+        print(frecuencia_txt, self.accion, inicio_txt, fin_txt, estrategia_txt)
+
+        self.b.establecer_frecuencia_accion(frecuencia_txt, self.accion) 
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        
+        self.rentabilidad_f1.set(str(rentabilidad))
+
+        self.rentabilidad_indicador_f1.set(str(rentabilidad_indicador))
+
+        #self.visualizar()
+        #self.treeview("Backtesting")
+    
+
+
+    
+    
+
+
+
 
 
     def guardar_backtesting(self):
@@ -285,8 +461,8 @@ class FormularioBackTestingFormula1():
     def update(self):
 
         #Ajustas el tamaño de los frames
-        self.frame_superior.configure(width=self.frame_width, height=self.frame_height*0.5)
-        self.frame_inferior.configure(width=self.frame_width, height=self.frame_height*0.5)
+        self.frame_superior.configure(width=self.frame_width, height=self.frame_height*0.6)
+        self.frame_inferior.configure(width=self.frame_width, height=self.frame_height*0.4)
 
         #Ajustar el tamaño del titulo
         self.label_titulo_formula1.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))

@@ -281,9 +281,6 @@ class FormularioBackTestingFutbol():
         self.on_parent_configure(event)
 
     def actualizar_futbol_ticks(self):
-        #Coger el metodo de comprar y vender seleccionado
-        self.metodo_comprar = self.combo_metodos_comprar.get()
-        self.metodo_vender = self.combo_metodos_vender.get()
 
         if (self.fecha_inicio_entry is None):
             #Label fecha inicio
@@ -495,7 +492,7 @@ class FormularioBackTestingFutbol():
             self.combo_ligas.configure(width=int(self.frame_width * 0.02))
             
             if self.combo_ligas is not None and self.combo_ligas.get() != "": 
-                self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.05), int(self.frame_width * 0.05)))
+                self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
                 self.label_imagen_liga.configure(image=self.imagen_liga)
 
             #Ajustar equipo
@@ -504,7 +501,7 @@ class FormularioBackTestingFutbol():
                 self.combo_equipos.configure(width=int(self.frame_width * 0.02))
 
                 if self.combo_equipos.get() != "":
-                    self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (int(self.frame_width * 0.05), int(self.frame_width * 0.05)))
+                    self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
                     self.label_imagen_equipo.configure(image=self.imagen_equipo)
 
                 #Ajustar accion
