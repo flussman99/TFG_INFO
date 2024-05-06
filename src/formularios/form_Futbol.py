@@ -146,8 +146,8 @@ class FormularioFutbol(tk.Toplevel):
             return acronimo_seleccionado_api, acronimo_sleccionado_mt5
 
         def obtener_pais():
-            acronimo_seleccionado = obtener_acronimo()
-            pais_seleccionado = pais.get(acronimo_seleccionado)
+            acronimo_seleccionado_api,acronimo_mt5 = obtener_acronimo()
+            pais_seleccionado = pais.get(acronimo_seleccionado_api)
             # print(pais_seleccionado)  # Imprime el país seleccionado
             return pais_seleccionado
 
