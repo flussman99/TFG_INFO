@@ -82,7 +82,7 @@ def get_movie_ratings(movie_titles):
             ratings.append(None)
     
     return ratings
-
+ 
 def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rating: float, studio: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
@@ -93,7 +93,7 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
     rentabilidad = []
     posicion_abierta=False
 
-    peliculas_frame=datosPeliculas('src\Disney\html\Disney_Pelis_2010_2024.csv', studio)
+    peliculas_frame=datosPeliculas(url, studio)
     #peliculas_frame['Release Date'] = pd.to_datetime(peliculas_frame['Release Date'])
 
     # Initialize a new column 'precio' in peliculas_frame with NaN values
@@ -160,44 +160,110 @@ def datosPeliculas(filename, studio):
 
     return df
 
-def datosPeliculas_antiguo():
-    base_dir = os.path.abspath('src\Disney\html')
-    html_films_files = [os.path.join(base_dir, file) for file in html_movies_files]
+def leerURL(url, studio_txt):
+
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+
+    # Define the headers for your request with the User-Agent string
+    headers = {"User-Agent": user_agent}
+
+    # Make the request with the custom headers
+    response = requests.get(url, headers=headers)
 
     date_pattern = r"^(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}$"
 
-    for movies_file_name in html_films_files:
-        if os.path.exists(movies_file_name):
-            print(movies_file_name)
-            with open(movies_file_name, 'r', encoding='utf-8') as file_results:
-                html_content_movies = file_results.read()
+    if response.status_code == 200:
 
-            soup = BeautifulSoup(html_content_movies, 'html.parser')
-            rows = soup.find_all('tr')
+        respuesta = response.text
+        soup = BeautifulSoup(respuesta, 'html.parser')
 
-            titles = []
-            release_dates = []
+        titulos = []
 
-            for row in rows[1:]:
-                cells = row.find_all(['td', 'th'])
-                release_date = cells[0].get_text(strip=True)
-                if not re.match(date_pattern, release_date):
-                    release_date = last_release_date
-                else:
-                    release_date_parsed = pd.to_datetime(release_date, errors='coerce')
-                    if not pd.isnull(release_date_parsed):
-                        last_release_date = release_date_parsed
-                if len(cells) > 1:
-                    title = cells[1].get_text(strip=True)
-                    titles.append(title)
-                else:
-                    titles.append(None)
-                release_dates.append(release_date)
-                last_release_date = release_date
+        tabla_peliculas = soup.find('table', class_="wikitable plainrowheaders sortable jquery-tablesorter")
+        if tabla_peliculas:
+            
+            filas = tabla_peliculas.find_all('tr')
+            # Si hay al menos una fila (cabecera), obtener la última fila
+            for fila in filas:                
+                # Obtener los datos de la última fila
+                datos = fila.find_all('td')
+                
+                # Extraer el título de la película, el estudio y la fecha de lanzamiento
+                fechas_lanzamiento = datos[0].get_text(strip=True)
+                titulos = datos[1].get_text(strip=True)
+                estudios = datos[2].get_text(strip=True)
 
-            ratings = get_movie_ratings(titles)
+            ratings = get_movie_ratings(titulos)
 
-            df = pd.DataFrame({'Title': titles, 'Release Date': release_dates, 'Rating': ratings})
-            df.to_excel(movies_file_name + '.xlsx', index=False)
+            df = pd.DataFrame({'Title': titulos, 'Release Date': fechas_lanzamiento, 'Rating': ratings, 'Studio': estudios})
+
             print(df)
+        
     return df
+
+def thread_Disney(pill2kill,trading_data: dict, studio_txt,url,combo_comprar,comobo_vender,cola):
+
+    inicializar_variables(combo_comprar,comobo_vender)
+    ultimaPelicula(studio_txt,url,cola)
+
+    while not pill2kill.wait(trading_data['time_period']):
+        ultimaPelicula(studio_txt,url,cola)
+        print("Checking films...")
+        print(FRAMEDIRECTO)
+
+def inicializar_variables(combo_comprar,comobo_vender):
+    global COMBO_COMPRAR,COMBO_VENDER,FECHA_ULTIMA_PELICULA,RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,FRAMEDIRECTO
+    #van a ser lo que haya establecido el usuario de orgne
+    COMBO_COMPRAR=combo_comprar
+    COMBO_VENDER=comobo_vender
+    #inicializao las variables cada vez que le pulso el boton de ticks en directo para que se reinicie todo y no se qued con los valores anteriores
+    FECHA_ULTIMA_PELICULA=None
+    RESULTADO_ULTIMA_PELICULA=None
+    NUEVA_PELICULA=False
+    FRAMEDIRECTO=pd.DataFrame()
+
+def ultimaPelicula(studio_txt:str,url,cola):
+    global FECHA_ULTIMA_PELICULA,RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,FRAMEDIRECTO
+
+    
+    studio_frame = leerURL(url, studio_txt)#cojo las peliculas
+
+    last_row = studio_frame.iloc[-1]
+    
+    if(FECHA_ULTIMA_PELICULA is None or last_row['Fecha']!=FECHA_ULTIMA_PELICULA):
+        FECHA_ULTIMA_PELICULA = last_row['Fecha']
+        print(FECHA_ULTIMA_PELICULA)
+        # Asignar el Resultado a cada carrera
+        RESULTADO_ULTIMA_PELICULA = studio_frame.at[studio_frame.index[-1], 'Rating']
+        print(RESULTADO_ULTIMA_PELICULA)
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]].drop(['Resultado'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
+        print(last_row)
+        cola.put(FRAMEDIRECTO)
+        NUEVA_PELICULA = True
+    else:
+        print("No hay pelicula nueva")
+
+def check_buy() -> bool:
+    global RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,COMBO_COMPRAR
+    print(NUEVA_PELICULA)
+
+    if(NUEVA_PELICULA and RESULTADO_ULTIMA_PELICULA >= COMBO_COMPRAR):#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
+        NUEVO_PARTIDO=False#si he invertido una vez por la carrera no invierto mas
+        return True
+    else:
+        NUEVA_PELICULA=False#si el resultado no es el que buscba el usuario para invertir no invertimos y esperamos a la siguiente carrera
+        return False
+    
+    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
+    #     return True
+    # return False
+
+def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+    global RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,COMBO_COMPRAR
+    if(NUEVA_PELICULA and RESULTADO_ULTIMA_PELICULA < COMBO_VENDER):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVA_PELICULA=False
+        return True
+    else:
+        NUEVA_PELICULA=False
+        return False
