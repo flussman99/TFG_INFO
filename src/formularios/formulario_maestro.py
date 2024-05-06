@@ -151,7 +151,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_backTesting(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioBackTesting(self.cuerpo_principal)   
+        FormularioBackTesting(self.cuerpo_principal, self.user_id)   
         
     def abrir_panel_operaciones(self):   
         self.limpiar_panel(self.cuerpo_principal)     

@@ -66,8 +66,8 @@ class FormularioPerfil():
         cursor = self.conn.cursor()
 
         # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT nombre, tipo, fecha_inicio, fecha_fin, rentabilidad, datos FROM Inversiones WHERE id_user = %s"
-        datos = (self.id_user) 
+        consulta = "SELECT nombre, tipo, fecha_inicio, fecha_fin, rentabilidad, datos FROM Inversiones WHERE id_usuario = %s"
+        datos = (self.id_user,) 
         cursor.execute(consulta, datos)
         
         # Recorrer los resultados y agregarlos a la tabla

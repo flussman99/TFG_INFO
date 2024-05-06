@@ -17,8 +17,9 @@ from configDB import DBConfig
 
 class FormularioBackTesting():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, user_id):
 
+        self.user_id = user_id
         self.frame_width_superior = 0
         self.frame_height_superior = 0
 
@@ -97,7 +98,7 @@ class FormularioBackTesting():
 
     def abrir_panel_backTesting_creativas(self):   
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingOpciones(self.frame_principal) 
+        FormularioBackTestingOpciones(self.frame_principal, self.user_id) 
 
     def abrir_panel_backTesting_clasicas(self):   
         self.limpiar_panel(self.frame_principal)     
