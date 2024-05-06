@@ -10,6 +10,41 @@ import tick_reader as tr
 data = []
 compras = []
 
+estudios_Disney = [
+    'Star Distribution',
+    'Star Studios',
+    'Buena Vista International',
+    '20th Century Studios',
+    '20th Century Fox',
+    'Fox Star Studios',
+    'Touchstone Pictures',
+    'Stone Circle Pictures',
+    'Walt Disney Pictures',
+    'Pixar Animation Studios',
+    'Jerry Bruckheimer Films',
+    'Miramax Films',
+    'Disneynature',
+    'Walt Disney Animation Studios',
+    'DreamWorks Pictures',
+    'Marvel Studios',
+    'Tim Burton Productions',
+    'Disneytoon Studios',
+    'Ruby Films',
+    'Roth Films',
+    'Lucamar Productions and Marc Platt Productions',
+    'Mayhem Pictures',
+    'Kinberg Genre',
+    'Lucasfilm',
+    'Fairview Entertainment',
+    'Amblin Entertainment',
+    'Whitaker Entertainment',
+    'The Mark Gordon Company',
+    'Silverback Films',
+    'Fox Searchlight Pictures',
+    'Regency Enterprises',
+    'Others'
+]
+
 html_movies_files = [
     'Disney_2010_2019.html',
     'Disney_Animation_2010_2019.html',
@@ -48,7 +83,7 @@ def get_movie_ratings(movie_titles):
     
     return ratings
 
-def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rating: int):
+def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rating: float, studio: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
 
@@ -58,7 +93,7 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
     rentabilidad = []
     posicion_abierta=False
 
-    peliculas_frame=datosPeliculas('src\Disney\html\Disney_Pelist.html')
+    peliculas_frame=datosPeliculas('src\Disney\html\Disney_Pelis_2010_2024.csv', studio)
     #peliculas_frame['Release Date'] = pd.to_datetime(peliculas_frame['Release Date'])
 
     # Initialize a new column 'precio' in peliculas_frame with NaN values
@@ -109,7 +144,7 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
     return peliculas_frame
 
 
-def datosPeliculas(filename):
+def datosPeliculas(filename, studio):
     try:
         df = pd.read_csv(filename)  # Leer el archivo CSV
     except FileNotFoundError:
@@ -120,6 +155,9 @@ def datosPeliculas(filename):
     if 'Release Date' in df.columns:
         df['Release Date'] = pd.to_datetime(df['Release Date'], errors='coerce')
     
+    # Filtrar el Studio que hemos seleccionado
+    df = df.loc[df['Studio'] == studio]
+
     return df
 
 def datosPeliculas_antiguo():

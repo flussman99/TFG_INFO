@@ -127,7 +127,7 @@ def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_
     elif nombre == 'Formula1':
         frame=SF1.backtesting(ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar, cuando_vender_vacio, equipos_pilotos_txt)
     elif nombre == 'Disney':
-        frame=DIS.backtesting(nombre,ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar)
+        frame=DIS.backtesting(nombre,ticks, inicio_txt, fin_txt, url, cuando_comprar_actuar, equipos_pilotos_txt)
 
     frameToExcel(frame, f'{nombre}.xlsx')
     ticks.clear()       
