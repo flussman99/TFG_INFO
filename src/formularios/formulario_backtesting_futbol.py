@@ -368,7 +368,11 @@ class FormularioBackTestingFutbol():
 
     def treeview(self,modo):
         if(modo=="Backtesting"):
+<<<<<<< HEAD
+            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+=======
             self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
+>>>>>>> 8c407bb6996b6201dd00b490d584da40dbddb9a4
 
             # Set the initial DataFrame to display
             self.current_frame = self.frame_without_filter
