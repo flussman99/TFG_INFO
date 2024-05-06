@@ -12,12 +12,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from datetime import datetime
-from Formula1 import SF1_backtesting
+from Disney import Dis_backtesting
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
-class FormularioFormula1(tk.Toplevel):
+class FormularioDisney(tk.Toplevel):
    
     def __init__(self, panel_principal):
 
@@ -34,9 +34,6 @@ class FormularioFormula1(tk.Toplevel):
         panel_principal.grid_rowconfigure(1, weight=1)  
         panel_principal.grid_columnconfigure(0, weight=1)
 
-
-        self.paisAcciones = SF1_backtesting.pais_Accion
-        self.accionesAPI = SF1_backtesting.acciones_api
 
         canvas = Canvas(
             self.cuerpo_principal,
@@ -63,7 +60,7 @@ class FormularioFormula1(tk.Toplevel):
         acciones, mercados = self.b.get_trading_data()
         self.años_dif = 0
         self.fecha_lim = datetime.today()
-        self.fecha_ini = datetime.today()
+        self.fecha_ini = datetime(2010, 1, 1)
 
 
         def filter_options(event):
@@ -78,8 +75,8 @@ class FormularioFormula1(tk.Toplevel):
                 options = self.original_mercados  
             elif combobox == self.combo_piloto:
                 options = self.original_piloto 
-            elif combobox == self.combo_años:
-                options = self.original_años 
+            # elif combobox == self.combo_años:
+            #     options = self.original_años 
 
             if data:
                 # Filter the options
@@ -111,29 +108,17 @@ class FormularioFormula1(tk.Toplevel):
             self.combo_acciones['values'] = filtered_acciones
             self.combo_acciones.set(filtered_acciones[0])
         
-        def filter_pilotos(event):
-            # Get selected market
-            self.set_dates()
+        # def filter_pilotos(event):
+        #     # Get selected market
 
-            # Update combo_acciones options
-            self.combo_piloto['values'] = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
-            self.combo_piloto.current(0)
-            seleccionar_accion(event)
+        #     # Update combo_acciones options
+        #     self.combo_piloto['values'] = Dis_backtesting.obtener_listado_pilotos(self.combo_años.get())
+        #     self.combo_piloto.current(0)
+        #     seleccionar_accion(event)
 
 
         # Función para manejar la selección en el ComboBox
-        def seleccionar_accion(event):
-            selected_pilot = self.combo_piloto.get()
-            año = self.combo_años.get()
 
-            self.set_dates()
-
-            self.combo_acciones.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
-            
-            accion = SF1_backtesting.obtener_accion_escuderia(selected_pilot, año)
-            self.combo_acciones.set(accion)
-            mercado = accion.split('.')[1]
-            self.combo_mercados.set(mercado)
 
 
         def reload_options(event):
@@ -147,22 +132,22 @@ class FormularioFormula1(tk.Toplevel):
                 combobox['values'] = self.original_mercados  
             elif combobox == self.combo_piloto:
                 combobox['values'] = self.original_piloto 
-            elif combobox == self.combo_años:
-                combobox['values'] = self.original_años
+            # elif combobox == self.combo_años:
+            #     combobox['values'] = self.original_años
 
 
         def borrar_texto(event):
             text_box = event.widget
             text_box.delete(0, tk.END)
 
-        def reescribir_texto(event):
-            text_box = event.widget
+        # def reescribir_texto(event):
+        #     text_box = event.widget
 
-            if text_box.get() == '':
-                if text_box == self.entry_fin_back:
-                    self.entry_fin_back.insert(0, self.texto_fin_back)
-                elif text_box == self.entry_lotaje:
-                    self.entry_lotaje.insert(0, self.texto_lotaje)
+        #     if text_box.get() == '':
+        #         if text_box == self.entry_fin_back:
+        #             self.entry_fin_back.insert(0, self.texto_fin_back)
+        #         elif text_box == self.entry_lotaje:
+        #             self.entry_lotaje.insert(0, self.texto_lotaje)
 
         self.estrategia = 0
 
@@ -188,15 +173,15 @@ class FormularioFormula1(tk.Toplevel):
                 checkbox_5.deselect()
                 self.estrategia = 10
 
-        self.rentabilidad_f1 = tk.StringVar()
-        self.rentabilidad_f1.set('0')
+        self.rentabilidad_dis = tk.StringVar()
+        self.rentabilidad_dis.set('0')
 
-        self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_f1)
+        self.rentabilidad_label = tk.Label(self.cuerpo_principal, textvariable=self.rentabilidad_dis)
 
         self.rentabilidad_indicador_f1 = tk.StringVar()
         self.rentabilidad_indicador_f1.set("0")
 
-        self.url = 'https://www.f1-fansite.com/f1-results/f1-standings-2024-championship'
+        self.url = 'https://www.f1-fansite.com/f1-results/f1-standings-2024-championship/'
 
         self.mercados_var = tk.StringVar(value=mercados)
         self.combo_mercados = ttk.Combobox(canvas, textvariable=self.mercados_var, values=mercados)
@@ -267,18 +252,18 @@ class FormularioFormula1(tk.Toplevel):
         canvas.create_text(1090, 284, anchor="nw", text="Posición: ", fill="white", font=("Calistoga Regular", 12))
         
 
-        años = SF1_backtesting.obtener_listado_años()
-        self.años_var = tk.StringVar(value=años)
-        self.combo_años = ttk.Combobox(canvas, textvariable=self.años_var, values=años)
-        self.combo_años.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
-        self.combo_años.current(len(self.combo_años['values'])-1)  # Establece la opción por defecto
-        self.combo_años.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
+        # años = Dis_backtesting.obtener_listado_años()
+        # self.años_var = tk.StringVar(value=años)
+        # self.combo_años = ttk.Combobox(canvas, textvariable=self.años_var, values=años)
+        # self.combo_años.place(x=34.0, y=103.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
+        # self.combo_años.current(len(self.combo_años['values'])-1)  # Establece la opción por defecto
+        # self.combo_años.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
-        self.original_años = años
+        # self.original_años = años
 
-        self.combo_años.bind("<<ComboboxSelected>>", filter_pilotos)
-        # self.combo_años.bind("<<ComboboxSelected>>", seleccionar_accion)
-        self.combo_años.bind('<KeyRelease>', filter_options)
+        # self.combo_años.bind("<<ComboboxSelected>>", filter_pilotos)
+        # # self.combo_años.bind("<<ComboboxSelected>>", seleccionar_accion)
+        # self.combo_años.bind('<KeyRelease>', filter_options)
 
 
         canvas.create_text(349, 187, anchor="nw", text="Op. de inversión:", fill="white", font=("Calistoga Regular", 12))
@@ -295,8 +280,7 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=self.fecha_lim,
-            mindate=self.fecha_ini
+            maxdate=self.fecha_lim
         )
         self.entry_inicio_back.place(
             x=349.0,
@@ -313,8 +297,7 @@ class FormularioFormula1(tk.Toplevel):
             foreground="#FFFFFF",
             font=('Calistoga Regular', 12),
             borderwidth=2,
-            maxdate=self.fecha_lim,
-            mindate=self.fecha_ini
+            maxdate=self.fecha_lim
         )
         self.entry_fin_back.place(
             x=500.0,
@@ -401,10 +384,10 @@ class FormularioFormula1(tk.Toplevel):
             width=94.0,
             height=38.0
         )
-        self.texto_lotaje = "Cantidad"
+        self.texto_lotaje = "Rating"
         self.entry_lotaje.insert(0, self.texto_lotaje)
         self.entry_lotaje.bind("<FocusIn>", borrar_texto)
-        self.entry_lotaje.bind("<FocusOut>", reescribir_texto)
+        # self.entry_lotaje.bind("<FocusOut>", reescribir_texto)
 
 
         check_1_var = IntVar()
@@ -492,7 +475,7 @@ class FormularioFormula1(tk.Toplevel):
         )
 
 
-        piloto = SF1_backtesting.obtener_listado_pilotos(self.combo_años.get())
+        piloto = Dis_backtesting.estudios_Disney
         self.piloto_var = tk.StringVar(value=piloto)
         self.combo_piloto = ttk.Combobox(canvas, textvariable=self.piloto_var, values=piloto)
         self.combo_piloto.place(x=34.0, y=187.0, width=258.0, height=38.0)  # Ajusta el tamaño y la posición según sea necesario
@@ -501,7 +484,7 @@ class FormularioFormula1(tk.Toplevel):
 
         self.original_piloto = piloto
 
-        self.combo_piloto.bind("<<ComboboxSelected>>", seleccionar_accion)
+        # self.combo_piloto.bind("<<ComboboxSelected>>", seleccionar_accion)
         self.combo_piloto.bind('<KeyRelease>', filter_options)
 
         button_image_16 = PhotoImage(
@@ -523,41 +506,14 @@ class FormularioFormula1(tk.Toplevel):
             width=98.0,
             height=38.0
         )
-        self.set_dates()
         
         
         self.cuerpo_principal.mainloop()
     
-    def set_dates(self):
-        min_year, max_year = SF1_backtesting.obtener_periodo_valido(self.combo_piloto.get(), self.combo_años.get())
-        self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
-        self.fecha_ini = datetime(min_year, 1, 1)
-
-        self.entry_fin_back.config(maxdate=self.fecha_lim)
-        self.entry_fin_back.config(mindate=self.fecha_ini)
-        self.entry_fin_back.set_date(self.fecha_lim)
-
-        self.entry_inicio_back.config(maxdate=self.fecha_lim)
-        self.entry_inicio_back.config(mindate=self.fecha_ini)
-        self.entry_inicio_back.set_date(self.fecha_ini)
 
     def tickdirecto(self):
         piloto_txt = self.combo_piloto.get()
-        accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
-
-        self.b.establecer_piloto_accion(piloto_txt, accion_txt) 
-       
-        self.b.thread_orders(estrategia)
-        
-        if estrategia == 'RSI':
-            self.b.thread_RSI_MACD()
-        elif estrategia == 'Media Movil':
-            self.b.thread_MediaMovil()
-        elif estrategia == 'Bandas':
-            self.b.thread_bandas()
-        elif estrategia == 'Estocastico':
-            self.b.thread_estocastico()
+ 
 
     def getPrice(self):
         piloto_txt = self.combo_piloto.get()
@@ -587,35 +543,20 @@ class FormularioFormula1(tk.Toplevel):
         accion_txt = self.combo_acciones.get()
         estrategia=self.combo_años.get()
 
-    def obtenerPais(self, accion_txt):
-        print(accion_txt)
-        mercado = accion_txt.split('.')[1]
-        pais = self.paisAcciones.get(mercado)
-        print(mercado, pais)
-        return pais
-    
-    def obtenerAccion(self, accion_txt):
-        accionApi = self.accionesAPI.get(accion_txt)
-        if(accionApi == ''):
-            accionApi = accion_txt
-        print(accionApi)
-        return accionApi
-    
+
     def coger_ticks(self):
         
         frecuencia_txt = "Daily"
         accion_txt = self.combo_acciones.get()
         inicio_txt = self.entry_inicio_back.get()
         fin_txt = self.entry_fin_back.get()
-        estrategia_txt = 'Formula1'
+        estrategia_txt = 'Disney'
         piloto_txt = self.combo_piloto.get()
-        cuando_actuar = self.estrategia
-        accion_txt = self.obtenerAccion(accion_txt)
-        pais_txt = self.obtenerPais(accion_txt)
+        cuando_actuar = float(self.entry_lotaje.get())
+        accion_txt = 'DIS'
+        pais_txt = 'united states'
         accion_txt = accion_txt.split('.')[0]
 
-        print(pais_txt)
-        print(accion_txt)
 
         print("----------------------------------------")
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
@@ -623,7 +564,7 @@ class FormularioFormula1(tk.Toplevel):
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
         self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_actuar, cuando_actuar, piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
-        self.rentabilidad_f1.set(str(rentabilidad))
+        self.rentabilidad_dis.set(str(rentabilidad))
 
         self.rentabilidad_indicador_f1.set(str(rentabilidad_indicador))
 

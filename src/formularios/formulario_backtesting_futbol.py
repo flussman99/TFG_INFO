@@ -16,6 +16,7 @@ from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
+from formularios.formulario_backtesting_mas_informacion import FormularioBackTestingMasInformacion
 
 
 class FormularioBackTestingFutbol():
@@ -36,8 +37,8 @@ class FormularioBackTestingFutbol():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_titulo.place(relx=0.05, rely=0.1)
+        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
         self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray", width=399, height=276)
@@ -342,6 +343,10 @@ class FormularioBackTestingFutbol():
         self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
         self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
 
+        #Boton "Más información"
+        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
+        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
+
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
         self.tree.pack(side="left", fill="x")
@@ -363,13 +368,18 @@ class FormularioBackTestingFutbol():
 
     def treeview(self,modo):
         if(modo=="Backtesting"):
+<<<<<<< HEAD
             self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+=======
+            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['1', '-1'])]
+>>>>>>> 8c407bb6996b6201dd00b490d584da40dbddb9a4
 
             # Set the initial DataFrame to display
             self.current_frame = self.frame_without_filter
         else:
             self.current_frame = self.frame_directo
-
+        print("-----------------------------------")
+        print(self.current_frame)
         # Configurar las columnas del widget Treeview
         self.tree["columns"] = list(self.current_frame.columns)
         self.tree["show"] = "headings"  # Desactivar la columna adicional
@@ -414,7 +424,8 @@ class FormularioBackTestingFutbol():
             self.current_frame = self.frame_with_filter
         else:
             self.current_frame = self.frame_without_filter
-
+        print("-----------------------------------")
+        print(self.current_frame)
         # Limpiar el widget Treeview
         for row in self.tree.get_children():
             self.tree.delete(row)
@@ -425,6 +436,15 @@ class FormularioBackTestingFutbol():
 
     def guardar_backtesting(self):
         pass
+
+    def mas_informacion(self):
+        self.limpiar_panel(self.frame_principal)     
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
+
+    def limpiar_panel(self,panel):
+        # Función para limpiar el contenido del panel
+        for widget in panel.winfo_children():
+            widget.destroy()
 
 
     def obtener_dimensiones(self):
@@ -453,7 +473,7 @@ class FormularioBackTestingFutbol():
         self.frame_inferior.configure(width=self.frame_width, height=self.frame_height*0.5)
 
         #Ajustar el tamaño del titulo
-        self.label_titulo.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
+        self.label_titulo_futbol.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
         #Ajustar info ticks
         if self.label_fecha_inicio is not None:
@@ -465,9 +485,11 @@ class FormularioBackTestingFutbol():
             self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
             self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.01))
             self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
+            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
         
         #Ajustar label elegir liga
         if self.label_liga is not None:

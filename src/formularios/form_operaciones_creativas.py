@@ -17,10 +17,11 @@ from config import COLOR_CUERPO_PRINCIPAL
 
 class FormularioOperacionesCreativas(tk.Toplevel):
    
-    def __init__(self, panel_principal, form_Futbol ,form_f1):
+    def __init__(self, panel_principal, form_Futbol ,form_f1, form_Disney):
         
         self.formulario_f1 = form_f1
-        self.form_Futbol = form_Futbol    
+        self.form_Futbol = form_Futbol  
+        self.form_Disney = form_Disney  
         self.barra_superior = tk.Frame(panel_principal)
         self.barra_superior.grid(row=0, column=0, sticky="nsew")
 
@@ -90,11 +91,11 @@ class FormularioOperacionesCreativas(tk.Toplevel):
             file="src/imagenes/assets/boton_Cristian.png")
         button_Cristian = Button(
             canvas,
-            text="Estrategia Cristian",
+            text="Estrategia Disney",
             image=button_image_Cristian,
             borderwidth=0,
             highlightthickness=0,
-            command=self.estrategiaCristian,
+            command=self.estrategiaDisney,
             compound=tk.CENTER,
             font=("Calistoga Regular", 12)
         )
@@ -150,5 +151,5 @@ class FormularioOperacionesCreativas(tk.Toplevel):
     def estrategiaJose(self):
         print("Jose")
     
-    def estrategiaCristian(self):
-        print("Cristian")
+    def estrategiaDisney(self):
+        self.form_Disney()
