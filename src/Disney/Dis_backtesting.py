@@ -122,12 +122,12 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
         precioCompra = peliculas_frame.at[i, 'Precio']
             
         if rating >= combo_rating and len(compras) < 10:
-            decisiones.append("1")#COMPRO
+            decisiones.append("Compra")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
             posicion_abierta=True
         elif rating < combo_rating and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
+            decisiones.append("Venta")#VENDO
             posicion_abierta=False
             print(compras)
             rentabilidad.append(tr.calcular_rentabilidad(compras,precioCompra))

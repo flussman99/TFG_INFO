@@ -369,10 +369,6 @@ def check_buy() -> bool:
     else:
         NUEVO_PARTIDO=False#si hl resultado no es el que buscba el usuario para invertir no invertimos y esperamos al siguiente partido
         return False
-    
-    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-    #     return True
-    # return False
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
