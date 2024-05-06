@@ -58,15 +58,14 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
     rentabilidad = []
     posicion_abierta=False
 
-    peliculas_frame=datosPeliculas()
-    peliculas_frame['Release Date'] = pd.to_datetime(peliculas_frame['Release Date'])
+    peliculas_frame=datosPeliculas('src\Disney\html\Disney_Pelist.html')
+    #peliculas_frame['Release Date'] = pd.to_datetime(peliculas_frame['Release Date'])
 
     # Initialize a new column 'precio' in peliculas_frame with NaN values
     peliculas_frame = peliculas_frame[peliculas_frame['Release Date'].between(inicio, fin)]
     peliculas_frame['Precio'] = np.nan
     # Iterate over the rows in peliculas_frame
-
-
+    
     for i, row in peliculas_frame.iterrows(): 
         rating = row['Rating']
 
@@ -110,7 +109,20 @@ def backtesting(nombre:str, prices: list, inicio: str, fin: str, url, combo_rati
     return peliculas_frame
 
 
-def datosPeliculas():
+def datosPeliculas(filename):
+    try:
+        df = pd.read_csv(filename)  # Leer el archivo CSV
+    except FileNotFoundError:
+        print(f"Error: No se pudo encontrar el archivo {filename}")
+        return None
+    
+    # Convertir la columna 'Release Date' a formato datetime si es necesario
+    if 'Release Date' in df.columns:
+        df['Release Date'] = pd.to_datetime(df['Release Date'], errors='coerce')
+    
+    return df
+
+def datosPeliculas_antiguo():
     base_dir = os.path.abspath('src\Disney\html')
     html_films_files = [os.path.join(base_dir, file) for file in html_movies_files]
 

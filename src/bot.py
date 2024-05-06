@@ -5,6 +5,7 @@ import ordenes as orders
 #importslope_abs_rel, orders
 import Rsi_Macd, MediaMovil,Bandas_Bollinger,Estocastico
 from EquiposdeFutbol import SBS_backtesting as SBS
+from Formula1 import SF1_backtesting as SF1
 import pandas as pd
 import os
 import queue
@@ -134,6 +135,18 @@ class Bot:
     
         t = threading.Thread(target=SBS.thread_futbol, 
                             args=(self.pill2kill, self.trading_data, equipo, url, cuando_comprar,cuando_vender,self.frame_directo))
+        
+        self.threads.append(t)
+        t.start()
+        frame=self.frame_directo.get()
+        print('Thread - Futbol. LAUNCHED')    
+
+        return frame
+    
+    def thread_F1(self,piloto,url,cuando_comprar,cuando_vender):
+    
+        t = threading.Thread(target=SF1.thread_F1, 
+                            args=(self.pill2kill, self.trading_data, piloto, url, cuando_comprar,cuando_vender,self.frame_directo))
         
         self.threads.append(t)
         t.start()

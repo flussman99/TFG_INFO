@@ -348,7 +348,8 @@ def obtener_periodo_valido(piloto, año_base):
 def datosPiloto(ticks:list,inicio: str, fin: str, url:str,piloto:str):
 
     df_HTML = leerHTML(piloto, inicio, fin)
-    df_URL = leerURL(url, piloto, inicio, fin)
+    df_URL = leerURL(url, piloto)
+    df_URL = df_URL[df_URL['Fecha'].between(inicio, fin)]
     if list(df_HTML.columns) != list(df_URL.columns):
         print("Los DataFrames no tienen las mismas columnas.")
         return None
@@ -419,7 +420,7 @@ def leerHTML(piloto, inicio, fin):
 
     return df
 
-def leerURL(url, piloto, inicio, fin):
+def leerURL(url, piloto):
 
     print(url)
     response = requests.get(url)
@@ -467,7 +468,6 @@ def leerURL(url, piloto, inicio, fin):
 
         df['Fecha'] = pd.to_datetime(df['Fecha'])
         # Initialize a new column 'precio' in piloto_frame with NaN values
-        df = df[df['Fecha'].between(inicio, fin)]
         df['Precio'] = np.nan
                         
     else:
@@ -484,4 +484,69 @@ def convert_date(fecha_texto, año):
 
     return fecha_formateada
 
+def thread_F1(pill2kill,trading_data: dict, piloto_txt,url,combo_comprar,comobo_vender,cola):
 
+    inicializar_variables(combo_comprar,comobo_vender)
+    ultimaCarrera(piloto_txt,url,cola)
+
+    while not pill2kill.wait(trading_data['time_period']):
+        ultimaCarrera(piloto_txt,url,cola)
+        print("Checking races...")
+        print(FRAMEDIRECTO)
+
+def inicializar_variables(combo_comprar,comobo_vender):
+    global COMBO_COMPRAR,COMBO_VENDER,FECHA_ULTIMA_CARRERA,RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,FRAMEDIRECTO
+    #van a ser lo que haya establecido el usuario de orgne
+    COMBO_COMPRAR=combo_comprar
+    COMBO_VENDER=comobo_vender
+    #inicializao las variables cada vez que le pulso el boton de ticks en directo para que se reinicie todo y no se qued con los valores anteriores
+    FECHA_ULTIMA_CARRERA=None
+    RESULTADO_ULTIMA_CARRERA=None
+    NUEVA_CARRERA=False
+    FRAMEDIRECTO=pd.DataFrame()
+
+def ultimaCarrera(piloto_txt:str,url,cola):
+    global FECHA_ULTIMA_CARRERA,RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,FRAMEDIRECTO
+
+    
+    piloto_frame = leerURL(url, piloto_txt)#cojo las carreras
+    # # piloto_frame['Fecha'] = pd.to_datetime(piloto_frame['Fecha'])
+    # data.clear()#ya lo tengo que limpiar
+    last_row = piloto_frame.iloc[-1]
+    if(FECHA_ULTIMA_CARRERA is None or last_row['Fecha']!=FECHA_ULTIMA_CARRERA):
+        FECHA_ULTIMA_CARRERA = last_row['Fecha']
+        print(FECHA_ULTIMA_CARRERA)
+        # Asignar el Resultado a cada carrera
+        RESULTADO_ULTIMA_CARRERA = piloto_frame.at[piloto_frame.index[-1], 'Resultado']
+        print(RESULTADO_ULTIMA_CARRERA)
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
+        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]].drop(['Resultado'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
+        print(last_row)
+        cola.put(FRAMEDIRECTO)
+        NUEVA_CARRERA = True
+    else:
+        print("No hay carrera nueva")
+
+def check_buy() -> bool:
+    global RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,COMBO_COMPRAR
+    print(NUEVA_CARRERA)
+
+    if(NUEVA_CARRERA and RESULTADO_ULTIMA_CARRERA <= COMBO_COMPRAR):#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
+        NUEVO_PARTIDO=False#si he invertido una vez por la carrera no invierto mas
+        return True
+    else:
+        NUEVA_CARRERA=False#si el resultado no es el que buscba el usuario para invertir no invertimos y esperamos a la siguiente carrera
+        return False
+    
+    # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
+    #     return True
+    # return False
+
+def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+    
+    if(NUEVA_CARRERA and RESULTADO_ULTIMA_CARRERA > COMBO_VENDER):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
+        NUEVA_CARRERA=False
+        return True
+    else:
+        NUEVA_CARRERA=False
+        return False
