@@ -209,12 +209,12 @@ def backtesting(ticks: list,inicio: str, fin: str,url,combo_comprar:str,combo_ve
 
         # Comparar las medias móviles
         if comprobar(resultado,combo_vender) and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
+            decisiones.append("Venta")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['Precio']))
             compras.clear()
         elif len(compras) < 10 and comprobar(resultado,combo_comprar) :  
-            decisiones.append("1")#COMPRO
+            decisiones.append("Compra")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
             posicion_abierta=True
