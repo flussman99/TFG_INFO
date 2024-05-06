@@ -285,36 +285,37 @@ class FormularioBackTestingFutbol():
         self.metodo_comprar = self.combo_metodos_comprar.get()
         self.metodo_vender = self.combo_metodos_vender.get()
 
-        #Label fecha inicio
-        self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_fecha_inicio.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+        if (self.fecha_inicio_entry is None):
+            #Label fecha inicio
+            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_fecha_inicio.grid(row=4, column=0, padx=10, pady=2, sticky="w")
 
-        #label fecha fin
-        self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_fecha_fin.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+            #label fecha fin
+            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_fecha_fin.grid(row=4, column=1, padx=10, pady=2, sticky="w")
 
-        #Date fecha inicio
-        fecha_ayer = datetime.now() - timedelta(days = 1)
-        self.fecha_inicio_entry = DateEntry(
-            self.frame_combo_boxs, 
-            date_pattern='yyyy/mm/dd',
-            background='darkblue', 
-            foreground='white', 
-            borderwidth=2,
-            maxdate=fecha_ayer
-        )
-        self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+            #Date fecha inicio
+            fecha_ayer = datetime.now() - timedelta(days = 1)
+            self.fecha_inicio_entry = DateEntry(
+                self.frame_combo_boxs, 
+                date_pattern='yyyy/mm/dd',
+                background='darkblue', 
+                foreground='white', 
+                borderwidth=2,
+                maxdate=fecha_ayer
+            )
+            self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
-        #Date fecha fin
-        self.fecha_fin_entry = DateEntry(
-            self.frame_combo_boxs,
-            date_pattern='yyyy/mm/dd',
-            background='darkblue',
-            foreground='white',
-            borderwidth=2,
-            maxdate=fecha_ayer
-        )
-        self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+            #Date fecha fin
+            self.fecha_fin_entry = DateEntry(
+                self.frame_combo_boxs,
+                date_pattern='yyyy/mm/dd',
+                background='darkblue',
+                foreground='white',
+                borderwidth=2,
+                maxdate=fecha_ayer
+            )
+            self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
         # Boton de "Empezar backtesting"
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
