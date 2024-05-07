@@ -143,11 +143,11 @@ class Bot:
     
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,
-                            args=(self.pill2kill, self.trading_data, estrategia_directo, self.frmae_ticks_directo))
+                            args=(self.pill2kill, self.trading_data, estrategia_directo)) #self.frmae_ticks_directo))
         self.threads.append(t)
         t.start()
 
-        for updated_frame in orders.thread_orders(self.pill2kill, self.trading_data, estrategia_directo, self.frmae_ticks_directo):
+        for updated_frame in orders.thread_orders(self.pill2kill, self.trading_data, estrategia_directo):# self.frmae_ticks_directo):
             print(updated_frame)
 
         print('Thread - orders. LAUNCHED')

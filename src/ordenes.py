@@ -22,7 +22,6 @@ comprasFutbol = []
 comprasDisney = []
 comprasFormula1 = []
 
-FRAMETICKS=pd.DataFrame()
 
 def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
@@ -184,30 +183,6 @@ def open_buy(trading_data: dict):
     return result
 
 
-def is_market_open(current_time, current_day_of_week):
-
-    current_hour = current_time.hour
-
-    # If it's Saturday (5) or Sunday (6), the market is closed
-    if current_day_of_week in (5, 6):
-        market_open_status = False
-
-    # If it's Friday and after 22:00 GMT, the market is closed
-    elif current_day_of_week == 4 and current_hour >= 22:
-        market_open_status = False
-
-    # If it's Sunday and before 22:00 GMT, the market is closed
-    elif current_day_of_week == 6 and current_hour < 22:
-        market_open_status = False
-
-    else:
-        market_open_status = True
-
-    return market_open_status
-
-
-
-
 def open_sell(trading_data: dict):
     """Function to open a sell operation.
 
@@ -272,9 +247,6 @@ def open_sell(trading_data: dict):
         print("[Thread - orders] failed sell: {}".format(result.retcode))
         return None
     return sell
-
-
-
 
 
 def check_buy(nombre:str) -> bool:
@@ -377,30 +349,50 @@ def cerrar_todas_las_posiciones(trading_data):
         else:
             print(f"Ha ocurrido un error al cerrar la posición {position.ticket}: {mt5.last_error()}")
 
+def is_market_open(trading_data):
+ # Convertir check_time a un objeto datetime
+    check_time = date.datetime.now().time().strftime("%H:%M:%S")
+    print(check_time)
 
-def insertar_ticks(tipo, result, trading_data, cola):
-    global FRAMETICKS
-    ticks_frame = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision'])
-    if tipo == 'Compra':
-        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Compra"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
-    elif tipo == 'Venta':
-        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Venta"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
-    else:
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
-    
-    # ticks_frame.dropna(how='all', inplace=True)
-    
-    FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
-    # print(FRAMETICKS)
+    #check_time_dt = date.datetime.fromtimestamp(check_time)
 
-    print("HOLA")
+    session_index = 0  
+    # Obtener la información de sesión para el símbolo y día de la semana especificados
+    sessions = mt5.symbol_info_session_trade(trading_data['market'], get_current_day())
     
-    cola.put(FRAMETICKS)
+    # Comprobar si hay sesiones definidas para el día y el índice especificados
+    if session_index < len(sessions):
+        session = sessions[session_index]
+        session_start = session.from_
+        session_end = session.to
+        
+        # Comprobar si check_time está dentro del intervalo de sesión
+        if session_start <= check_time <= session_end:
+            return True
+    
+    return False
 
-def thread_orders(pill2kill, trading_data: dict, estrategia_directo,cola):# este bot solo abre una operacion al mismo tiempo
+def get_current_day():
+    current_day = date.datetime.now().strftime("%A")
+    print(current_day)
+    
+    if(current_day=='Monday'):
+        return mt5.DAY_OF_WEEK_MONDAY
+    elif(current_day=='Tuesday'):
+        return mt5.DAY_OF_WEEK_TUESDAY
+    elif(current_day=='Wednesday'):
+        return mt5.DAY_OF_WEEK_WEDNESDAY
+    elif(current_day=='Thursday'):
+        return mt5.DAY_OF_WEEK_THURSDAY
+    elif(current_day=='Friday'):
+        return mt5.DAY_OF_WEEK_FRIDAY
+    elif(current_day=='Tuesday'):
+        return mt5.DAY_OF_WEEK_SATURDAY
+    
+    else: return mt5.DAY_OF_WEEK_SUNDAY
+
+
+def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot solo abre una operacion al mismo tiempo
     """Function executed by a thread. It opens and handles operations.
 
     Args:
@@ -409,37 +401,38 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo,cola):# este
         for opening operations.
     """
     print("[THREAD - orders] - Working")
-    global FRAMETICKS
+    
+    #chequear aqui que la operacione este abierta o no, variable operacion.
+
     print("[THREAD - orders] - Checking operations")
-    #operacion_abierta=0
-    #trading_data['time_period']
+
+
+
+
     while not pill2kill.wait(20):
 
+        #cerrar_todas_las_posiciones(trading_data)
         # market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
-        if check_buy(estrategia_directo):            
-            buy = open_buy(trading_data)
-            lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
-            if buy is not None:
-                insertar_ticks('Compra', buy, trading_data ,cola)
+            if check_buy(estrategia_directo):            
+                buy = open_buy(trading_data)
+                lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
+                if buy is not None:
+                    now = date.datetime.now()
+                    dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+                    print("[Thread - orders] Buy open -", dt_string)
+                    #handle_buy(buy, trading_data['market'])
+                    buy = None
                 
-                now = date.datetime.now()
-                dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-                print("[Thread - orders] Buy open -", dt_string)
-                #handle_buy(buy, trading_data['market'])
-                buy = None
-        else: 
-            insertar_ticks('Nada', None, trading_data ,cola)
-            
-            print("NO SE ABRE OPERACION")        
+            else: print("NO SE ABRE OPERACION")        
         
-        yield FRAMETICKS
+        # for compra in lista: #comprobar en el hilo de RSI si es interesante vender alguna compra
 
-                # elif check_sell(estrategia_directo):#tengo que comprobar aqui si hay operaciones abiertas que pueda vender
-        #     sell = open_sell(trading_data)
-        #     if sell is not None:
-        #         insertar_ticks('Venta', sell, trading_data ,cola)
-        #         now = date.datetime.now()
-        #         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-        #         print("[Thread - orders] Sell open -", dt_string)
-        #         handle_sell(sell, trading_data['market'])           
-         
+            if check_sell(estrategia_directo):
+                sell = cerrar_todas_las_posiciones(trading_data)
+                if sell is not None:
+                    now = date.datetime.now()
+                    dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+                    print("[Thread - orders] Close position -", dt_string)
+                    #handle_sell(sell, trading_data['market'])
+                    sell = None
+                
