@@ -16,7 +16,7 @@ from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
-from formularios.formulario_backtesting_mas_informacion import FormularioBackTestingMasInformacion
+from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
 
 
 class FormularioInversionFutbol():
@@ -92,7 +92,7 @@ class FormularioInversionFutbol():
         #Botones
         self.boton_empezar_inversion = None
         self.boton_mostrar_operaciones = None
-        self.boton_guardar_inversion = None
+
 
 
         #ComboBoxs
@@ -378,14 +378,6 @@ class FormularioInversionFutbol():
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
 
-        # Boton de "Guardar"
-        self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
-        self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
-
-        #Boton "Más información"
-        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
-        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
-
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
         self.tree.pack(side="left", fill="x")
@@ -469,13 +461,6 @@ class FormularioInversionFutbol():
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
 
-    def guardar_backtesting(self):
-        pass
-
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
-
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
         for widget in panel.winfo_children():
@@ -516,15 +501,8 @@ class FormularioInversionFutbol():
             self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
             self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
-            #Ajustar botones tanto el tamaño como el texto
-            #self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            #self.boton_guardar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            #self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            #self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            #self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
-            #self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.01))
-            #self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
-            #self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
+
+
         
         #Ajustar label elegir liga
         if self.label_liga is not None:
@@ -536,6 +514,11 @@ class FormularioInversionFutbol():
                 self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
                 self.label_imagen_liga.configure(image=self.imagen_liga)
 
+            #ajustar botones
+            if self.boton_mostrar_operaciones is not None:
+                self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
+        
             #Ajustar equipo
             if self.combo_equipos is not None:
                 self.label_equipo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
@@ -569,7 +552,6 @@ class FormularioInversionFutbol():
                             #Habilitar el boton de empezar inversion
                             if self.boton_empezar_inversion is not None:
                                 self.boton_empezar_inversion.configure(state="normal")
-                                print("Habilitar boton")
 
         
 

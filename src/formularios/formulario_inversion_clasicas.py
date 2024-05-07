@@ -16,10 +16,9 @@ from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
-from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
 
 
-class FormularioBackTestingClasicas():
+class FormularioInversionClasicas():
 
     def __init__(self, panel_principal):
 
@@ -37,7 +36,7 @@ class FormularioBackTestingClasicas():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo_clasicas = tk.Label(self.frame_superior, text="Backtesting Operaciones Clásicas", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_clasicas = tk.Label(self.frame_superior, text="Inversión de Operaciones Clásicas", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_titulo_clasicas.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
@@ -61,10 +60,13 @@ class FormularioBackTestingClasicas():
         self.combo_frecuencia = None
 
         #Inicializar variables
-        self.label_fecha_inicio = None
-        self.label_fecha_fin = None
-        self.fecha_inicio_entry = None
-        self.fecha_fin_entry = None
+        self.label_stop_loss = None
+        self.label_take_profit = None
+        self.label_lotaje = None
+        self.label_inversion = None
+        self.stop_loss_entry = None
+        self.take_profit_entry = None
+        self.lotaje_entry = None
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -74,9 +76,8 @@ class FormularioBackTestingClasicas():
         self.tree = None
 
         #Botones
-        self.boton_empezar_backtesting = None
+        self.boton_empezar_inversion = None
         self.boton_mostrar_operaciones = None
-        self.boton_guardar_backtesting = None
 
 
         #ComboBoxs
@@ -154,63 +155,101 @@ class FormularioBackTestingClasicas():
         self.on_parent_configure(event)
 
     def actualizar_fechas(self, event):
-
-        if (self.fecha_inicio_entry is None):
-            #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_inicio.grid(row=2, column=0, padx=10, pady=2, sticky="w")
-
-            #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_fin.grid(row=2, column=1, padx=10, pady=2, sticky="w")
-
-            #Date fecha inicio
-            fecha_ayer = datetime.now() - timedelta(days = 1)
-            self.fecha_inicio_entry = DateEntry(
-                self.frame_combo_boxs, 
-                date_pattern='yyyy/mm/dd',
-                background='darkblue', 
-                foreground='white', 
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_inicio_entry.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-
-            #Date fecha fin
-            self.fecha_fin_entry = DateEntry(
-                self.frame_combo_boxs,
-                date_pattern='yyyy/mm/dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_fin_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
         
         if self.label_frecuencia is None:
             #Frecuencia
             self.label_frecuencia = tk.Label(self.frame_combo_boxs, text="Elige la frecuencia", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_frecuencia.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+            self.label_frecuencia.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
             #ComboBox de frecuencia
             self.combo_frecuencia = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_frecuencia.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.combo_frecuencia.grid(row=3, column=0, padx=10, pady=2, sticky="w")
             self.combo_frecuencia["values"] = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']
 
         #al mirar todos los datos actualizar el boton
-        self.combo_frecuencia.bind("<<ComboboxSelected>>", self.actualizar_boton)
+        self.combo_frecuencia.bind("<<ComboboxSelected>>", self.actualizar_frecuencia)
+
+
+        #Ajustar vista
+        self.on_parent_configure(event)
+
+    def actualizar_frecuencia(self, event):
+
+        if self.label_lotaje is None:
+            #Label de "Lotaje"
+            self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_lotaje.grid(row=2, column=1, padx=10, pady=2, sticky="w")
+
+            #Entry de lotaje
+            self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
+            self.lotaje_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
+
+            #Label inversion
+            self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_inversion.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+        
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_lotaje)
 
         #Ajustar vista
         self.on_parent_configure(event)
 
 
+    def actualizar_lotaje(self, event):
+        if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux = int(self.lotaje_entry.get())
+            self.lotaje_entry.configure(text=aux)    
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+    
+        #Cambiar texto inversion
+        self.valor_precio = self.getValorPrecio()
+        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
+        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
+
+        #actualizar si se ha puesto algo en el lotaje
+        if self.lotaje_entry.get() != "":
+            self.actualizar_boton(event)
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+    def getValorPrecio(self):
+        return 5
+        #DAVID AQUI PILLAS EL PRECIO PERRA
+
     def actualizar_boton(self, event):
-        if self.boton_empezar_backtesting is not None:
-            self.boton_empezar_backtesting.destroy()
-            self.boton_empezar_backtesting = None
-        # Boton de "Empezar backtesting"
-        self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=2, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+        
+        if self.label_stop_loss is None:
+            #Label de "Stop loss"
+            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop loss (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+
+            #Entry de stop loss
+            self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
+            self.stop_loss_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+
+            #Label de "Take profit"
+            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take profit (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+
+            #Entry de take profit
+            self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
+            self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+
+
+        if self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.destroy()
+            self.boton_empezar_inversion = None
+        # Boton de "Empezar inversion"
+        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
 
         self.on_parent_configure(event)
 
@@ -235,19 +274,11 @@ class FormularioBackTestingClasicas():
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.apply_filter) 
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
 
-        # Boton de "Guardar"
-        self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
-        self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
-
-        #Boton "Más información"
-        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
-        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
-
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
         self.tree.pack(side="left", fill="x")
 
-    def empezar_backtesting(self):
+    def empezar_inversion(self):
 
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
@@ -314,14 +345,6 @@ class FormularioBackTestingClasicas():
         for index, row in frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
 
-    def guardar_backtesting(self):
-        pass
-
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        print ("Estrategia: ", self.estrategia_txt)
-        print("-------------------ESTRAREFA---------------------")
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame, self.estrategia_txt, self.rentabilidad_clasica.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -358,13 +381,9 @@ class FormularioBackTestingClasicas():
         self.label_titulo_clasicas.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
         #ajustar botones
-        if self.boton_guardar_backtesting is not None:
-            self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+        if self.boton_mostrar_operaciones is not None:
             self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.01))
             self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
-            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
         
         #Ajustar
         if self.label_mercado is not None:
@@ -382,20 +401,28 @@ class FormularioBackTestingClasicas():
                     self.label_estrategia.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                     self.combo_estrategia.configure(width=int(self.frame_width * 0.02))
 
-                    if self.label_fecha_inicio is not None:
-                        self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                        self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                        self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
-                        self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
-
                     #Ajustar frecuencia
                     if self.combo_frecuencia is not None:
                         self.label_frecuencia.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_frecuencia.configure(width=int(self.frame_width * 0.02))
                         
-                        if self.boton_empezar_backtesting is not None:
-                            self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-                            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.02))
+                        if self.lotaje_entry is not None:
+                            self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+                            self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            if self.lotaje_entry.get() != "":
+                            #Habilitar el boton de empezar inversion
+                                if self.boton_empezar_inversion is not None:
+                                    self.boton_empezar_inversion.configure(state="normal")
+                            if self.label_stop_loss is not None:
+                                self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
+                                self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
+
+                        if self.boton_empezar_inversion is not None:
+                            self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                            self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.02))
 
 
 

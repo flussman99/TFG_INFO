@@ -18,13 +18,13 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class FormularioBackTestingMasInformacion():
 
-    def __init__(self, panel_principal, dataFrame, opCreativa, rentabilidad):
+    def __init__(self, panel_principal, dataFrame, estrategia, rentabilidad):
 
         self.frame_width = 0
         self.frame_height = 0
 
         self.dataFrame = dataFrame
-        self.opCreativa = opCreativa
+        self.estrategia = estrategia
         self.rentabilidad = rentabilidad
 
         #Frame principal 
@@ -50,8 +50,8 @@ class FormularioBackTestingMasInformacion():
         self.frame_opciones = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL)
         self.frame_opciones.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
         
-        #Subtitulo "Información de la operación creativa de "opCreativa""
-        self.label_info = tk.Label(self.frame_opciones, text="Información de la operación creativa de " + self.opCreativa, font=("Berlin Sans FB", 12, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        #Subtitulo "Información de la estrategia"
+        self.label_info = tk.Label(self.frame_opciones, text="Información de la estrategia de " + self.estrategia, font=("Berlin Sans FB", 12, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_info.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky="w")
 
         #frame para la descripción
@@ -62,12 +62,12 @@ class FormularioBackTestingMasInformacion():
         self.descripcion_creativa = tk.Label(self.frame_info_inicial, justify="left", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.descripcion_creativa.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
         
-        print("opCreativa: ", self.opCreativa)
-        if (self.opCreativa == "Futbol"):
+        print("estrategia: ", self.estrategia)
+        if (self.estrategia == "Futbol"):
             self.descripcion_creativa.configure(text="La operación creativa de fútbol consiste en inveritr en los equipos de fútbol, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados de los partidos.")
-        elif (self.opCreativa == "Formula1"):
+        elif (self.estrategia == "Formula1"):
             self.descripcion_creativa.configure(text="La operación creativa de Formula 1 consiste en inveritr en los equipos de Formula 1, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados de las carreras.")
-        elif (self.opCreativa == "Cine"):
+        elif (self.estrategia == "Cine"):
             self.descripcion_creativa.configure(text="La operación creativa de cine consiste en inveritr en las películas, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados en taquilla.")
         
         #Subtitulo "Resultados del backtesting"
@@ -115,16 +115,23 @@ class FormularioBackTestingMasInformacion():
         df_valid_rentabilidad = self.dataFrame[~self.dataFrame['Rentabilidad'].isna()]
         self.figura = plt.Figure(figsize=(3, 2), dpi=100)
         self.ax = self.figura.add_subplot(111)
-        self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
 
         # Graficar la rentabilidad
-        self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
+        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+            self.ax.plot(df_valid_rentabilidad['Fecha'], df_valid_rentabilidad['Rentabilidad'], color='r', marker='o')
+        else:
+            self.ax.plot(df_valid_rentabilidad['time'], df_valid_rentabilidad['Rentabilidad'], color='b', marker='o')
 
         # Numerar los puntos en la gráfica de rentabilidad con números simples
         for i, rentabilidad in enumerate(df_valid_rentabilidad['Rentabilidad']):
-            self.ax.annotate(str(i+1), (df_valid_rentabilidad['Fecha'].iloc[i], rentabilidad), ha='center', va='bottom')
+            
+            if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+                self.ax.annotate(str(i+1), (df_valid_rentabilidad['Fecha'].iloc[i], rentabilidad), ha='center', va='bottom')
+            else:
+                self.ax.annotate(str(i+1), (df_valid_rentabilidad['time'].iloc[i], rentabilidad), ha='center', va='bottom')
 
-        self.ax.set_title('Rentabilidad de la operación creativa')
+
+        self.ax.set_title('Rentabilidad de la operación')
         self.ax.set_xlabel('Fecha')
         self.ax.set_ylabel('Rentabilidad')
         self.ax.grid()
@@ -138,23 +145,41 @@ class FormularioBackTestingMasInformacion():
 
 
         # Crear la figura de la gráfica, puntos con 
-        df_valid_precios = self.dataFrame[~self.dataFrame['Precio'].isna()]
+        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+            df_valid_precios = self.dataFrame[~self.dataFrame['Precio'].isna()]
+        else:
+            df_valid_precios = self.dataFrame[~self.dataFrame['price'].isna()]
+        
         valores_comprar = df_valid_precios.loc[df_valid_precios['Decision'] == 'Compra']
         valores_vender = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']
 
         self.figura_precios = plt.Figure(figsize=(3, 2), dpi=100)
         self.ax_precios = self.figura_precios.add_subplot(111)
-        self.ax_precios.plot(valores_comprar['Fecha'], valores_comprar['Precio'], color='b', marker='o')
-        self.ax_precios.plot(valores_vender['Fecha'], valores_vender['Precio'], color='r', marker='o')
+
+        
+        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+            self.ax_precios.plot(valores_comprar['Fecha'], valores_comprar['Precio'], color='b', marker='o')
+            self.ax_precios.plot(valores_vender['Fecha'], valores_vender['Precio'], color='r', marker='o')
+        else:
+            self.ax_precios.plot(valores_comprar['time'], valores_comprar['price'], color='b', marker='o')
+            self.ax_precios.plot(valores_vender['time'], valores_vender['price'], color='r', marker='o')
+
+
 
         # Crear la lista de etiquetas con el formato "OpX precio"
-        etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['Precio'])]
+        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+            etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['Precio'])]
+        else:
+            etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['price'])]
 
         # Numerar los puntos
         for i, txt in enumerate(etiquetas):
-            self.ax_precios.annotate(txt, (valores_vender['Fecha'].iloc[i], valores_vender['Precio'].iloc[i]))
+            if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+                self.ax_precios.annotate(txt, (valores_vender['Fecha'].iloc[i], valores_vender['Precio'].iloc[i]))
+            else:
+                self.ax_precios.annotate(txt, (valores_vender['time'].iloc[i], valores_vender['price'].iloc[i]))
 
-        self.ax_precios.set_title('Precio de la operación creativa')
+        self.ax_precios.set_title('Precio de la operación')
         self.ax_precios.set_xlabel('Fecha')
         self.ax_precios.set_ylabel('Precio')
         self.ax_precios.grid()
@@ -177,7 +202,10 @@ class FormularioBackTestingMasInformacion():
         num_operacion = [str(i + 1) for i in range(len(df_valid_rentabilidad))]
         
         #Obtener la rentabilidad y los precios de venta de las operaciones cuando Decision sea Venta
-        precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['Precio'].tolist()
+        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
+            precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['Precio'].tolist()
+        else:
+            precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['price'].tolist()
         rentabilidad = df_valid_rentabilidad['Rentabilidad'].tolist()
         # Formatear los valores para que solo muestren dos decimales
         rentabilidad = ["{:.2f}".format(valor) for valor in rentabilidad]

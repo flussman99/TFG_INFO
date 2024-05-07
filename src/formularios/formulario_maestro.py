@@ -6,8 +6,8 @@ import util.util_imagenes as util_img
 # Nuevo
 from formularios.formulario_inicio_sesion import FormularioInicioSesion
 from formularios.formulario_backtesting import FormularioBackTesting
-from formularios.formulario_operaciones import FormularioOperaciones
-from formularios.formulario_operaciones_creativas import FormularioOperacionesCreativas
+from formularios.formulario_clasicas import FormularioClasicas
+from formularios.formulario_creativas import FormularioCreativas
 from formularios.formulario_informacion import FormularioInformacion
 from formularios.formulario_perfil import FormularioPerfil
 import tkinter as tk
@@ -90,16 +90,14 @@ class FormularioMaestroDesign(tk.Tk):
 
         # Botones del menú lateral
         
-        self.boton_backtesting = tk.Button(self.menu_lateral)        
         self.boton_operaciones = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_operaciones_creativas = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_perfil = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_informacion = tk.Button(self.menu_lateral)        
 
         buttons_info = [
-            ("Back Testing", "\uf007", self.boton_backtesting,self.abrir_panel_backTesting),
-            ("Operaciones", "\uf03e", self.boton_operaciones,self.abrir_panel_operaciones),
-            ("Op. Creativas", "\uf129", self.boton_operaciones_creativas,self.abrir_panel_operaciones_creativas),
+            ("Op. Clásicas", "\uf03e", self.boton_operaciones,self.abrir_panel_clasicas),
+            ("Op. Creativas", "\uf129", self.boton_operaciones_creativas,self.abrir_panel_creativas),
             ("Perfil", "\uf129", self.boton_perfil,self.abrir_panel_perfil),
             ("Información", "\uf013", self.boton_informacion,self.abrir_panel_informacion)
         ]
@@ -153,13 +151,13 @@ class FormularioMaestroDesign(tk.Tk):
         self.limpiar_panel(self.cuerpo_principal)     
         FormularioBackTesting(self.cuerpo_principal, self.user_id)   
         
-    def abrir_panel_operaciones(self):   
+    def abrir_panel_clasicas(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioOperaciones(self.cuerpo_principal,self.img_sitio_construccion) 
+        FormularioClasicas(self.cuerpo_principal, self.user_id) 
 
-    def abrir_panel_operaciones_creativas(self):   
+    def abrir_panel_creativas(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioOperacionesCreativas(self.cuerpo_principal,self.img_sitio_construccion) 
+        FormularioCreativas(self.cuerpo_principal, self.user_id) 
 
     def abrir_panel_informacion(self):   
         self.limpiar_panel(self.cuerpo_principal)     
@@ -175,7 +173,6 @@ class FormularioMaestroDesign(tk.Tk):
             widget.destroy()
 
     def habilitar_botones(self):
-        self.boton_backtesting.config(state="normal")
         self.boton_operaciones.config(state="normal")
         self.boton_operaciones_creativas.config(state="normal")
         self.boton_perfil.config(state="normal")

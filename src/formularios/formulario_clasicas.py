@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
-from formularios.formulario_backtesting_opciones import FormularioBackTestingOpciones
+from formularios.formulario_backtesting_clasicas import FormularioBackTestingClasicas
+from formularios.formulario_inversion_clasicas import FormularioInversionClasicas
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -16,8 +17,9 @@ from configDB import DBConfig
 
 class FormularioClasicas():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, user_id):
 
+        self.user_id = user_id
         self.frame_width_superior = 0
         self.frame_height_superior = 0
 
@@ -61,12 +63,12 @@ class FormularioClasicas():
         self.icono_operaciones_creativas = util_img.leer_imagen("src/imagenes/extras/invertir.png", (10,10))
 
         #Boton para "Operaciones Clásicas" con imagen de fondo y sin bordes
-        self.boton_operaciones_clasicas = tk.Button(self.frame_superior, image=self.icono_operaciones_clasicas, bg="lightblue", command=self.backtesting_clasicas, borderwidth=0, highlightthickness=0)        
-        self.boton_operaciones_clasicas.place(relx=0.1, rely=0.5)
+        self.boton_inversion_clasicas = tk.Button(self.frame_superior, image=self.icono_operaciones_clasicas, bg="lightblue", command=self.backtesting_clasicas, borderwidth=0, highlightthickness=0)        
+        self.boton_inversion_clasicas.place(relx=0.1, rely=0.5)
 
         #Boton para "Operaciones Creativas" con imagen de fondo y sin bordes
-        self.boton_operaciones_creativas = tk.Button(self.frame_superior, image=self.icono_operaciones_creativas, bg="lightblue", command=self.invertir_clasicas, borderwidth=0, highlightthickness=0)
-        self.boton_operaciones_creativas.place(relx=0.6, rely=0.5)
+        self.boton_inversion_creativas = tk.Button(self.frame_superior, image=self.icono_operaciones_creativas, bg="lightblue", command=self.invertir_clasicas, borderwidth=0, highlightthickness=0)
+        self.boton_inversion_creativas.place(relx=0.6, rely=0.5)
 
 
     def on_parent_configure(self, event):
@@ -87,23 +89,21 @@ class FormularioClasicas():
 
         #Ajustar el tamaño del boton de operaciones clásicas
         self.icono_operaciones_clasicas = util_img.leer_imagen("src/imagenes/extras/backtesting.png", (int(self.frame_width_superior * 0.3), int(self.frame_height_superior * 0.4)))
-        self.boton_operaciones_clasicas.configure(image=self.icono_operaciones_clasicas)
+        self.boton_inversion_clasicas.configure(image=self.icono_operaciones_clasicas)
         
 
         #Ajustar el tamaño del boton de operaciones creativas
         self.icono_operaciones_creativas = util_img.leer_imagen("src/imagenes/extras/invertir.png", (int(self.frame_width_superior * 0.3), int(self.frame_height_superior * 0.4)))
-        self.boton_operaciones_creativas.configure(image=self.icono_operaciones_creativas)
+        self.boton_inversion_creativas.configure(image=self.icono_operaciones_creativas)
 
     
     def backtesting_clasicas(self):
-        pass
+        self.limpiar_panel(self.frame_principal)     
+        FormularioBackTestingClasicas(self.frame_principal)
 
     def invertir_clasicas(self):
-        pass
-
-    def abrir_panel_backTesting_creativas(self):   
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingOpciones(self.frame_principal) 
+        FormularioInversionClasicas(self.frame_principal)
 
     def limpiar_panel(self,panel):
     # Función para limpiar el contenido del panel

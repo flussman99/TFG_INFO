@@ -16,7 +16,7 @@ import mysql.connector
 from configDB import DBConfig
 
 
-class FormularioBackTestingOpciones():
+class FormularioCreativas():
 
     def __init__(self, panel_principal, user_id):
 
