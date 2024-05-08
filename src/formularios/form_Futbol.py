@@ -14,6 +14,8 @@ import matplotlib.dates as mdates
 from datetime import datetime
 from Formula1 import SF1_backtesting
 from EquiposdeFutbol import SBS_backtesting as SBS
+import ordenes as ORD   
+import time
 
 from config import COLOR_CUERPO_PRINCIPAL
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
@@ -74,7 +76,7 @@ class FormularioFutbol(tk.Toplevel):
         self.frame_directo=None
         self.frame_ticks=None
         
-        frame=SBS.FRAMEDIRECTO
+        self.frame=SBS.FRAMEDIRECTO
         ligas=SBS.ligas
         acciones=SBS.acciones
         pais=SBS.pais
@@ -445,14 +447,36 @@ class FormularioFutbol(tk.Toplevel):
         cuando_vender = self.combo_vender.get()
         accion_txt = self.acronimo_mt5
         url_txt = self.url_asoc
-        estrategia_txt = self.estrategia
+        estrategia = self.estrategia
         equipo_txt = self.combo_equipos.get()
         frecuencia_txt = "Daily"
-        print(equipo_txt, accion_txt, estrategia_txt,url_txt)
+        print(equipo_txt, accion_txt, estrategia,url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
-        self.frame_directo=self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
-        self.frame_ticks=self.b.thread_orders(estrategia_txt)       
         self.visualizar()
-        self.treeview("Directo")
-        self.treeview_ticks()
+
+        self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
+        self.b.thread_orders(estrategia)
+
+        while True:
+            print("INTERFACES")
+            self.frame_ticks=ORD.FRAMETICKS
+            print(ORD.FRAMETICKS)
+            print(SBS.FRAMEDIRECTO)
+            time.sleep(20)
+        
+        # for self.frame_directo in frame_futbol:
+        #     frames = self.b.thread_orders(estrategia)
+        #     print("Fut frame")
+        #     print(self.frame_directo)
+        #     self.treeview("Directo") 
+        #     for self.frame_ticks in frames:
+        #         print("Interfaz frame")
+        #         print(self.frame_ticks)
+        #         self.treeview_ticks()     
+        #         break
+            
+        
+         
+        
+        
     
