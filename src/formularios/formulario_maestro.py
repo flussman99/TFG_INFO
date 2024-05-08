@@ -178,7 +178,14 @@ class FormularioMaestroDesign(tk.Tk):
         self.boton_perfil.config(state="normal")
 
     def cambiar_estado_sesion(self, user_id):
-        self.bool_inicio = True
-        self.user_id = user_id
-        self.labelUsuario.config(text="CERRAR SESIÓN")
-        self.habilitar_botones()
+        if self.bool_inicio == False:
+            self.bool_inicio = True
+            self.user_id = user_id
+            self.labelUsuario.config(text="CERRAR SESIÓN")
+            self.habilitar_botones()
+        else:
+            self.bool_inicio = False
+            self.labelUsuario.config(text="INICIAR SESIÓN")
+            self.boton_operaciones.config(state="disabled")
+            self.boton_operaciones_creativas.config(state="disabled")
+            self.boton_perfil.config(state="disabled")
