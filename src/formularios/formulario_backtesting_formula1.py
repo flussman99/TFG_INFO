@@ -339,10 +339,10 @@ class FormularioBackTestingFormula1():
         self.label_rentabilidad.pack(side="left", padx=(10, 0), pady=5)
 
         # Rentabilidad
-        self.rentabilidad_futbol = tk.StringVar()
-        self.rentabilidad_futbol.set("0")
-        self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
+        self.rentabilidad_f1 = tk.StringVar()
+        self.rentabilidad_f1.set("0")
+        self.label_rentabilidad_f1 = tk.Label(self.frame_datos, textvariable=self.rentabilidad_f1, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_f1.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
@@ -399,6 +399,7 @@ class FormularioBackTestingFormula1():
         piloto_txt = self.piloto
         cuando_comprar = self.combo_metodos_comprar.get()
         cuando_vender = self.combo_metodos_vender.get()
+        self.accion = self.obtenerAccion(self.accion)
         pais_txt = self.obtenerPais(self.accion)
         self.accion = self.accion.split('.')[0]
 
@@ -413,10 +414,34 @@ class FormularioBackTestingFormula1():
         
         self.rentabilidad_f1.set(str(rentabilidad))
 
-        self.rentabilidad_indicador_f1.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
 
-        #self.visualizar()
-        #self.treeview("Backtesting")
+        self.treeview("Backtesting")
+
+    def treeview(self,modo):
+        if(modo=="Backtesting"):
+            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+
+            # Set the initial DataFrame to display
+            self.current_frame = self.frame_without_filter
+        else:
+            self.current_frame = self.frame_directo
+        print("-----------------------------------")
+        print(self.current_frame)
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(self.current_frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
     
 
 
@@ -432,7 +457,7 @@ class FormularioBackTestingFormula1():
 
     def mas_informacion(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_f1.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel

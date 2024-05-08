@@ -330,7 +330,7 @@ def ultimoPartido(equipos_txt:str,url,cola):
         print(RESULTADO_ULTIMO_PARTIDO)
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
         FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]].drop(['ResultadoLocal', 'ResultadoVisitante'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
-        # print(FRAMEDIRECTO)
+        print(FRAMEDIRECTO)
         cola.put(FRAMEDIRECTO)
         NUEVO_PARTIDO = True
     else:
@@ -356,7 +356,6 @@ def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,co
         ultimoPartido(equipos_txt,url,cola)
         print("Checking matches...")
         print(FRAMEDIRECTO)
-        yield FRAMEDIRECTO
 
 
 def check_buy() -> bool:

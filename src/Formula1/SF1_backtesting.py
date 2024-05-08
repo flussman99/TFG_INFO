@@ -234,7 +234,7 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
 
     piloto_frame=datosPiloto(prices, inicio, fin, url, piloto)
     
-
+    print(ticks_frame)
 
     # Iterate over the rows in piloto_frame
     for i, row in piloto_frame.iterrows(): 
@@ -247,7 +247,7 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
         if price is not None:
             # If a price was found, update the 'precio' column in piloto_frame
             piloto_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
-        if resultado[0] == 'DNF' or resultado[0] == 'DNS' or resultado[0] == 'No participo' or resultado[0] == ' ' or resultado[0] == 'N':
+        if resultado[0] == 'DNF' or resultado[0] == 'DNS' or resultado[0] == 'No participo' or resultado[0] == ' ' or resultado[0] == 'N' or resultado[0] == 'DSQ':
             resultado = 30
         elif '*' in resultado[0]:
             # Eliminar el asterisco si está presente
@@ -257,12 +257,12 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
 
         precioCompra = piloto_frame.at[i, 'Precio']
             
-        if resultado <= combo_resultado and len(compras) < 10:
+        if comprobar(resultado, combo_resultado) and len(compras) < 10:
             decisiones.append("1")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
             posicion_abierta=True
-        elif resultado > combo_resultado and posicion_abierta == True:
+        elif not comprobar(resultado, combo_resultado) and posicion_abierta == True:
             decisiones.append("-1")#VENDO
             posicion_abierta=False
             print(compras)
@@ -279,6 +279,23 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
     print("frame f1",piloto_frame)
     return piloto_frame    
 
+def comprobar(resultado, combo_resultado):
+    
+    if combo_resultado == "Top 1":
+        resultado_combo = 1
+    elif combo_resultado == "Top 3":
+        resultado_combo = 3
+    elif combo_resultado == "Top 5":
+        resultado_combo = 5
+    elif combo_resultado == "Top 10":
+        resultado_combo = 10
+    else:
+        resultado_combo = 30
+    
+    if resultado <= resultado_combo:
+        return True
+    else:
+        return False
 
 def obtener_accion_escuderia(piloto, año):
     base_dir = os.path.abspath('src\Formula1\html')

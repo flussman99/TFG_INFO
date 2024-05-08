@@ -10,6 +10,7 @@ from Disney import Dis_backtesting as DIS
 import pandas as pd
 import os
 import queue
+import time
 
 class Bot:
     
@@ -132,28 +133,25 @@ class Bot:
         
         self.threads.append(t)
         t.start()
-
-        for updated_frame in SBS.thread_futbol(self.pill2kill, self.trading_data, equipo, url, cuando_comprar, cuando_vender, self.frame_directo):
-            print(updated_frame)
     
         print('Thread - Futbol. LAUNCHED')
 
-        return updated_frame
+        
 
     
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,
-                            args=(self.pill2kill, self.trading_data, estrategia_directo)) #self.frmae_ticks_directo))
+                            args=(self.pill2kill, self.trading_data, estrategia_directo))
         self.threads.append(t)
         t.start()
-
-        for updated_frame in orders.thread_orders(self.pill2kill, self.trading_data, estrategia_directo):# self.frmae_ticks_directo):
-            print(updated_frame)
 
         print('Thread - orders. LAUNCHED')
         print("Hilos en la lista threads:", self.threads)
 
-        return updated_frame
+
+                    
+
+        
 
     def thread_F1(self,piloto,url,cuando_comprar,cuando_vender):
     

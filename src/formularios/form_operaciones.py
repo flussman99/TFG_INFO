@@ -11,7 +11,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from datetime import datetime
+import time
 from config import COLOR_CUERPO_PRINCIPAL
+import ordenes as ORD   
+
+
 "from config import COLOR_BARRA_SUPERIOR, COLOR_CUERPO_PRINCIPAL , COLOR_MENU_LATERAL, COLOR_MENU_CURSOR_ENCIMA"
 
 
@@ -523,20 +527,20 @@ class FormularioOperaciones(tk.Toplevel):
             self.tree_ticks.column(col, width=100)
 
         # Limpiar el widget Treeview
-        for row in self.tree_ticks.get_children():
-            self.tree_ticks.delete(row)
+        self.tree_ticks.delete(*self.tree_ticks.get_children())
 
         # Añadir todos los datos del DataFrame al widget Treeview
         for index, row in self.current_frame2.iterrows():
             self.tree_ticks.insert("", "end", values=tuple(row))
 
+
     def tickdirecto(self):
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_velas.get()
+        estrategia = self.combo_velas.get()
 
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)  
-        
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)
+
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
         elif estrategia == 'Media Movil':
@@ -545,12 +549,17 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_bandas()
         elif estrategia == 'Estocastico':
             self.b.thread_estocastico()
-        
-        self.frame_ticks=self.b.thread_orders(estrategia)
-        print("interfaz")
-        print(self.frame_ticks)
 
-        self.treeview_ticks()
+        self.b.thread_orders(estrategia)
+
+
+        while True:
+            print("Ticks")
+            self.frame_ticks=ORD.FRAMETICKS
+            self.treeview_ticks()
+            print(ORD.FRAMETICKS)
+            time.sleep(20)
+        
 
 
     def getPrice(self):
