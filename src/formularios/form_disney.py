@@ -535,9 +535,23 @@ class FormularioDisney(tk.Toplevel):
         #     self.b.thread_estocastico()
     
     def lanzarEstrategia(self):
-        piloto_txt = self.combo_piloto.get()
+        frecuencia_txt = "Daily"
         accion_txt = self.combo_acciones.get()
-        estrategia=self.combo_años.get()
+        inicio_txt = self.entry_inicio_back.get()
+        fin_txt = self.entry_fin_back.get()
+        estrategia_txt = 'Disney'
+        piloto_txt = self.combo_piloto.get()
+        cuando_actuar = float(self.entry_lotaje.get())
+        accion_txt = 'DIS'
+        pais_txt = 'united states'
+        accion_txt = accion_txt.split('.')[0]
+
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        self.frame_directo=self.b.thread_Disney(piloto_txt, 'https://en.wikipedia.org/wiki/List_of_Walt_Disney_Studios_films_(2020-2029)', cuando_actuar,cuando_actuar)
+        self.frame_ticks=self.b.thread_orders(estrategia_txt)       
+        self.visualizar()
+        self.treeview("Directo")
+        self.treeview_ticks()
 
     def pararTicksDirecto(self):
         piloto_txt = self.combo_piloto.get()

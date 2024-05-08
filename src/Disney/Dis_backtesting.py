@@ -178,8 +178,11 @@ def leerURL(url, studio_txt):
         soup = BeautifulSoup(respuesta, 'html.parser')
 
         titulos = []
+        fechas_lanzamiento = []
+        estudios = []
 
-        tabla_peliculas = soup.find('table', class_="wikitable plainrowheaders sortable jquery-tablesorter")
+        tabla_peliculas = soup.find('table')
+
         if tabla_peliculas:
             
             filas = tabla_peliculas.find_all('tr')
@@ -187,18 +190,28 @@ def leerURL(url, studio_txt):
             for fila in filas:                
                 # Obtener los datos de la última fila
                 datos = fila.find_all('td')
-                
+                titulo = fila.find_all('th')
+
                 # Extraer el título de la película, el estudio y la fecha de lanzamiento
-                fechas_lanzamiento = datos[0].get_text(strip=True)
-                titulos = datos[1].get_text(strip=True)
-                estudios = datos[2].get_text(strip=True)
+                if len(datos) >= 2:
+                    fechas_lanzamiento.append(datos[0].get_text(strip=True))
+                    titulos.append(titulo[0].get_text(strip=True))
+                    estudios.append(datos[1].get_text(strip=True))
+                    ult_fecha = datos[0].get_text(strip=True)
+                    ult_estudio = datos[1].get_text(strip=True)
+                elif len(datos) > 0:
+                    fechas_lanzamiento.append(ult_fecha)
+                    titulos.append(titulo[0].get_text(strip=True))
+                    estudios.append(ult_estudio)
+                
 
             ratings = get_movie_ratings(titulos)
 
             df = pd.DataFrame({'Title': titulos, 'Release Date': fechas_lanzamiento, 'Rating': ratings, 'Studio': estudios})
-
+            # df = pd.DataFrame({'Title': titulos, 'Release Date': fechas_lanzamiento, 'Studio': estudios})
             print(df)
-        
+    else:
+        print("NO ENTRA")
     return df
 
 def thread_Disney(pill2kill,trading_data: dict, studio_txt,url,combo_comprar,comobo_vender,cola):
@@ -230,8 +243,8 @@ def ultimaPelicula(studio_txt:str,url,cola):
 
     last_row = studio_frame.iloc[-1]
     
-    if(FECHA_ULTIMA_PELICULA is None or last_row['Fecha']!=FECHA_ULTIMA_PELICULA):
-        FECHA_ULTIMA_PELICULA = last_row['Fecha']
+    if(FECHA_ULTIMA_PELICULA is None or last_row['Release Date']!=FECHA_ULTIMA_PELICULA):
+        FECHA_ULTIMA_PELICULA = last_row['Release Date']
         print(FECHA_ULTIMA_PELICULA)
         # Asignar el Resultado a cada carrera
         RESULTADO_ULTIMA_PELICULA = studio_frame.at[studio_frame.index[-1], 'Rating']
