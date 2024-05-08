@@ -127,7 +127,7 @@ class FormularioInicioSesion():
         self.boton_iniciar_sesion.pack(pady=(20,0))
 
         # Label para llevar a página de Registro
-        self.label_registro = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Si no tienes cuenta: Regístrate aquí", cursor="hand2", font=("Helvetica", int(self.font_size*0.25)), fg="#0000FF")
+        self.label_registro = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Si no tienes cuenta: Regístrate aquí", cursor="hand2", font=("Helvetica", int(self.font_size*0.25)), fg="grey")
         self.label_registro.pack(padx=0)
         self.label_registro.bind("<Button-1>", self.abrir_registro)
 
@@ -258,7 +258,7 @@ class FormularioInicioSesion():
     def cerrar_Sesion(self):
         #Cerrar sesión
         #Label Cerrar Sesión
-        self.label_cerrar_sesion = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="CERRAR SESIÓN", font=("Helvetica", int(self.font_size*0.25)), fg="grey")
+        self.label_cerrar_sesion = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="¿Seguro que desea cerrar la sesión?", font=("Helvetica", int(self.font_size*0.25)), fg="#2d367b")
         self.label_cerrar_sesion.pack(padx=0)
 
         #Boton Cerrar Sesión
@@ -321,6 +321,9 @@ class FormularioInicioSesion():
         if hasattr(self, 'label_titulo') and self.label_titulo.winfo_exists():
             self.label_titulo.configure(font=("Berlin Sans FB",  int(self.font_size*0.3), "bold"))
 
+        if hasattr(self, 'label_cerrar_sesion') and self.label_cerrar_sesion.winfo_exists():
+            self.label_cerrar_sesion.configure(font=("Berlin Sans FB", int(self.font_size*0.25), "bold"))
+
 
     #Hay que hacer que pueda logarse cualquier otro usuario
     def verificar(self):
@@ -349,6 +352,12 @@ class FormularioInicioSesion():
     def desverificar(self):
         #Hacer lo que sea para cerrar sesion vaya
         self.cerrar_mt5()
+        self.cambiar_estado_sesion(None)
+        self.panel_inicio()
+
+
+
+
 
     def mt5_login(self,usr:int, passw:str, serv:str) -> bool:
         """Function to initialize the metatrader 5 aplication
