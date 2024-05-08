@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
 import bot as bt
 from formularios.form_login import FormularioLoginDesign
+<<<<<<< HEAD
 #from formularios.formulario_maestro import FormularioMaestroDesign
 from formularios.form_maestro_design import FormularioMaestroDesign
+=======
+# from formularios.formulario_maestro import FormularioMaestroDesign
+from formularios.formulario_maestro import FormularioMaestroDesign
+>>>>>>> 5eeecd34e535a20608ff55dfe6c7362ebf366d5f
 import sys
 
 app = FormularioMaestroDesign()
