@@ -365,6 +365,7 @@ def check_buy() -> bool:
     if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
         NUEVO_PARTIDO=False#si he invertido una vez por el partido no invierto mas
         return True
+        print("INVIERTE")
     else:
         NUEVO_PARTIDO=False#si hl resultado no es el que buscba el usuario para invertir no invertimos y esperamos al siguiente partido
         return False

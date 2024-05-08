@@ -481,6 +481,7 @@ class FormularioOperaciones(tk.Toplevel):
         self.combo_frecuencia.configure(background='#30A4B4', foreground='black', font=('Calistoga Regular', 12))
 
         self.original_frecuencia = frecuencia
+        self.frec_milisegundos=None
 
         self.tree_ticks = ttk.Treeview(self.cuerpo_principal)
         self.tree_ticks.place(x=35, y=350, width=700)
@@ -538,6 +539,7 @@ class FormularioOperaciones(tk.Toplevel):
         frecuencia_txt = self.combo_frecuencia.get()
         accion_txt = self.combo_acciones.get()
         estrategia = self.combo_velas.get()
+        self.frec_milisegundos=self.calcular_frecuencia(frecuencia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)
 
@@ -551,16 +553,50 @@ class FormularioOperaciones(tk.Toplevel):
             self.b.thread_estocastico()
 
         self.b.thread_orders(estrategia)
+        self.actualiar_frame()
 
 
-        while True:
-            print("Ticks")
+    def calcular_frecuencia(self, frecuencia_txt):
+        # Obtener valores de la frecuencia en segundos
+        if frecuencia_txt == "1M":
+            frecuencia = 20*1000
+        elif frecuencia_txt == "3M":
+            frecuencia = 180*1000
+        elif frecuencia_txt == "5M":
+            frecuencia = 300*1000
+        elif frecuencia_txt == "10M":
+            frecuencia = 600*1000
+        elif frecuencia_txt == "15M":
+            frecuencia = 900*1000
+        elif frecuencia_txt == "30M":
+            frecuencia = 1800*1000
+        elif frecuencia_txt == "1H":
+            frecuencia = 3600*1000
+        elif frecuencia_txt == "2H":
+            frecuencia = 7200*1000
+        elif frecuencia_txt == "4H":
+            frecuencia = 14400*1000
+        elif frecuencia_txt == "Daily":
+            frecuencia = 86400*1000
+        elif frecuencia_txt == "Weekly":
+            frecuencia = 604800*1000
+        elif frecuencia_txt == "Monthly":
+            frecuencia = 2592000*1000
+        else:
+            frecuencia = 0
+        return frecuencia
+        
+    def actualiar_frame(self):
+        
+        print("Ticks")
+        if(ORD.FRAMETICKS.empty):
+            self.cuerpo_principal.after(10000, self.actualiar_frame)
+        else:
             self.frame_ticks=ORD.FRAMETICKS
             self.treeview_ticks()
-            print(ORD.FRAMETICKS)
-            time.sleep(20)
-        
+            self.cuerpo_principal.after(self.frec_milisegundos, self.actualiar_frame)
 
+        
 
     def getPrice(self):
         frecuencia_txt = self.combo_frecuencia.get()

@@ -413,6 +413,23 @@ class FormularioFutbol(tk.Toplevel):
         for index, row in self.current_frame2.iterrows():
             self.tree_ticks.insert("", "end", values=tuple(row))
 
+    def treeview_partidos(self):
+        self.current_frame =self.frame_directo
+
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(self.current_frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
 
     
     def coger_ticks(self):
@@ -452,28 +469,30 @@ class FormularioFutbol(tk.Toplevel):
         frecuencia_txt = "Daily"
         print(equipo_txt, accion_txt, estrategia,url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
-        self.visualizar()
-
+    
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
         self.b.thread_orders(estrategia)
+        self.actualiar_partidos()
+        self.actualiar_frame()
+        self.visualizar()
 
-        while True:
-            print("INTERFACES")
-            self.frame_ticks=ORD.FRAMETICKS
-            print(ORD.FRAMETICKS)
-            print(SBS.FRAMEDIRECTO)
-            time.sleep(20)
+    def actualiar_partidos(self):
+        print("partidos")
+        if(SBS.FRAMEDIRECTO.empty):
+            self.cuerpo_principal.after(10000, self.actualiar_partidos)
+        else:
+            self.frame_directo=SBS.FRAMEDIRECTO
+            self.treeview_partidos()
+            self.cuerpo_principal.after(20000, self.actualiar_partidos)
         
-        # for self.frame_directo in frame_futbol:
-        #     frames = self.b.thread_orders(estrategia)
-        #     print("Fut frame")
-        #     print(self.frame_directo)
-        #     self.treeview("Directo") 
-        #     for self.frame_ticks in frames:
-        #         print("Interfaz frame")
-        #         print(self.frame_ticks)
-        #         self.treeview_ticks()     
-        #         break
+    def actualiar_frame(self):
+        print("ticks")
+        if(ORD.FRAMETICKS.empty):
+            self.cuerpo_principal.after(10000, self.actualiar_frame)
+        else:
+            self.frame_ticks=ORD.FRAMETICKS
+            self.treeview_ticks()
+            self.cuerpo_principal.after(20000, self.actualiar_frame)
             
         
          
