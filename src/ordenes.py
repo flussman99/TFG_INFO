@@ -372,6 +372,28 @@ def is_market_open(trading_data):
     
     return False
 
+def comprobar_mercado(trading_data):
+
+   
+
+    hora_actual = date.datetime.now().strftime("%H:%M")
+    hora_actual=    date.datetime.strptime(hora_actual, "%H:%M")
+    check_time = hora_actual + date.timedelta(hours=1)
+    check_time=check_time.time()
+    checktime_formateado = check_time.strftime("%H:%M")
+ 
+
+    tick = mt5.symbol_info_tick(trading_data['market'])
+    tiempo_unix = tick[0]  # Obtenemos el tiempo en formato UNIX
+    hora = pd.to_datetime(tiempo_unix, unit='s').time()  # Convertimos a formato hora
+    hora_en_formato = hora.strftime("%H:%M")
+
+
+    if hora_en_formato == checktime_formateado:
+        return True
+    else:
+        return False
+
 def get_current_day():
     current_day = date.datetime.now().strftime("%A")
     print(current_day)
@@ -407,32 +429,34 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):# este bot 
     print("[THREAD - orders] - Checking operations")
 
 
+    if(not comprobar_mercado(trading_data)):
+        print("MERCADO CERRADO")
+    else:
 
+        while not pill2kill.wait(20):
 
-    while not pill2kill.wait(20):
-
-        #cerrar_todas_las_posiciones(trading_data)
-        # market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
-            if check_buy(estrategia_directo):            
-                buy = open_buy(trading_data)
-                lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
-                if buy is not None:
-                    now = date.datetime.now()
-                    dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-                    print("[Thread - orders] Buy open -", dt_string)
-                    #handle_buy(buy, trading_data['market'])
-                    buy = None
+            #cerrar_todas_las_posiciones(trading_data)
+            # market_open = mt5.market_is_open(trading_data['market'])#comprobar que el mercado este abierto
+                if check_buy(estrategia_directo):            
+                    buy = open_buy(trading_data)
+                    lista=elegirListGuardarCompras(estrategia_directo, buy)#tener un control de las compras 
+                    if buy is not None:
+                        now = date.datetime.now()
+                        dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+                        print("[Thread - orders] Buy open -", dt_string)
+                        #handle_buy(buy, trading_data['market'])
+                        buy = None
                 
-            else: print("NO SE ABRE OPERACION")        
+                else: print("NO SE ABRE OPERACION")        
         
         # for compra in lista: #comprobar en el hilo de RSI si es interesante vender alguna compra
 
-            if check_sell(estrategia_directo):
-                sell = cerrar_todas_las_posiciones(trading_data)
-                if sell is not None:
-                    now = date.datetime.now()
-                    dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-                    print("[Thread - orders] Close position -", dt_string)
-                    #handle_sell(sell, trading_data['market'])
-                    sell = None
+                if check_sell(estrategia_directo):
+                    sell = cerrar_todas_las_posiciones(trading_data)
+                    if sell is not None:
+                        now = date.datetime.now()
+                        dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+                        print("[Thread - orders] Close position -", dt_string)
+                        #handle_sell(sell, trading_data['market'])
+                        sell = None
                 
