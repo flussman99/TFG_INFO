@@ -77,7 +77,6 @@ def backtesting(nombre:str, prices: list):
     return prices_frame
 
    
-
 def diftime(t1,t2):
     if t1-t2>TIMEBTWOPERATIONS:
         print("Diferencia de tiempo mayor a 15 minutos")
@@ -170,7 +169,7 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     
     print("[THREAD - tick_reader] - Taking ticks")
     
-    while not pill2kill.wait(20):
+    while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         print(tick)
@@ -189,7 +188,6 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
             prices_frame['macd_signal'] = macd.macd_signal()
             CUR_MACD=macd.macd()
             CUR_SIGNAL=macd.macd_signal()
-
 
             print(prices_frame)
               
@@ -213,7 +211,7 @@ def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado c
     allows a buy operation"""
 
     if CUR_SIGNAL.iloc[-1] <= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] > 65:
-        return True
-    return False
+        return False
+    return True
 
 

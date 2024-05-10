@@ -471,7 +471,7 @@ class FormularioFutbol(tk.Toplevel):
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
     
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
-        self.b.thread_orders(estrategia)
+        self.b.thread_orders_creativas(estrategia)
         self.actualiar_partidos()
         self.actualiar_frame()
         self.visualizar()
@@ -479,7 +479,7 @@ class FormularioFutbol(tk.Toplevel):
     def actualiar_partidos(self):
         print("partidos")
         if(SBS.FRAMEDIRECTO.empty):
-            self.cuerpo_principal.after(10000, self.actualiar_partidos)
+            self.cuerpo_principal.after(10000, self.actualiar_partidos)#10s
         else:
             self.frame_directo=SBS.FRAMEDIRECTO
             self.treeview_partidos()

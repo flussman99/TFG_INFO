@@ -43,6 +43,7 @@ pip install beautifulsoup4
 pip install mysql-connector-python
 pip install requests
 pip instal investpy
+pip install schedule
 
 
 A nivel de interfaz incluir ventana para estudio y ventana para abrir operaciones donde podremos abrir varias y establecer valores de stop loss o el profit -->IMPORTANTE

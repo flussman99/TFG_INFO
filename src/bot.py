@@ -136,8 +136,6 @@ class Bot:
     
         print('Thread - Futbol. LAUNCHED')
 
-        
-
     
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,
@@ -146,6 +144,15 @@ class Bot:
         t.start()
 
         print('Thread - orders. LAUNCHED')
+        print("Hilos en la lista threads:", self.threads)
+    
+    def thread_orders_creativas(self, estrategia_directo):
+        t = threading.Thread(target=orders.thread_orders_creativas,
+                            args=(self.pill2kill, self.trading_data, estrategia_directo))
+        self.threads.append(t)
+        t.start()
+
+        print('Thread - orders - Creativas. LAUNCHED')
         print("Hilos en la lista threads:", self.threads)
 
 

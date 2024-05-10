@@ -44,19 +44,19 @@ def backtesting(market: str, prices: list):
 
 
     for index, row in prices_frame.iterrows():
-        K = row['%K']
-        D=row['%D']
+        stoch_values_fila = row['%K']
+        stoch_values_d_fila=row['%D']
         rsi = row['RSI']
 
         precioCompra= row['price']
         # Comparar las medias móviles
-        if K < D and  rsi > 60 and posicion_abierta == True:
+        if stoch_values_fila < stoch_values_d_fila and  rsi > 60 and posicion_abierta == True:
             decisiones.append("Venta")#VENDO
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['price']))
             compras.clear()
 
-        elif len(compras) < 10 and K > D and rsi < 35 :
+        elif len(compras) < 10 and stoch_values_fila > stoch_values_d_fila and rsi < 35 :
             if tiempo==0 or diftime(row['time'],tiempo):
                 decisiones.append("Compra")#COMPRO
                 rentabilidad.append(None)

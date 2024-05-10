@@ -232,7 +232,7 @@ class FormularioBackTestingClasicas():
         self.label_rentabilidad_clasica.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
-        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.apply_filter) 
+        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
 
         # Boton de "Guardar"
@@ -281,37 +281,49 @@ class FormularioBackTestingClasicas():
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
 
         #if parte backtestin
-        self.frame, rentabilidad = self.b.thread_tick_reader(inicio_txt, fin_txt, self.estrategia_txt)
-        print(self.frame)
+        self.frame_without_filter, rentabilidad = self.b.thread_tick_reader(inicio_txt, fin_txt, self.estrategia_txt)
+        print(self.frame_without_filter)
 
         #Actualizar rentabilidad
         self.rentabilidad_clasica.set(str(rentabilidad))
         self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)
-        
+
+        #Mostrar la tabla
+        self.treeview()
+
+    def treeview(self):
+        #Crear el otro frame para no tener que hacer otra llamada
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
+
         # Configurar las columnas del widget Treeview
-        self.tree["columns"] = list(self.frame.columns)
+        self.tree["columns"] = list(self.current_frame.columns)
         self.tree["show"] = "headings"  # Desactivar la columna adicional
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=100)
 
-        # Añadir los datos del DataFrame al widget Treeview
-        for index, row in self.frame.iterrows():
-            self.tree.insert("", "end", values=tuple(row))
-     
-    def apply_filter(self):
-        # Obtener el DataFrame actual
-        frame, _ = self.b.thread_tick_reader(self.fecha_inicio_entry.get(), self.fecha_fin_entry.get(), self.combo_estrategia.get())
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
 
-        # Filtrar el DataFrame
-        frame = frame[frame['Decision'].isin(['Compra', 'Venta'])]
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+
+    def toggle_frames(self):
+        if self.current_frame.equals(self.frame_without_filter):
+            self.current_frame = self.frame_with_filter
+        else:
+            self.current_frame = self.frame_without_filter
 
         # Limpiar el widget Treeview
         for row in self.tree.get_children():
             self.tree.delete(row)
 
-        # Añadir los datos filtrados al widget Treeview
-        for index, row in frame.iterrows():
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
 
     def guardar_backtesting(self):
@@ -321,7 +333,7 @@ class FormularioBackTestingClasicas():
         self.limpiar_panel(self.frame_principal)     
         print ("Estrategia: ", self.estrategia_txt)
         print("-------------------ESTRAREFA---------------------")
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame, self.estrategia_txt, self.rentabilidad_clasica.get())
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, self.estrategia_txt, self.rentabilidad_clasica.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel

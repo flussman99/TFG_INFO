@@ -8,6 +8,7 @@ import requests
 import numpy as np
 import tick_reader as tr
 import MetaTrader5 as mt5
+from typing import Tuple
 from config import API_KEY 
 
 # Spanish month names
@@ -358,28 +359,26 @@ def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,co
         print(FRAMEDIRECTO)
 
 
-def check_buy() -> bool:
+def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
     print(NUEVO_PARTIDO)
-
-    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
-        NUEVO_PARTIDO=False#si he invertido una vez por el partido no invierto mas
-        return True
-        print("INVIERTE")
+    if(NUEVO_PARTIDO):#Hay nuevo partido
+        if(comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR)):#El resultado del partido coincide con la eleccion del usuario
+            NUEVO_PARTIDO=False #Ya he comprobado ese resultado con el mercado y he realizado una inversion con ese partido
+            return True, True
+        else:#El resultado del partido no coincide con la eleccion del usuario
+            NUEVO_PARTIDO=False#Ya he comprobado ese resultado con el mercado y he realizado una inversion con ese partido
+            return True, False
     else:
-        NUEVO_PARTIDO=False#si hl resultado no es el que buscba el usuario para invertir no invertimos y esperamos al siguiente partido
-        return False
+        return False, False#no hay partido nuevo y no tengo que comprobar nada
 
-
-def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
-    global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
-    
-    if(NUEVO_PARTIDO and comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_VENDER)):#lo que ha elegido el usuario es lo mismo que el resultado del partido y es un partdo nuevo
-        NUEVO_PARTIDO=False
+def check_sell() -> bool:#en el check buy returneo si coincide con valor de venta el nuevo partido lo trato con check buy
+    global RESULTADO_ULTIMO_PARTIDO,COMBO_COMPRAR
+    if(comprobar(RESULTADO_ULTIMO_PARTIDO,COMBO_VENDER)):#El resultado del partido coincide con la eleccion del usuario
         return True
-    else:
-        NUEVO_PARTIDO=False
+    else:#El resultado del partido no coincide con la eleccion del usuario
         return False
+   
 def leerUrl(url):
 
     print(url)
