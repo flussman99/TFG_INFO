@@ -247,7 +247,7 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
         if price is not None:
             # If a price was found, update the 'precio' column in piloto_frame
             piloto_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
-        if resultado[0] == 'DNF' or resultado[0] == 'DNS' or resultado[0] == 'No participo' or resultado[0] == ' ' or resultado[0] == 'N' or resultado[0] == 'DSQ':
+        if 'DNF' in resultado[0] or 'DNS'  in resultado[0] or 'No participo' in resultado[0] or ' ' in resultado[0] or 'N' in resultado[0] or 'DSQ' in resultado[0]:
             resultado = 30
         elif '*' in resultado[0]:
             # Eliminar el asterisco si está presente
