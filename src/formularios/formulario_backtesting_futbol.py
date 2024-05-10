@@ -452,7 +452,7 @@ class FormularioBackTestingFutbol():
                 messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
                 continue
             
-            if self.nombre_inversion_existe(nombre_inversión, self.conn):
+            if self.nombre_inversion_existe(nombre_inversión):
                 messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
                 continue
             

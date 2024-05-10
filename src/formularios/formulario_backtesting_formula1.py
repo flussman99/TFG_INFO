@@ -467,7 +467,7 @@ class FormularioBackTestingFormula1():
                 messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
                 continue
             
-            if self.nombre_inversion_existe(nombre_inversión, self.conn):
+            if self.nombre_inversion_existe(nombre_inversión):
                 messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
                 continue
             
@@ -477,7 +477,7 @@ class FormularioBackTestingFormula1():
         tipo = "Formula 1"
 
         # Cogemos la acción en la que ha invertido el usuario
-        accion = self.accion.get()
+        accion = self.accion
 
         # Cogemos la fecha de inicio y la de fin de la inversión
         fecha_ini = self.fecha_inicio_entry.get()
@@ -485,7 +485,7 @@ class FormularioBackTestingFormula1():
 
         # Cogemos cuando toma las decisiones de comprar y vender el usuario
         compra = self.combo_metodos_comprar.get()
-        vender = self.combo_metodos_vender.get()
+        venta = self.combo_metodos_vender.get()
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_f1.get()
