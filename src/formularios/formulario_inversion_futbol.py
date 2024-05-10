@@ -17,6 +17,8 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
+import ordenes as ORD   
+
 
 
 class FormularioInversionFutbol():
@@ -53,6 +55,8 @@ class FormularioInversionFutbol():
         self.label_metodo_vender = None
         self.label_lotaje = None
         self.label_inversion = None
+        self.label_comparativa = None
+
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -60,6 +64,7 @@ class FormularioInversionFutbol():
         self.combo_accion = None
         self.combo_metodos_comprar = None
         self.combo_metodos_vender = None
+        self.combo_comparativa = None
 
         #Inicializar imagenes
         self.imagen_liga = None
@@ -79,6 +84,7 @@ class FormularioInversionFutbol():
         self.pais=SBS.pais
         self.url=SBS.urls_equipos
         self.acronimos_acciones=SBS.acronimo_acciones_api
+        self.acronimos_acciones_mt5=SBS.acronimo_acciones_mt5
         self.imagenes_liga=SBS.imagenes_ligas
         self.imagenes_equipos=SBS.imagenes_equipos
 
@@ -90,8 +96,8 @@ class FormularioInversionFutbol():
         self.tree = None
 
         #Botones
-        self.boton_empezar_inversion = None
-        self.boton_mostrar_operaciones = None
+        self.boton_empezar_inversion_futbol = None
+        self.boton_parar_inversion = None
 
 
 
@@ -225,58 +231,12 @@ class FormularioInversionFutbol():
         self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
         self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
-        #Label lotaje
-        self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_lotaje.grid(row=2, column=2, padx=10, pady=2, sticky="w")
-        
-        #Entry lotaje
-        self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
-        self.lotaje_entry.grid(row=3, column=2, padx=10, pady=2, sticky="w")
-
-        #Label inversion
-        self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_inversion.grid(row=2, column=3, padx=10, pady=2, sticky="w")
-
         #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
         self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_vender)
         self.combo_metodos_vender.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_comprar)
-        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
 
         #Ajustar vista
         self.on_parent_configure(event)
-
-    def actualizar_futbol_lotaje(self, event):
-        if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
-            self.boton_empezar_inversion.configure(state="disabled")
-            print("Deshabilitar boton")
-            print("-----------------------------------")
-
-        try:
-            aux = int(self.lotaje_entry.get())
-            self.lotaje_entry.configure(text=aux)    
-
-            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
-        except ValueError:
-            # Si no se puede convertir a entero, se maneja la excepción aquí
-            # Por ejemplo, podrías mostrar un mensaje de error al usuario
-            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
-
-    
-        #Cambiar texto inversion
-        self.valor_precio = self.getValorPrecio()
-        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
-        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
-
-        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
-            self.actualizar_futbol_ticks()
-
-        #Actualizar vista
-        self.on_parent_configure(event)
-
-    def getValorPrecio(self):
-        return 5
-        #DAVID AQUI PILLAS EL PRECIO PERRA
 
     def actualizar_futbol_metodos_comprar(self, event):
         #Coger el metodo de vender seleccionado
@@ -297,8 +257,8 @@ class FormularioInversionFutbol():
             self.combo_metodos_comprar["values"] = ["Empatado"]
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
-            self.actualizar_futbol_ticks()
+        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
+            self.actualizar_comparativa()
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -323,17 +283,32 @@ class FormularioInversionFutbol():
         
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "" and self.lotaje_entry.get() != "":
-            self.actualizar_futbol_ticks()
+        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
+            self.actualizar_comparativa()
 
         #Actualizar vista
-        self.on_parent_configure(event)
+        self.on_parent_configure(None)
 
-    def actualizar_futbol_ticks(self):
-        #Coger el metodo de comprar y vender seleccionado
-        self.metodo_comprar = self.combo_metodos_comprar.get()
-        self.metodo_vender = self.combo_metodos_vender.get()
+    def actualizar_comparativa(self):
+        if self.label_comparativa is None:
+            
+            #Label de "Comparativa"
+            self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
 
+            #ComboBox de comparativa
+            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.combo_comparativa["values"] = ['SP500', 'IBEX35']
+
+        #al mirar todos los datos actualizar el boton
+        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotajes)
+
+        #Ajustar vista
+        self.on_parent_configure(None)
+
+
+    def actualizar_lotajes(self, event):
         if (self.label_stop_loss is None):
             #Entry stop loss
             self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -350,14 +325,80 @@ class FormularioInversionFutbol():
             self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
             self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
-        # Boton de "Empezar backtesting"
-        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_inversion.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+        if self.label_lotaje is None:
+            #Label lotaje
+            self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_lotaje.grid(row=4, column=2, padx=10, pady=2, sticky="w")
+            
+            #Entry lotaje
+            self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
+            self.lotaje_entry.grid(row=5, column=2, padx=10, pady=2, sticky="w")
 
-        if self.lotaje_entry.get() == "":
-            self.boton_empezar_inversion.configure(state="disabled")
+            #Label inversion
+            self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_inversion.grid(row=4, column=3, padx=10, pady=2, sticky="w")
+
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
+
+        #Actualizar vista
+        self.on_parent_configure(None)
+        
+
+    def actualizar_futbol_lotaje(self, event):
+        if self.lotaje_entry.get() == "" and self.boton_empezar_inversion_futbol is not None:
+            self.boton_empezar_inversion_futbol.configure(state="disabled")
             print("Deshabilitar boton")
             print("-----------------------------------")
+
+        try:
+            aux = int(self.lotaje_entry.get())
+            self.lotaje_entry.configure(text=aux)    
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+    
+        #Cambiar texto inversion
+        self.valor_precio = self.getValorPrecio()
+        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
+        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+
+    def getValorPrecio(self):
+        return 5
+        #DAVID AQUI PILLAS EL PRECIO PERRA
+
+
+    def actualizar_boton_inversion(self):
+
+        # Boton de "Empezar inversion"
+        self.boton_empezar_inversion_futbol = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion_futbol.grid(row=4, column=4, rowspan=2, padx=10, pady=2, sticky="w")
+
+        if self.lotaje_entry.get() == "":
+            self.boton_empezar_inversion_futbol.configure(state="disabled")
+            print("Deshabilitar boton")
+            print("-----------------------------------")
+
+        #Actualizar vista
+        self.on_parent_configure(None)
+
+    def empezar_inversion(self):
+        self.crear_interfaz_inferior()
+
+        self.tickdirecto()
+
+        self.on_parent_configure(None)
 
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
@@ -374,39 +415,41 @@ class FormularioInversionFutbol():
         self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
 
-        # Boton de "Mostrar Operaciones"
-        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
-        self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
+        # Boton de "Parar Inversión"
+        self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
+        self.boton_parar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
         self.tree.pack(side="left", fill="x")
 
-    def empezar_backtesting(self):
+    def tickdirecto(self):
+        cuando_comprar = self.combo_metodos_comprar.get()
+        cuando_vender = self.combo_metodos_vender.get()
+        accion_txt = self.acronimos_acciones_mt5.get(self.combo_accion.get())
+        url_txt = self.url.get(self.combo_equipos.get())
+        estrategia = 'Futbol'
+        equipo_txt = self.combo_equipos.get()
+        frecuencia_txt = "Daily"
+        print(equipo_txt, accion_txt, estrategia,url_txt)
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
+    
+        self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
+        self.b.thread_orders_creativas(estrategia)
+        self.actualiar_partidos()
 
-        # Verificar si la interfaz de usuario ya ha sido creada
-        if not hasattr(self, 'frame_datos'):
-            # Si no ha sido creada, entonces crearla
-            self.crear_interfaz_inferior()
+    def actualiar_partidos(self):
+        print("partidos")
+        if(SBS.FRAMEDIRECTO.empty):
+            self.frame_principal.after(10000, self.actualiar_partidos)#10s
         else:
-            # Si ya ha sido creada, limpiar el Treeview
-            if self.tree is not None:
-                for item in self.tree.get_children():
-                    self.tree.delete(item)
+            self.frame_directo=SBS.FRAMEDIRECTO
+            self.treeview_partidos()
+            self.frame_principal.after(20000, self.actualiar_partidos)
+             
+    def treeview_partidos(self):
+        self.current_frame =self.frame_directo
 
-        # Llamar a la función para obtener nuevos datos
-        self.coger_ticks()
-
-    def treeview(self,modo):
-        if(modo=="Backtesting"):
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
-
-            # Set the initial DataFrame to display
-            self.current_frame = self.frame_without_filter
-        else:
-            self.current_frame = self.frame_directo
-        print("-----------------------------------")
-        print(self.current_frame)
         # Configurar las columnas del widget Treeview
         self.tree["columns"] = list(self.current_frame.columns)
         self.tree["show"] = "headings"  # Desactivar la columna adicional
@@ -421,51 +464,14 @@ class FormularioInversionFutbol():
         # Añadir todos los datos del DataFrame al widget Treeview
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
-    
-    def coger_ticks(self):
-        
-        inicio_txt = self.fecha_inicio_entry.get()
-        fin_txt = self.fecha_fin_entry.get()
-        equipo_txt = self.combo_equipos.get()
-        accion_txt = self.acronimos_acciones[self.combo_accion.get()]
-        estrategia_txt = 'Futbol'
-        pais_txt = self.pais[accion_txt]
-        url_txt = self.url[equipo_txt]
-        frecuencia_txt = "Daily"
-        cuando_comprar = self.combo_metodos_comprar.get()
-        cuando_vender = self.combo_metodos_vender.get()
-       
-        print(equipo_txt, accion_txt, pais_txt, url_txt)
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
-        
-        
-        self.rentabilidad_futbol.set(str(rentabilidad))
-        self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
 
-
-        self.treeview("Backtesting")
-     
-    def toggle_frames(self):
-        if self.current_frame.equals(self.frame_without_filter):
-            self.current_frame = self.frame_with_filter
-        else:
-            self.current_frame = self.frame_without_filter
-        print("-----------------------------------")
-        print(self.current_frame)
-        # Limpiar el widget Treeview
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
-        # Añadir todos los datos del DataFrame al widget Treeview
-        for index, row in self.current_frame.iterrows():
-            self.tree.insert("", "end", values=tuple(row))
+    def parar_inversion(self):
+        pass
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
         for widget in panel.winfo_children():
             widget.destroy()
-
 
     def obtener_dimensiones(self):
         print("Obteniendo dimensiones")
@@ -501,8 +507,10 @@ class FormularioInversionFutbol():
             self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
             self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
-
-
+        
+        if self.boton_empezar_inversion_futbol is not None:
+            self.boton_empezar_inversion_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_empezar_inversion_futbol.configure(width=int(self.frame_width * 0.015))
         
         #Ajustar label elegir liga
         if self.label_liga is not None:
@@ -515,9 +523,9 @@ class FormularioInversionFutbol():
                 self.label_imagen_liga.configure(image=self.imagen_liga)
 
             #ajustar botones
-            if self.boton_mostrar_operaciones is not None:
-                self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-                self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
+            if self.boton_parar_inversion is not None:
+                self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
         
             #Ajustar equipo
             if self.combo_equipos is not None:
@@ -543,17 +551,23 @@ class FormularioInversionFutbol():
                         self.label_metodo_vender.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
 
-                    #Ajustar lotaje
-                    if self.lotaje_entry is not None:
-                        self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                        self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
-
-                        if self.lotaje_entry.get() != "":
-                            #Habilitar el boton de empezar inversion
-                            if self.boton_empezar_inversion is not None:
-                                self.boton_empezar_inversion.configure(state="normal")
-
-        
+                    #Ajustar comparativa
+                    if self.combo_comparativa is not None:
+                        self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                        self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
+                        #Ajustar lotaje
+                        if self.lotaje_entry is not None:
+                            self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+                            self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
 
-        
+                            if self.lotaje_entry.get() != "":
+                                #Habilitar el boton de empezar inversion
+                                if self.boton_empezar_inversion_futbol is not None:
+                                    self.boton_empezar_inversion_futbol.configure(state="normal")
+
+            
+
+
+            
