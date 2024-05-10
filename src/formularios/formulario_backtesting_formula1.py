@@ -385,7 +385,7 @@ class FormularioBackTestingFormula1():
     
     def obtenerAccion(self, accion_txt):
         accionApi = self.accionesAPI.get(accion_txt)
-        if(accionApi == ''):
+        if(accionApi == '' or accionApi is None):
             accionApi = accion_txt
         print(accionApi)
         return accionApi
