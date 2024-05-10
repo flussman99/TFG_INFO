@@ -73,6 +73,8 @@ def backtesting(market: str, prices: list):
     tr.rentabilidad_total( prices_frame['Rentabilidad'])
     tr.frameToExcel(prices_frame,'MediaMovil.xlsx')
 
+    return prices_frame
+
 
 def diftime(t1,t2):
     if t1-t2>TIMEBTWOPERATIONS:

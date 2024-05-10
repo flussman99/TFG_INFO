@@ -48,8 +48,9 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
     print("[THREAD - tick_reader] - Working")
     
     load_ticks(ticks, trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt)
- 
+
     frame=estrategias(ticks,estrategia_txt)
+
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
 
     cola.put((frame, rentabilidad))
@@ -95,7 +96,7 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
 
     #rentabilidad_indicador=load_SP500(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
     rentabilidad_indicador= calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
-    frame= estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
+    frame = estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad, rentabilidad_indicador))
     print("[THREAD - tick_reader] - Ticks loaded")
