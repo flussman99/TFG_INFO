@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 import util.util_imagenes as util_img
 import pandas as pd
@@ -21,9 +21,9 @@ from formularios.formulario_mas_informacion import FormularioBackTestingMasInfor
 
 class FormularioBackTestingFormula1():
 
-    def __init__(self, panel_principal, user_id):
+    def __init__(self, panel_principal, id_user):
 
-        self.user_id = user_id
+        self.id_user = id_user
         self.b = bt(1)
 
         self.frame_width = 0
@@ -445,15 +445,81 @@ class FormularioBackTestingFormula1():
     
 
 
-    
-    
-
-
-
-
-
     def guardar_backtesting(self):
-        pass
+        
+        # Conexión a la base de datos
+        self.conn = mysql.connector.connect(
+                    host=DBConfig.HOST,
+                    user=DBConfig.USER,
+                    password=DBConfig.PASSWORD,
+                    database=DBConfig.DATABASE,
+                    port=DBConfig.PORT
+                )
+        
+        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombre
+        while True:
+
+            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
+            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
+
+            if not nombre_inversión:
+            # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
+                continue
+            
+            if self.nombre_inversion_existe(nombre_inversión, self.conn):
+                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
+                continue
+            
+            break
+        
+        # Le damos valor al tipo de inversión que esta haciendo el usuario
+        tipo = "Formula 1"
+
+        # Cogemos la acción en la que ha invertido el usuario
+        accion = self.accion.get()
+
+        # Cogemos la fecha de inicio y la de fin de la inversión
+        fecha_ini = self.fecha_inicio_entry.get()
+        fecha_fin = self.fecha_fin_entry.get()
+
+        # Cogemos cuando toma las decisiones de comprar y vender el usuario
+        compra = self.combo_metodos_comprar.get()
+        vender = self.combo_metodos_vender.get()
+
+        # Cogemos la rentabilidad de la inversión
+        rentabilidad = self.rentabilidad_f1.get()
+
+        # Guardamos la inversión en la base de datos
+        cursor = self.conn.cursor()
+        try:
+            # Realizamos la consulta para insertar los datos en la tabla Inversiones
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, rentabilidad)
+            cursor.execute(consulta, datos)
+        except Exception as e:
+            print(e)
+        
+        # Cerramos el cursor y la conexxión
+        cursor.close()
+        self.conn.commit()
+        self.conn.close()
+
+    def nombre_inversion_existe(self, nombre_inversion):
+        # Obtener el cursor para ejecutar consultas
+        cursor = self.conn.cursor()
+
+        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
+        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
+        datos = (self.id_user, nombre_inversion) 
+        cursor.execute(consulta, datos)
+        cantidad = cursor.fetchone()[0]
+
+        # Cerrar el cursor
+        cursor.close()
+
+        return cantidad > 0
+
 
     def mas_informacion(self):
         self.limpiar_panel(self.frame_principal)     

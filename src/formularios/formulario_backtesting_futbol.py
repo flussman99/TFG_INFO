@@ -17,7 +17,6 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
-import json
 
 
 class FormularioBackTestingFutbol():
@@ -441,11 +440,6 @@ class FormularioBackTestingFutbol():
                     port=DBConfig.PORT
                 )
         
-        # Pasamos el frame de los datos a json
-        json_datos = self.current_frame.to_json(orient='records', lines=False)
-
-        # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Futbol"
 
         # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombre
         while True:
@@ -464,9 +458,19 @@ class FormularioBackTestingFutbol():
             
             break
         
+        # Le damos valor al tipo de inversión que esta haciendo el usuario
+        tipo = "Futbol"
+
+        # Cogemos la acción en la que ha invertido el usuario	
+        accion = self.combo_accion.get()
+
         # Cogemos la fecha de inicio y la de fin de la inversión
         fecha_ini = self.fecha_inicio_entry.get()
         fecha_fin = self.fecha_fin_entry.get()
+
+        #Cogemos cuando toma las decisiones de comprar y vender el usuario
+        compra = self.combo_metodos_comprar.get()
+        venta = self.combo_metodos_vender.get()
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_futbol.get()
@@ -475,8 +479,8 @@ class FormularioBackTestingFutbol():
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, datos, tipo, fecha_inicio, fecha_fin, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, json_datos, tipo, fecha_ini, fecha_fin, rentabilidad)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, rentabilidad)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)
@@ -486,7 +490,7 @@ class FormularioBackTestingFutbol():
         self.conn.commit()
         self.conn.close()
 
-    def nombre_inversion_existe(self, nombre_inversion, conn):
+    def nombre_inversion_existe(self, nombre_inversion):
         # Obtener el cursor para ejecutar consultas
         cursor = self.conn.cursor()
 

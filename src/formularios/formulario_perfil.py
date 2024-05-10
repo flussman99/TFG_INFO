@@ -41,43 +41,57 @@ class FormularioPerfil():
 
 
         #Tabla Inversiones por usuario
-        self.label_tabla = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="MIS INVERSIONES GUARDADAS", font=("Helvetica", int(self.font_size*0.25)), fg="grey")
+        self.label_tabla = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="MIS INVERSIONES GUARDADAS", font=("Berlin Sans FB", 12, "bold"), fg="#2d367b")
         self.label_tabla.pack(padx=0)
 
         # Crear una tabla en el frame azul
         self.tabla = ttk.Treeview(self.frame_azul)
-        self.tabla["columns"] = ("Nombre", "Tipo", "Fecha Inicio", "Fecha Fin", "Rentabilidad", "Datos")
+        self.tabla["columns"] = ("Nombre", "Tipo", "Accion", "Fecha Inicio", "Fecha Fin", "Compra", "Venta","Rentabilidad")
         self.tabla.column("#0", width=0, stretch=tk.NO)
         self.tabla.column("Nombre", width=100)
         self.tabla.column("Tipo", width=100)
+        self.tabla.column("Accion", width=100)
         self.tabla.column("Fecha Inicio", width=100)
         self.tabla.column("Fecha Fin", width=100)
+        self.tabla.column("Compra", width=100)
+        self.tabla.column("Venta", width=100)
         self.tabla.column("Rentabilidad", width=100)
-        self.tabla.column("Datos", width=200)
         self.tabla.heading("Nombre", text="Nombre")
         self.tabla.heading("Tipo", text="Tipo")
+        self.tabla.heading("Accion", text="Accion")
         self.tabla.heading("Fecha Inicio", text="Fecha Inicial")
         self.tabla.heading("Fecha Fin", text="Fecha Final")
+        self.tabla.heading("Compra", text="Compra")
+        self.tabla.heading("Venta", text="Venta")
         self.tabla.heading("Rentabilidad", text="Rentabilidad")
-        self.tabla.heading("Datos", text="Datos")
-        self.tabla.pack(fill=tk.BOTH, expand=True)
+        self.tabla.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Obtener el cursor para ejecutar consultas
         cursor = self.conn.cursor()
 
         # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT nombre, tipo, fecha_inicio, fecha_fin, rentabilidad, datos FROM Inversiones WHERE id_usuario = %s"
+        consulta = "SELECT nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad FROM Inversiones WHERE id_usuario = %s"
         datos = (self.id_user,) 
         cursor.execute(consulta, datos)
         
         # Recorrer los resultados y agregarlos a la tabla
         for fila in cursor.fetchall():
-            nombre, tipo, fecha_inicio, fecha_fin, rentabilidad, datos = fila
-            self.tabla.insert("", tk.END, values=(nombre, tipo, fecha_inicio, fecha_fin, rentabilidad, datos))
+            nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad = fila
+            self.tabla.insert("", tk.END, values=(nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad))
 
         # Cerrar el cursor y la conexión
         cursor.close()
         self.conn.close()
 
-    def cambiar_user(self, id_user):
-        self.id_user = id_user
+        self.tabla.bind("<Configure>", self.ajustar_tabla)
+
+    def ajustar_tabla(self, event):
+        width = event.width
+        self.tabla.column("Nombre", width=int(width * 0.1))
+        self.tabla.column("Tipo", width=int(width * 0.1))
+        self.tabla.column("Accion", width=int(width * 0.1))
+        self.tabla.column("Fecha Inicio", width=int(width * 0.15))
+        self.tabla.column("Fecha Fin", width=int(width * 0.15))
+        self.tabla.column("Compra", width=int(width * 0.1))
+        self.tabla.column("Venta", width=int(width * 0.1))
+        self.tabla.column("Rentabilidad", width=int(width * 0.1))
