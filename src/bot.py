@@ -33,7 +33,9 @@ class Bot:
 	    "avg_spread": -1,
 	    "market": "",
 	    "buy_model": None,
-	    "sell_Model": None
+	    "sell_Model": None,
+        "stoploss": None,
+        "takeprofit": None
     }
     
     # Methods
@@ -74,6 +76,20 @@ class Bot:
         time_period=self.calcular_frecuencia(frecuencia)
         self.trading_data['time_period'] = time_period
         self.trading_data['market'] = market
+
+    def establecer_inversion_directo(self, frecuencia, market: str, lotaje,stoploss,takeprofit:int):
+        """
+        Args:
+            time_period (int): Time period of the bot, 24h * 3600 (in seconds)
+            market (str): Market to operate in.
+        """
+        time_period=self.calcular_frecuencia(frecuencia)
+        self.trading_data['time_period'] = time_period
+        self.trading_data['market'] = market 
+        self.trading_data['lotage']=lotaje
+        self.trading_data['stoploss']= stoploss
+        self.trading_data["takeprofit"]=takeprofit
+
     
     def get_ticks(self) -> list:
         """Method to get the ticks.

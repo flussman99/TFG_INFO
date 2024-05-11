@@ -436,7 +436,10 @@ class FormularioInversionFutbol():
         equipo_txt = self.combo_equipos.get()
         frecuencia_txt = "Daily"
         print(equipo_txt, accion_txt, estrategia,url_txt)
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        lotaje_txt=self.lotaje_entry.get()
+        stoploss_txt=self.stop_loss_entry.get()
+        takeprofit_txt=self.take_profit_entry.get()
+        self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
     
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
         self.b.thread_orders_creativas(estrategia)
