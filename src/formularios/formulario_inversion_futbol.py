@@ -423,6 +423,10 @@ class FormularioInversionFutbol():
         self.tree = ttk.Treeview(self.frame_inferior)
         self.tree.pack(side="left", fill="x")
 
+        #Crear un widget para otro Treeview
+        self.tree_ticks = ttk.Treeview(self.frame_inferior)
+        self.tree_ticks.pack(side="right", fill="x")
+
     def tickdirecto(self):
         cuando_comprar = self.combo_metodos_comprar.get()
         cuando_vender = self.combo_metodos_vender.get()
@@ -446,7 +450,16 @@ class FormularioInversionFutbol():
             self.frame_directo=SBS.FRAMEDIRECTO
             self.treeview_partidos()
             self.frame_principal.after(20000, self.actualiar_partidos)
-             
+    
+    def actualiar_frame(self):
+        print("ticks")
+        if(ORD.FRAMETICKS.empty):
+            self.frame_principal.after(10000, self.actualiar_frame)
+        else:
+            self.frame_ticks=ORD.FRAMETICKS
+            self.treeview_ticks()
+            self.frame_principal.after(20000, self.actualiar_frame)
+
     def treeview_partidos(self):
         self.current_frame =self.frame_directo
 
@@ -464,6 +477,24 @@ class FormularioInversionFutbol():
         # Añadir todos los datos del DataFrame al widget Treeview
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
+
+    def treeview_ticks(self):
+        self.current_frame2 = self.frame_ticks
+
+        # Configurar las columnas del widget Treeview
+        self.tree_ticks["columns"] = list(self.current_frame2.columns)
+        self.tree_ticks["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree_ticks["columns"]:
+            self.tree_ticks.heading(col, text=col)
+            self.tree_ticks.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree_ticks.get_children():
+            self.tree_ticks.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame2.iterrows():
+            self.tree_ticks.insert("", "end", values=tuple(row))
 
     def parar_inversion(self):
         pass
