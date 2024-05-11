@@ -487,6 +487,9 @@ class FormularioBackTestingFormula1():
         compra = self.combo_metodos_comprar.get()
         venta = self.combo_metodos_vender.get()
 
+        # Le damos valor a la frecuencia
+        frecuencia = "Diaria"
+
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_f1.get()
 
@@ -494,8 +497,8 @@ class FormularioBackTestingFormula1():
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, rentabilidad)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)

@@ -151,31 +151,39 @@ def thread_estocastico(pill2kill, ticks: list, trading_data: dict):
     load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
     print("[THREAD - tick_reader] - Taking ticks")
+    tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
     
     while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
         if tick is not None:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-            print("Nuevo tick añadido:", ticks[-1])
-            prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-            # print(prices_frame)
+            tiempoactualTick=pd.to_datetime(tick[0], unit='s')
+            print(tick)
+            if  tiempoactualTick!=tiempoUltimoTick :#comprobacion para que no me meta el mismo tick cuando el mercado esta cerrado 
+                
+                tiempoUltimoTick=tiempoactualTick#actualizo el tiempo
+                ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+                print("Nuevo tick añadido:", ticks[-1])
+                prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+                # print(prices_frame)
 
-            rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-            prices_frame["RSI"] = rsi.rsi()
-            CUR_RSI=rsi.rsi()
+                rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+                prices_frame["RSI"] = rsi.rsi()
+                CUR_RSI=rsi.rsi()
 
-            stoch = StochasticOscillator(prices_frame['price'], prices_frame['price'], prices_frame['price'], window=14, smooth_window=3)
-            stoch_values = stoch.stoch()
-            stoch_values_d = stoch_values.rolling(window=3).mean()
-            prices_frame['%K'] = stoch_values
-            prices_frame['%D'] = stoch_values_d
+                stoch = StochasticOscillator(prices_frame['price'], prices_frame['price'], prices_frame['price'], window=14, smooth_window=3)
+                stoch_values = stoch.stoch()
+                stoch_values_d = stoch_values.rolling(window=3).mean()
+                prices_frame['%K'] = stoch_values
+                prices_frame['%D'] = stoch_values_d
 
-            CUR_K=stoch_values
-            CUR_D=stoch_values_d
+                CUR_K=stoch_values
+                CUR_D=stoch_values_d
 
-            print(prices_frame)
+                print(prices_frame)
+        else:
+                print("TICK INVALIDO")
 
            
 

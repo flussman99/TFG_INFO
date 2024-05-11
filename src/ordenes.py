@@ -19,9 +19,10 @@ STOPLOSS = 100.0
 TAKEPROFIT = 100.0
 compras = []
 
-FRAMETICKS=pd.DataFrame()
+FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
 HAYPOSICIONESABIERTAS=False
 TIMEBTWOPERATIONS = timedelta(minutes=15)
+MERCADOCERRADO=False
 
 def handle_buy(buy, market):#modificar compra
     """Function to handle a buy operation.
@@ -325,6 +326,7 @@ def cerrar_todas_las_posiciones(trading_data):
             print(f"Ha ocurrido un error al cerrar la posición {position.ticket}: {mt5.last_error()}")
     
     return results
+    
 
 def is_market_open(trading_data):
  # Convertir check_time a un objeto datetime
@@ -393,28 +395,34 @@ def calcular_rentabilidad_operacion(precio_compra,precio_venta):
     return rentabilidad
 
 def insertar_ticks(tipo, result, trading_data, compras):
-    global FRAMETICKS
-    ticks_frame = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
-    if tipo == 'Compra':
-        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Compra"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
-    elif tipo == 'Venta Creativas':
-        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Venta"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
+    global FRAMETICKS, MERCADOCERRADO
+    
 
-    elif tipo == 'Venta Clasicas':
-        for sell in result:
-            print(compras[0].price, compras[0].order)
-            rentabilidad = calcular_rentabilidad_operacion(compras[0].price, sell.price)
-            new_data = {'Accion': trading_data['market'], 'Orden': compras[0].order, 'Fecha': date.datetime.now(), 'Precio': sell.price, 'Decision': "Venta", 'Rentabilidad': rentabilidad}
-            ticks_frame.loc[len(ticks_frame)] = new_data
-            compras.pop(0)
-    elif tipo == 'NO HA HABIDO EL RESULTADO ELEGIDO':
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No ha habido el resultado elegido"}
+    ticks_frame = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
+    if tipo == 'MERCADO CERRADO' and not MERCADOCERRADO:
+        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Mercado Cerrado"}
         ticks_frame.loc[len(ticks_frame)] = new_data
+        MERCADOCERRADO = True
     else:
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion"}
-        ticks_frame.loc[len(ticks_frame)] = new_data
+        if tipo == 'Compra':
+            new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Compra"}
+            ticks_frame.loc[len(ticks_frame)] = new_data
+        elif tipo == 'Ventas':
+            for sell in result:
+                print(compras[0].price, compras[0].order)
+                rentabilidad = calcular_rentabilidad_operacion(compras[0].price, sell.price)
+                new_data = {'Accion': trading_data['market'], 'Orden': compras[0].order, 'Fecha': date.datetime.now(), 'Precio': sell.price, 'Decision': "Venta", 'Rentabilidad': rentabilidad}
+                ticks_frame.loc[len(ticks_frame)] = new_data
+                compras.pop(0)
+        elif tipo == 'NO HA HABIDO EL RESULTADO ELEGIDO':
+            new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No ha habido el resultado elegido"}
+            ticks_frame.loc[len(ticks_frame)] = new_data
+        else:
+            new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion"}
+            ticks_frame.loc[len(ticks_frame)] = new_data
+
+        MERCADOCERRADO = False
+        
     
     FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
     print("Ordenes")
@@ -428,6 +436,40 @@ def diftime(t1,t2):
         return True
     else:
         return False
+    
+def ventas_sin_cerrar(ventasSinCerrar, trading_data):
+    global FRAMETICKS,compras
+    ticks_frame = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
+    for sell in ventasSinCerrar:
+        print(compras[0].price, compras[0].order)
+        rentabilidad = calcular_rentabilidad_operacion(compras[0].price, sell.price)
+        new_data = {'Accion': trading_data['market'], 'Orden': compras[0].order, 'Fecha': date.datetime.now(), 'Precio': sell.price, 'Decision': "Venta", 'Rentabilidad': rentabilidad}
+        ticks_frame.loc[len(ticks_frame)] = new_data
+        compras.pop(0)
+
+    compras.clear() #limpio el array de compras
+    FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+     # Insert row at the end of FRAMETICKS
+    new_row = pd.DataFrame({'Decision': ['Inversion finalizada']}, index=[len(FRAMETICKS)])
+    FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
+
+
+def parar_inversion(trading_data):
+    global FRAMETICKS
+    # check the presence of open positions
+    orders = mt5.positions_get(symbol=trading_data['market'])
+    if orders is not None:
+        ventasSinCerrar = cerrar_todas_las_posiciones(trading_data)
+        ventas_sin_cerrar(ventasSinCerrar, trading_data)
+    else:
+         # Insert row at the end of FRAMETICKS
+        new_row = pd.DataFrame({'Decision': ['Inversion finalizada']}, index=[len(FRAMETICKS)])
+        FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
+        print("No hay posiciones abiertas")
+    frame=FRAMETICKS
+    # Vaciar el DataFrame FRAMETICKS
+    FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
+    return frame
 
 def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
     """Function executed by a thread. It opens and handles operations.
@@ -444,14 +486,12 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
 
     global FRAMETICKS,HAYPOSICIONESABIERTAS    
 
-    # if(not comprobar_mercado(trading_data)):
-    #     print("MERCADO CERRADO")
-    # else:
+   
     tiempoUltima=0
     while not pill2kill.wait(trading_data['time_period']):
         if(comprobar_mercado(trading_data)):
             if len(compras) < 2 and check_buy(estrategia_directo):  
-                if(tiempoUltima==0 or diftime(date.datetime.now(),tiempoUltima)):          
+                # if(tiempoUltima==0 or diftime(date.datetime.now(),tiempoUltima)):          
                     buy = open_buy(trading_data)
                     if buy is not None:
                         HAYPOSICIONESABIERTAS=True
@@ -462,12 +502,12 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
                         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
                         print("[Thread - orders] Buy open -", dt_string)
                         buy = None
-                else: print("Diferencia de tiempo menor a 15 minutos")
+                # else: print("Diferencia de tiempo menor a 15 minutos")
             elif HAYPOSICIONESABIERTAS and check_sell(estrategia_directo):
                     sell = cerrar_todas_las_posiciones(trading_data)
                     if sell is not None:
                         HAYPOSICIONESABIERTAS=False
-                        insertar_ticks("Venta Clasicas", sell, trading_data, compras) 
+                        insertar_ticks("Ventas", sell, trading_data, compras) 
                         compras.clear() 
                         now = date.datetime.now()
                         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
@@ -477,6 +517,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
                 insertar_ticks("Nada", None, trading_data, compras) 
                 print("NO SE ABRE OPERACION")          
         else:
+            insertar_ticks("MERCADO CERRADO", None, trading_data, compras) 
             print("MERCADO CERRADO")
             
 
@@ -512,7 +553,7 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
                     sell = cerrar_todas_las_posiciones(trading_data)
                     if sell is not None:
                         HAYPOSICIONESABIERTAS=False
-                        insertar_ticks("Venta Creativas", sell, trading_data, compras)
+                        insertar_ticks("Ventas", sell, trading_data, compras)
                         compras.clear() 
                         now = date.datetime.now()
                         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
@@ -524,6 +565,7 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
             else:#no ha habido partdo nuevo
                 print("NO HA HABIDO EVENTO NUEVO")
         else:
+            insertar_ticks("MERCADO CERRADO", None, trading_data, compras) 
             print("MERCADO CERRADO")
 
 

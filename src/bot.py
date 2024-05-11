@@ -136,6 +136,10 @@ class Bot:
     
         print('Thread - Futbol. LAUNCHED')
 
+    def parar_inversion(self):
+        frame=orders.parar_inversion(self.trading_data)
+        return frame
+
     
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,

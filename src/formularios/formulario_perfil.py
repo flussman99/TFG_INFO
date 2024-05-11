@@ -46,7 +46,7 @@ class FormularioPerfil():
 
         # Crear una tabla en el frame azul
         self.tabla = ttk.Treeview(self.frame_azul)
-        self.tabla["columns"] = ("Nombre", "Tipo", "Accion", "Fecha Inicio", "Fecha Fin", "Compra", "Venta","Rentabilidad")
+        self.tabla["columns"] = ("Nombre", "Tipo", "Accion", "Fecha Inicio", "Fecha Fin", "Compra", "Venta", "Frecuencia","Rentabilidad")
         self.tabla.column("#0", width=0, stretch=tk.NO)
         self.tabla.column("Nombre", width=100)
         self.tabla.column("Tipo", width=100)
@@ -55,6 +55,7 @@ class FormularioPerfil():
         self.tabla.column("Fecha Fin", width=100)
         self.tabla.column("Compra", width=100)
         self.tabla.column("Venta", width=100)
+        self.tabla.column("Frecuencia", width=100)
         self.tabla.column("Rentabilidad", width=100)
         self.tabla.heading("Nombre", text="Nombre")
         self.tabla.heading("Tipo", text="Tipo")
@@ -63,6 +64,7 @@ class FormularioPerfil():
         self.tabla.heading("Fecha Fin", text="Fecha Final")
         self.tabla.heading("Compra", text="Compra")
         self.tabla.heading("Venta", text="Venta")
+        self.tabla.heading("Frecuencia", text="Frecuencia")
         self.tabla.heading("Rentabilidad", text="Rentabilidad")
         self.tabla.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
@@ -70,14 +72,14 @@ class FormularioPerfil():
         cursor = self.conn.cursor()
 
         # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad FROM Inversiones WHERE id_usuario = %s"
+        consulta = "SELECT nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad FROM Inversiones WHERE id_usuario = %s"
         datos = (self.id_user,) 
         cursor.execute(consulta, datos)
         
         # Recorrer los resultados y agregarlos a la tabla
         for fila in cursor.fetchall():
-            nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad = fila
-            self.tabla.insert("", tk.END, values=(nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, rentabilidad))
+            nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad = fila
+            self.tabla.insert("", tk.END, values=(nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad))
 
         # Cerrar el cursor y la conexión
         cursor.close()

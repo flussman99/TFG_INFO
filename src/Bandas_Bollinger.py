@@ -142,26 +142,35 @@ def thread_bandas(pill2kill, ticks: list,trading_data: dict):
     load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
 
     print("[THREAD - tick_reader] - Taking ticks")
+
+    tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
     
     while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         # print(tick)
         if tick is not None:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-            print("Nuevo tick añadido:", ticks[-1])
-            prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-            # print(prices_frame)
+            tiempoactualTick=pd.to_datetime(tick[0], unit='s')
+            print(tick)
+            if  tiempoactualTick!=tiempoUltimoTick :#comprobacion para que no me meta el mismo tick cuando el mercado esta cerrado 
+                
+                tiempoUltimoTick=tiempoactualTick#actualizo el tiempo
+                ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+                print("Nuevo tick añadido:", ticks[-1])
+                prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+                # print(prices_frame)
 
-            bb = BollingerBands(prices_frame['price'], window=20, window_dev=2)
-            prices_frame['bb_upper'] = bb.bollinger_hband()
-            prices_frame['bb_lower'] = bb.bollinger_lband()
+                bb = BollingerBands(prices_frame['price'], window=20, window_dev=2)
+                prices_frame['bb_upper'] = bb.bollinger_hband()
+                prices_frame['bb_lower'] = bb.bollinger_lband()
 
-            PRECIO_ACTUAL= tick[2]
-            BB_UPPER = bb.bollinger_hband()
-            BB_LOWER =  bb.bollinger_lband()
+                PRECIO_ACTUAL= tick[2]
+                BB_UPPER = bb.bollinger_hband()
+                BB_LOWER =  bb.bollinger_lband()
 
-            print(prices_frame)
+                print(prices_frame)
+        else:
+                print("TICK INVALIDO")
 
 
 def check_buy() -> bool:
