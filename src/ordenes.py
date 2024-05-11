@@ -143,7 +143,7 @@ def open_buy(trading_data: dict):
         return None
 
     # Calcular el costo estimado de la operación de compra
-    cost = price * trading_data['lotage']
+    cost = price * int(trading_data['lotage'])
 
     # Verificar si tienes suficiente dinero en la cuenta
     if account_info.balance < cost:
@@ -153,15 +153,18 @@ def open_buy(trading_data: dict):
 
     deviation = 20
 
-    #trading_data['lotage'],
+    aux_sl = trading_data['stoploss']
+    aux_tp=trading_data['takeprofit']
+
+    
     buy = {
         "action": mt5.TRADE_ACTION_DEAL,
         "symbol": trading_data['market'],
         "volume": float(trading_data['lotage']),
         "type": mt5.ORDER_TYPE_BUY,
         "price": price,
-        "sl": float(price - price* trading_data['stoploss']),
-        "tp": float(price + price*trading_data['takeprofit']),
+        "sl": float(price - price * float(aux_sl)),
+        "tp": float(price + price*float(aux_tp)),
         "deviation": deviation, #no sabemos q es
         "magic": 234000,#no sabemos q es
         "comment": "python script open",

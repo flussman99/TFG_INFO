@@ -99,7 +99,7 @@ class FormularioClasicas():
     
     def backtesting_clasicas(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingClasicas(self.frame_principal)
+        FormularioBackTestingClasicas(self.frame_principal, self.user_id)
 
     def invertir_clasicas(self):
         self.limpiar_panel(self.frame_principal)     
