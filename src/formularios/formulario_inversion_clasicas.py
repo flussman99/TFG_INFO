@@ -348,6 +348,7 @@ class FormularioInversionClasicas():
         accion_txt = self.combo_accion.get()
         estrategia = self.combo_estrategia.get()
         self.frec_milisegundos=self.calcular_frecuencia(frecuencia_txt)
+        lotaje_txt = self.lotaje_entry.get()
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)
 

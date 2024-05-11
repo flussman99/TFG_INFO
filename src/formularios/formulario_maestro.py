@@ -5,7 +5,6 @@ import util.util_ventana as util_ventana
 import util.util_imagenes as util_img
 # Nuevo
 from formularios.formulario_inicio_sesion import FormularioInicioSesion
-from formularios.formulario_backtesting import FormularioBackTesting
 from formularios.formulario_clasicas import FormularioClasicas
 from formularios.formulario_creativas import FormularioCreativas
 from formularios.formulario_informacion import FormularioInformacion
@@ -147,10 +146,6 @@ class FormularioMaestroDesign(tk.Tk):
         self.limpiar_panel(self.cuerpo_principal)     
         FormularioInicioSesion(self.cuerpo_principal, self.controles_cuerpo, self.cambiar_estado_sesion, self.bool_inicio) 
 
-    def abrir_panel_backTesting(self):   
-        self.limpiar_panel(self.cuerpo_principal)     
-        FormularioBackTesting(self.cuerpo_principal, self.user_id)   
-        
     def abrir_panel_clasicas(self):   
         self.limpiar_panel(self.cuerpo_principal)     
         FormularioClasicas(self.cuerpo_principal, self.user_id) 
