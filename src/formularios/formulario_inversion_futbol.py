@@ -99,7 +99,8 @@ class FormularioInversionFutbol():
         self.boton_empezar_inversion_futbol = None
         self.boton_parar_inversion = None
 
-
+        #Funciones recursivas
+        self.funciones_recursivas=True
 
         #ComboBoxs
         self.crear_combo_boxs()
@@ -443,22 +444,40 @@ class FormularioInversionFutbol():
     
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
         self.b.thread_orders_creativas(estrategia)
+        self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
         self.actualiar_partidos()
+        self.actualiar_frame()
 
+    def parar_inversion(self):
+        self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
+        self.b.kill_threads()
+        frame_inversiones_finalizadas=self.b.parar_inversion()
+        frame_partidos_final=self.b.parar_partidos()
+        self.frame_ticks=frame_inversiones_finalizadas
+        self.frame_directo=frame_partidos_final
+        self.treeview_partidos()
+        self.treeview_ticks()
+
+        rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
+        suma_rentabilidades = rentabilidades.sum()
+        self.rentabilidad_futbol.set(str(suma_rentabilidades))
+        self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
+
+    
     def actualiar_partidos(self):
-        print("partidos")
-        if(SBS.FRAMEDIRECTO.empty):
-            self.frame_principal.after(10000, self.actualiar_partidos)#10s
-        else:
+        if(self.funciones_recursivas):
+            print("partidos")
+            # if(SBS.FRAMEDIRECTO.empty):
+            #     self.frame_principal.after(10000, self.actualiar_partidos)#10s
             self.frame_directo=SBS.FRAMEDIRECTO
             self.treeview_partidos()
             self.frame_principal.after(20000, self.actualiar_partidos)
     
     def actualiar_frame(self):
-        print("ticks")
-        if(ORD.FRAMETICKS.empty):
-            self.frame_principal.after(10000, self.actualiar_frame)
-        else:
+        if(self.funciones_recursivas):
+            print("ticks")
+            # if(ORD.FRAMETICKS.empty):
+            #     self.frame_principal.after(10000, self.actualiar_frame)
             self.frame_ticks=ORD.FRAMETICKS
             self.treeview_ticks()
             self.frame_principal.after(20000, self.actualiar_frame)
@@ -499,8 +518,6 @@ class FormularioInversionFutbol():
         for index, row in self.current_frame2.iterrows():
             self.tree_ticks.insert("", "end", values=tuple(row))
 
-    def parar_inversion(self):
-        pass
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel

@@ -45,7 +45,6 @@ def backtesting(market: str, prices: list):
             posicion_abierta=False
             rentabilidad.append(tr.calcular_rentabilidad(compras,row['price']))
             compras.clear()
-
         elif len(compras) < 10 and lower > precioCompra :
             if tiempo==0 or diftime(row['time'],tiempo):
                 decisiones.append("Compra")#COMPRO

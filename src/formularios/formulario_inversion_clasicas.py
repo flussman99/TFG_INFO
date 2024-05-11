@@ -396,10 +396,7 @@ class FormularioInversionClasicas():
         else:
             frecuencia = 0
         return frecuencia
-
-    # if(ORD.FRAMETICKS.empty):
-        #     self.frame_principal.after(10000, self.actualiar_frame)
-        # else:    
+   
     def actualiar_frame(self):
         if(self.funciones_recursivas):
             print("Operaciones")
@@ -418,7 +415,7 @@ class FormularioInversionClasicas():
         self.frame_ticks=frame_inversiones_finalizadas
         self.treeview_ticks()
 
-        rentabilidades = self.frame_ticks['Rentabilidad'].dropna()
+        rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
         suma_rentabilidades = rentabilidades.sum()
         self.rentabilidad_clasica.set(str(suma_rentabilidades))
         self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)

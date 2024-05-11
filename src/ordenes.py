@@ -359,7 +359,9 @@ def comprobar_mercado(trading_data):
     check_time=check_time.time()
     checktime_formateado = check_time.strftime("%H:%M")
  
-
+    selected=mt5.symbol_select(trading_data['market'],True)
+    if not selected:
+        print("Failed , error code =",mt5.last_error())
     tick = mt5.symbol_info_tick(trading_data['market'])
     tiempo_unix = tick[0]  # Obtenemos el tiempo en formato UNIX
     hora = pd.to_datetime(tiempo_unix, unit='s').time()  # Convertimos a formato hora
@@ -399,11 +401,11 @@ def insertar_fila(tipo, result, trading_data, compras):
     
     ticks_frame = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
     if tipo == 'MERCADO CERRADO' and not MERCADOCERRADO:
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Mercado Cerrado"}
+        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Mercado Cerrado", 'Rentabilidad': "-"}
         ticks_frame.loc[len(ticks_frame)] = new_data
         MERCADOCERRADO = True
     elif tipo == 'Compra':
-        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Compra"}
+        new_data = {'Accion': trading_data['market'], 'Orden': result.order, 'Fecha': date.datetime.now(), 'Precio': result.price, 'Decision': "Compra", 'Rentabilidad': "-"}
         ticks_frame.loc[len(ticks_frame)] = new_data
         MERCADOCERRADO = False
     elif tipo == 'Ventas':
@@ -416,14 +418,18 @@ def insertar_fila(tipo, result, trading_data, compras):
             compras.pop(0)
     elif tipo == 'NO HA HABIDO EL RESULTADO ELEGIDO':
         MERCADOCERRADO = False
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No ha habido el resultado elegido"}
+        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No ha habido el resultado elegido", 'Rentabilidad': "-"}
         ticks_frame.loc[len(ticks_frame)] = new_data
     elif tipo == 'No hay operacion':
         MERCADOCERRADO = False
-        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion"}
+        new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion", 'Rentabilidad': "-"}
         ticks_frame.loc[len(ticks_frame)] = new_data
     
-    FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+    if FRAMETICKS.empty:
+        FRAMETICKS = ticks_frame
+    else:
+        FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+    
     print("Ordenes")
     print(FRAMETICKS)
 
@@ -447,10 +453,18 @@ def ventas_sin_cerrar(ventasSinCerrar, trading_data):
         compras.pop(0)
 
     compras.clear() #limpio el array de compras
-    FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+    if FRAMETICKS.empty:
+        FRAMETICKS = ticks_frame
+    else:
+        FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+    
      # Insert row at the end of FRAMETICKS
-    new_row = pd.DataFrame({'Accion': trading_data['market'], 'Orden': "-", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Inversion finalizada"}, index=[len(FRAMETICKS)])
-    FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
+    new_row = pd.DataFrame({'Accion': trading_data['market'], 'Orden': "-", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Inversion finalizada", 'Rentabilidad': "-"}, index=[len(FRAMETICKS)])
+    # Concatenar el nuevo DataFrame con FRAMETICKS
+    if FRAMETICKS.empty:
+        FRAMETICKS = new_row
+    else:
+        FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
 
 
 def parar_inversion(trading_data):
@@ -462,7 +476,7 @@ def parar_inversion(trading_data):
         ventas_sin_cerrar(ventasSinCerrar, trading_data)
     else:
          # Insert row at the end of FRAMETICKS
-        new_row = pd.DataFrame({'Decision': ['Inversion finalizada']}, index=[len(FRAMETICKS)])
+        new_row = pd.DataFrame({'Accion': trading_data['market'], 'Orden': "-", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "Inversion finalizada", 'Rentabilidad': "-"}, index=[len(FRAMETICKS)])
         FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
         print("No hay posiciones abiertas")
     frame=FRAMETICKS
