@@ -197,7 +197,7 @@ class FormularioInversionClasicas():
             #ComboBox de comparativa
             self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
             self.combo_comparativa.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-            self.combo_comparativa["values"] = ['SP500', 'IBEX35']
+            self.combo_comparativa["values"] = ['IBEX35','SP500']
 
         #al mirar todos los datos actualizar el boton
         self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotaje)
