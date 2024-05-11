@@ -91,6 +91,8 @@ class FormularioInversionClasicas():
         self.label_rentabilidad_comparativa = None
         self.rentabilidad_comparativa = None
 
+        #Funciones recursivas
+        self.funciones_recursivas=True
 
         #ComboBoxs
         self.crear_combo_boxs()
@@ -197,7 +199,7 @@ class FormularioInversionClasicas():
             #ComboBox de comparativa
             self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
             self.combo_comparativa.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-            self.combo_comparativa["values"] = ['SP500', 'IBEX35']
+            self.combo_comparativa["values"] = ['IBEX35','SP500']
 
         #al mirar todos los datos actualizar el boton
         self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotaje)
@@ -346,8 +348,10 @@ class FormularioInversionClasicas():
         accion_txt = self.combo_accion.get()
         estrategia = self.combo_estrategia.get()
         self.frec_milisegundos=self.calcular_frecuencia(frecuencia_txt)
-
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)
+        lotaje_txt = self.lotaje_entry.get()
+        stoploss_txt= self.stop_loss_entry.get()
+        takeprofit_txt=self.take_profit_entry.get()
+        self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)
 
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
@@ -359,6 +363,7 @@ class FormularioInversionClasicas():
             self.b.thread_estocastico()
 
         self.b.thread_orders(estrategia)
+        self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
         self.actualiar_frame()
 
 
@@ -391,20 +396,33 @@ class FormularioInversionClasicas():
         else:
             frecuencia = 0
         return frecuencia
-        
+
+    # if(ORD.FRAMETICKS.empty):
+        #     self.frame_principal.after(10000, self.actualiar_frame)
+        # else:    
     def actualiar_frame(self):
-        
-        print("Ticks")
-        if(ORD.FRAMETICKS.empty):
-            self.frame_principal.after(10000, self.actualiar_frame)
-        else:
+        if(self.funciones_recursivas):
+            print("Operaciones")
+            # if(ORD.FRAMETICKS.empty):
+            #     self.frame_principal.after(10000, self.actualiar_frame)
+            # else:    
             self.frame_ticks=ORD.FRAMETICKS
             self.treeview_ticks()
             self.frame_principal.after(self.frec_milisegundos, self.actualiar_frame)
 
 
     def parar_inversion(self):
-        pass
+        self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
+        self.b.kill_threads()
+        frame_inversiones_finalizadas=self.b.parar_inversion()
+        self.frame_ticks=frame_inversiones_finalizadas
+        self.treeview_ticks()
+
+        rentabilidades = self.frame_ticks['Rentabilidad'].dropna()
+        suma_rentabilidades = rentabilidades.sum()
+        self.rentabilidad_clasica.set(str(suma_rentabilidades))
+        self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)
+
 
 
     def limpiar_panel(self,panel):

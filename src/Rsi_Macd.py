@@ -86,9 +86,14 @@ def diftime(t1,t2):
         return False
 
 def load_ticks_directo(ticks: list, market: str, time_period: int):
-    
+    selected=mt5.symbol_select(market,True)
+    if not selected:
+        print("Failed to select EURCAD, error code =",mt5.last_error())
+    else: symbol_info=mt5.symbol_info(market)
+    print(symbol_info)
     # Loading data
     tick = mt5.symbol_info_tick(market)
+    print(tick)
  
     today=pd.to_datetime(tick[0], unit='s')#coje el horario del tick de la accion que haya elegido asi me adapto el horario en funcion del tick y la accion seleccionada
     date_from = today - dt.timedelta(days=35)#esto es lo que hay que camabiar en cada estrategia
@@ -142,24 +147,9 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     print("[THREAD - tick_direto] - Working")
     
     load_ticks_directo(ticks, trading_data['market'], trading_data['time_period'])
-
-    # # get the list of positions on symbols whose names contain "*USD*"
-    # positions=mt5.positions_get()
-    # if positions==None:
-    #     print("No positions with group=\"*USD*\", error code={}".format(mt5.last_error()))
-    # elif len(positions)>0:
-    #     print("positions_get{}".format(len(positions)))
-    #     # display these positions as a table using pandas.DataFrame
-    #     df=pd.DataFrame(list(positions),columns=positions[0]._asdict().keys())
-    #     df['time'] = pd.to_datetime(df['time'], unit='s')
-    #     df.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
-    #     print(df)
-    # #CAMBIAR ESTO 
     
     prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
   
-
-
     rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
     CUR_RSI=rsi.rsi()
 
@@ -169,27 +159,37 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     
     print("[THREAD - tick_reader] - Taking ticks")
     
+    tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
+
     while not pill2kill.wait(trading_data['time_period']):
         # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        print(tick)
+        
         if tick is not None:
-            ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
-            print("Nuevo tick añadido:", ticks[-1])
-            prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-            # print(prices_frame)
+            tiempoactualTick=pd.to_datetime(tick[0], unit='s')
+            print(tick)
+            if  tiempoactualTick!=tiempoUltimoTick :#comprobacion para que no me meta el mismo tick cuando el mercado esta cerrado 
+                
+                tiempoUltimoTick=tiempoactualTick#actualizo el tiempo
+                
+                ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
+                print("Nuevo tick añadido:", ticks[-1])
+                prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
+                
 
-            rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
-            prices_frame["RSI"] = rsi.rsi()
-            CUR_RSI=rsi.rsi()
+                rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
+                prices_frame["RSI"] = rsi.rsi()
+                CUR_RSI=rsi.rsi()
 
-            macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
-            prices_frame['macd'] = macd.macd()
-            prices_frame['macd_signal'] = macd.macd_signal()
-            CUR_MACD=macd.macd()
-            CUR_SIGNAL=macd.macd_signal()
+                macd = MACD(prices_frame['price'], window_slow=26, window_fast=12, window_sign=9)
+                prices_frame['macd'] = macd.macd()
+                prices_frame['macd_signal'] = macd.macd_signal()
+                CUR_MACD=macd.macd()
+                CUR_SIGNAL=macd.macd_signal()
 
-            print(prices_frame)
+                print(prices_frame)
+            else:
+                print("TICK INVALIDO")
               
 
 
