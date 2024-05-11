@@ -456,22 +456,30 @@ class FormularioBackTestingFormula1():
                     port=DBConfig.PORT
                 )
         
-        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombre
+        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
+        nombre_inversión = ""
         while True:
-
             # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
             nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
 
+            if nombre_inversión is None:
+                # Si se hace clic en Cancelar, salimos del bucle
+                break
+
             if not nombre_inversión:
-            # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
                 messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
                 continue
             
             if self.nombre_inversion_existe(nombre_inversión):
                 messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
                 continue
-            
+
+            # Si llegamos a este punto, el usuario ha introducido un nombre de inversión correcto
             break
+
+        if(nombre_inversión is None):
+            return
         
         # Le damos valor al tipo de inversión que esta haciendo el usuario
         tipo = "Formula 1"

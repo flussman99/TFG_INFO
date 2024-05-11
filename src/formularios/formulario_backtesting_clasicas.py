@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import ttk, messagebox, simpledialog, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 import util.util_imagenes as util_img
 import pandas as pd
@@ -21,8 +21,9 @@ from formularios.formulario_mas_informacion import FormularioBackTestingMasInfor
 
 class FormularioBackTestingClasicas():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, id_user):
 
+        self.id_user = id_user
         self.b = bt(1)
 
         self.frame_width = 0
@@ -327,7 +328,101 @@ class FormularioBackTestingClasicas():
             self.tree.insert("", "end", values=tuple(row))
 
     def guardar_backtesting(self):
-        pass
+
+        # Conexión a la base de datos
+        self.conn = mysql.connector.connect(
+                    host=DBConfig.HOST,
+                    user=DBConfig.USER,
+                    password=DBConfig.PASSWORD,
+                    database=DBConfig.DATABASE,
+                    port=DBConfig.PORT
+                )
+
+
+        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
+        nombre_inversión = ""
+        while True:
+            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
+            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
+
+            if nombre_inversión is None:
+                # Si se hace clic en Cancelar, salimos del bucle
+                break
+
+            if not nombre_inversión:
+                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
+                continue
+            
+            if self.nombre_inversion_existe(nombre_inversión):
+                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
+                continue
+            
+            # Si llegamos a este punto, el usuario ha introducido un nombre de inversión correcto
+            break
+
+        if(nombre_inversión is None):
+            return
+
+        # Le damos valor al tipo de inversión que esta haciendo el usuario
+        tipo = self.combo_estrategia.get()
+
+        # Cogemos la acción en la que ha invertido el usuario
+        accion = self.combo_accion.get()
+
+        # Cogemos la fecha de inicio y la de fin de la inversión
+        fecha_ini = self.fecha_inicio_entry.get()
+        fecha_fin = self.fecha_fin_entry.get()
+
+        # Cogemos cuando se toman las decisiones de comprar y vender
+        if tipo == 'RSI':
+            compra = "RSI < 35 y MACDI > MACSI"
+            venta = "RSI > 65 y MACDI < MACSI"
+        elif tipo == 'Media Movil':
+            compra = "MM c/p < MM l/p y nº compras < 10"
+            venta = "MM c/p > MM l/p"
+        elif tipo == 'Bandas':
+            compra = "Banda Inferior > Precio Compra"
+            venta = "Banda Superior < Precio Compra y nº compras < 10"
+        elif tipo == 'Estocastico':
+            compra = "Línea K > Línea D y RSI < 35 y nº compras < 10"
+            venta = "Línea K < Línea D y RSI > 60"
+
+        # Cogemos la frecuencia de la inversión
+        frecuencia = self.combo_frecuencia.get()
+
+        # Cogemos la rentabilidad de la inversión
+        rentabilidad = self.rentabilidad_clasica.get()
+
+        # Guardamos la inversión en la base de datos
+        cursor = self.conn.cursor()
+        try:
+            # Realizamos la consulta para insertar los datos en la tabla Inversiones
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad)
+            cursor.execute(consulta, datos)
+        except Exception as e:
+            print(e)
+        
+        # Cerramos el cursor y la conexxión
+        cursor.close()
+        self.conn.commit()
+        self.conn.close()
+
+    def nombre_inversion_existe(self, nombre_inversion):
+        # Obtener el cursor para ejecutar consultas
+        cursor = self.conn.cursor()
+
+        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
+        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
+        datos = (self.id_user, nombre_inversion) 
+        cursor.execute(consulta, datos)
+        cantidad = cursor.fetchone()[0]
+
+        # Cerrar el cursor
+        cursor.close()
+
+        return cantidad > 0
 
     def mas_informacion(self):
         self.limpiar_panel(self.frame_principal)     
