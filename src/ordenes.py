@@ -160,8 +160,8 @@ def open_buy(trading_data: dict):
         "volume": float(trading_data['lotage']),
         "type": mt5.ORDER_TYPE_BUY,
         "price": price,
-        "sl": float(price - price* 0.025),
-        "tp": float(price + price*0.01),
+        "sl": float(price - price* trading_data['stoploss']),
+        "tp": float(price + price*trading_data['takeprofit']),
         "deviation": deviation, #no sabemos q es
         "magic": 234000,#no sabemos q es
         "comment": "python script open",

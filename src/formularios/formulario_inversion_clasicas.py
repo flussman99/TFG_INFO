@@ -348,8 +348,10 @@ class FormularioInversionClasicas():
         accion_txt = self.combo_accion.get()
         estrategia = self.combo_estrategia.get()
         self.frec_milisegundos=self.calcular_frecuencia(frecuencia_txt)
-
-        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt)
+        lotaje_txt = self.lotaje_entry.get()
+        stoploss_txt= self.stop_loss_entry.get()
+        takeprofit_txt=self.take_profit_entry.get()
+        self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)
 
         if estrategia == 'RSI':
             self.b.thread_RSI_MACD()
