@@ -416,7 +416,7 @@ class FormularioInversionClasicas():
         self.treeview_ticks()
 
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum()
+        suma_rentabilidades = rentabilidades.sum().round(2)
         self.rentabilidad_clasica.set(str(suma_rentabilidades))
         self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)
 

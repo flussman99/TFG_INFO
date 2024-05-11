@@ -393,6 +393,7 @@ class FormularioBackTestingFutbol():
     def coger_ticks(self):
         
         inicio_txt = self.fecha_inicio_entry.get()
+        print(inicio_txt)
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
         accion_txt = self.acronimos_acciones[self.combo_accion.get()]

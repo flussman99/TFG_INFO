@@ -102,6 +102,10 @@ class FormularioInversionFutbol():
         #Funciones recursivas
         self.funciones_recursivas=True
 
+        #Indicadores comparacion 
+        self.fecha_inicio_indicadores=0
+        self.fecha_fin_indicadores=0
+
         #ComboBoxs
         self.crear_combo_boxs()
 
@@ -441,7 +445,8 @@ class FormularioInversionFutbol():
         stoploss_txt=self.stop_loss_entry.get()
         takeprofit_txt=self.take_profit_entry.get()
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
-    
+        self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
+        
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
         self.b.thread_orders_creativas(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
@@ -457,9 +462,12 @@ class FormularioInversionFutbol():
         self.frame_directo=frame_partidos_final
         self.treeview_partidos()
         self.treeview_ticks()
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+
+
 
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum()
+        suma_rentabilidades = rentabilidades.sum().round(2)
         self.rentabilidad_futbol.set(str(suma_rentabilidades))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
 
