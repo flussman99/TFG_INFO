@@ -61,6 +61,10 @@ class FormularioBackTestingMasInformacion():
         # Descripción de la operacion creativa
         self.descripcion_creativa = tk.Label(self.frame_info_inicial, justify="left", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.descripcion_creativa.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
+
+        # Descripción de la operacion creativa
+        self.descripcion_clasica = tk.Label(self.frame_info_inicial, justify="left", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.descripcion_clasica.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
         
         print("estrategia: ", self.estrategia)
         if (self.estrategia == "Futbol"):
@@ -69,7 +73,14 @@ class FormularioBackTestingMasInformacion():
             self.descripcion_creativa.configure(text="La operación creativa de Formula 1 consiste en inveritr en los equipos de Formula 1, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados de las carreras.")
         elif (self.estrategia == "Cine"):
             self.descripcion_creativa.configure(text="La operación creativa de cine consiste en inveritr en las películas, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados en taquilla.")
-        
+        if (self.estrategia == "RSI"):
+            self.descripcion_creativa.configure(text="La estrategia de RSI consiste en detectar zonas de sobreventa y sobrecompra mediante el calculo del mismo y detectaremos zonas de compra cuando se encuentre por debajo de los 35 puntos y zonas de venta por encima de los 65. Ademas le añadimos el calculo del indice MACD que en funcion de las dos componentes que tiene obtenemos señales mas fuertes")
+        elif (self.estrategia == "Media Movil"):
+            self.descripcion_creativa.configure(text="La estragegia de media movil se basa en el calculo de dos medias moviles que se corresponden con medias al corto y largo plazo. En funcion de los cruces que se produzcan entre ellas se generan señales de compra o señales de venta")
+        elif (self.estrategia == "Bandas"):
+            self.descripcion_creativa.configure(text="La estrategia de las bandas de bollinger se basa en comparar 2 de las 3 componentes que tiene este indicador con el precio de la misma accion. Si el precio se encuentra por debajo de la banda baja generara una señal de compra, y si se encuentra el precio por encima de la banda alta se generara señal de venta")
+        elif (self.estrategia == "Estocastico"):
+            self.descripcion_creativa.configure(text="La estrategia de Estocastico se basa en el cruce de dos de sus componentes que son la linea K y D. Ademas le añadimos el calculo del RSI, y en funcion de si se cumplen las dos condiciones se generara una señal de compra o venta")
         #Subtitulo "Resultados del backtesting"
         self.label_resultado = tk.Label(self.frame_opciones, text="Resultados del backtesting", font=("Berlin Sans FB", 12, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_resultado.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="w")
