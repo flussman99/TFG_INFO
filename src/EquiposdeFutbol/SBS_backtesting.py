@@ -331,7 +331,6 @@ def ultimoPartido(equipos_txt:str,url,cola):
         RESULTADO_ULTIMO_PARTIDO = equipos_frame.at[equipos_frame.index[-1], 'Resultado']
         print(RESULTADO_ULTIMO_PARTIDO)
         filaAdd=equipos_frame.iloc[[-1]].drop(['ResultadoLocal', 'ResultadoVisitante'], axis=1)
-        # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, equipos_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
         FRAMEDIRECTO = pd.concat([FRAMEDIRECTO,  filaAdd], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         print(FRAMEDIRECTO)
         cola.put(FRAMEDIRECTO)
@@ -342,7 +341,6 @@ def ultimoPartido(equipos_txt:str,url,cola):
 def parar_partidos(self):
     global FRAMEDIRECTO
     frame=FRAMEDIRECTO
-    FRAMEDIRECTO = pd.DataFrame(columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador'])
     return frame
 
 def inicializar_variables(combo_comprar,comobo_vender):
@@ -354,7 +352,8 @@ def inicializar_variables(combo_comprar,comobo_vender):
     FECHA_ULTIMO_PARTIDO=None
     RESULTADO_ULTIMO_PARTIDO=None
     NUEVO_PARTIDO=False
-    FRAMEDIRECTO=pd.DataFrame()
+    FRAMEDIRECTO = pd.DataFrame(columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador'])
+
 
 def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,comobo_vender,cola):
 

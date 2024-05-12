@@ -331,29 +331,6 @@ def cerrar_todas_las_posiciones(trading_data):
     return results
     
 
-def is_market_open(trading_data):
- # Convertir check_time a un objeto datetime
-    check_time = date.datetime.now().time().strftime("%H:%M:%S")
-    print(check_time)
-
-    #check_time_dt = date.datetime.fromtimestamp(check_time)
-
-    session_index = 0  
-    # Obtener la información de sesión para el símbolo y día de la semana especificados
-    sessions = mt5.symbol_info_session_trade(trading_data['market'], get_current_day())
-    
-    # Comprobar si hay sesiones definidas para el día y el índice especificados
-    if session_index < len(sessions):
-        session = sessions[session_index]
-        session_start = session.from_
-        session_end = session.to
-        
-        # Comprobar si check_time está dentro del intervalo de sesión
-        if session_start <= check_time <= session_end:
-            return True
-    
-    return False
-
 def comprobar_mercado(trading_data):
 
     hora_actual = date.datetime.now().strftime("%H:%M")
@@ -428,10 +405,8 @@ def insertar_fila(tipo, result, trading_data, compras):
         new_data = {'Accion': trading_data['market'], 'Orden': "No hay orden", 'Fecha': date.datetime.now(), 'Precio': "-", 'Decision': "No hay operacion", 'Rentabilidad': "-"}
         ticks_frame.loc[len(ticks_frame)] = new_data
     
-    if FRAMETICKS.empty:
-        FRAMETICKS = ticks_frame
-    else:
-        FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
+ 
+    FRAMETICKS = pd.concat([FRAMETICKS, ticks_frame], ignore_index=True)
     
     print("Ordenes")
     print(FRAMETICKS)
@@ -471,7 +446,7 @@ def ventas_sin_cerrar(ventasSinCerrar, trading_data):
 
 
 def parar_inversion(trading_data):
-    global FRAMETICKS
+    global FRAMETICKS,MERCADOCERRADO
     # check the presence of open positions
     orders = mt5.positions_get(symbol=trading_data['market'])
     if orders is not None:
@@ -483,8 +458,7 @@ def parar_inversion(trading_data):
         FRAMETICKS = pd.concat([FRAMETICKS, new_row], ignore_index=True)
         print("No hay posiciones abiertas")
     frame=FRAMETICKS
-    # Vaciar el DataFrame FRAMETICKS
-    FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
+    MERCADOCERRADO = False
     return frame
 
 def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
@@ -501,7 +475,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
     print("[THREAD - orders] - Checking operations")
 
     global FRAMETICKS,HAYPOSICIONESABIERTAS    
-
+    FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
    
     tiempoUltima=0
     while not pill2kill.wait(trading_data['time_period']):
@@ -551,6 +525,9 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
     print("[THREAD] - Checking operations")
 
     global FRAMETICKS,HAYPOSICIONESABIERTAS
+
+    FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
+   
 
     while not pill2kill.wait(20):
         if(comprobar_mercado(trading_data)):

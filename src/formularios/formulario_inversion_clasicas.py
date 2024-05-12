@@ -394,6 +394,7 @@ class FormularioInversionClasicas():
 
         self.b.thread_orders(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
+        # self.frame_ticks=ORD.FRAMETICKS
         self.actualiar_frame()
 
 
@@ -446,10 +447,16 @@ class FormularioInversionClasicas():
         self.treeview_ticks()
 
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum().round(2)
+        if rentabilidades.empty:
+            # Handle the case when 'Rentabilidad' column is not found or has no valid values
+            suma_rentabilidades = 0
+        else:
+            # Continue with your existing logic for processing 'Rentabilidad' values
+            suma_rentabilidades = rentabilidades.sum().round(2)
+            # Rest of your code here
+        
         self.rentabilidad_clasica.set(str(suma_rentabilidades))
         self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)
-
 
 
     def limpiar_panel(self,panel):
