@@ -181,9 +181,13 @@ def load_SP500(time_period, inicio_txt, fin_txt, pais_txt):
     }
 
     response = requests.get(url, params=params, headers=headers)
-
+    print(response)
     if response.status_code == 200:
         data = response.json()
+        if data['data'] is None:
+            print("The 'data' field is null.")
+            # Handle the null case here, e.g., return a default value or perform any other desired action
+            return 0
         loaded_ticks = pd.DataFrame(data['data'])
         loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
         loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')

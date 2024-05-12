@@ -152,6 +152,10 @@ class Bot:
     
         print('Thread - Futbol. LAUNCHED')
 
+    def calcular_rentabilidad_comparativa(self, frecuencia, pais ,fecha_inicio, fecha_fin, indicador):
+        return tr.elegirIndicador(frecuencia, fecha_inicio, fecha_fin, pais,indicador)
+        
+
     def parar_inversion(self):
         frame=orders.parar_inversion(self.trading_data)
         return frame
