@@ -159,6 +159,11 @@ class Bot:
     def parar_partidos(self):
         frame=SBS.parar_partidos(self.trading_data)
         return frame
+    
+    def parar_carreras(self):
+        frame=SF1.parar_carreras(self.trading_data)
+        return frame
+
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,
                             args=(self.pill2kill, self.trading_data, estrategia_directo))
