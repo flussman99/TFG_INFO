@@ -5,6 +5,8 @@ from formularios.formulario_backtesting_futbol import FormularioBackTestingFutbo
 from formularios.formulario_backtesting_formula1 import FormularioBackTestingFormula1
 from formularios.formulario_inversion_futbol import FormularioInversionFutbol
 from formularios.formulario_inversion_formula1 import FormularioInversionFormula1
+#from formularios.formulario_inversion_cine import FormularioInversionCine
+from formularios.formulario_backtesting_cine import FormularioBackTestingCine 
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -123,7 +125,7 @@ class FormularioCreativas():
         self.boton_empezar_backtesting_cine.pack(side="right", padx=5)
 
         #boton para "Empezar inversión"
-        self.boton_empezar_inversion_cine = tk.Button(self.frame_botones_cine, text="Empezar Inversión", font=("Aptos", 12), bg="green", fg="white")
+        self.boton_empezar_inversion_cine = tk.Button(self.frame_botones_cine, text="Empezar Inversión", font=("Aptos", 12), bg="green", fg="white", command=self.invertir_cine)
         self.boton_empezar_inversion_cine.pack(side="right", padx=5)
 
         #frame para la descripción
@@ -155,8 +157,12 @@ class FormularioCreativas():
         FormularioInversionFormula1(self.frame_principal, self.user_id)
 
     def cine(self):
-        pass
+        self.limpiar_panel(self.frame_principal)
+        FormularioBackTestingCine(self.frame_principal, self.user_id)
 
+    def invertir_cine(self):
+        self.limpiar_panel(self.frame_principal)
+        #FormularioInversionCine(self.frame_principal, self.user_id)
 
     def on_parent_configure(self, event):
         # Se llama cuando cambia el tamaño de la ventana

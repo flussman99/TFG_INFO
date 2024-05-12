@@ -213,7 +213,7 @@ class FormularioInversionClasicas():
 
     def actualizar_inversion(self, event):
         try:
-            aux = int(self.lotaje_entry.get())
+            aux = float(self.lotaje_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:

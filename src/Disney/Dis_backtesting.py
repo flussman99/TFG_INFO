@@ -46,6 +46,44 @@ estudios_Disney = [
     'Others'
 ]
 
+imagenes_estudios = {
+    'Star Distribution': 'src/imagenes/Disney/Star_Distribution.png',
+    'Star Studios': 'src/imagenes/Disney/Star_Studios.png',
+    'Buena Vista International': 'src/imagenes/Disney/Buena_Vista_International.png',
+    '20th Century Studios': 'src/imagenes/Disney/20th_Century_Studios.png',
+    '20th Century Fox': 'src/imagenes/Disney/20th_Century_Fox.png',
+    'Fox Star Studios': 'src/imagenes/Disney/Fox_Star_Studios.png',
+    'Touchstone Pictures': 'src/imagenes/Disney/Touchstone_Pictures.png',
+    'Stone Circle Pictures': 'src/imagenes/Disney/Stone_Circle_Pictures.png',
+    'Walt Disney Pictures': 'src/imagenes/Disney/Walt_Disney_Pictures.png',
+    'Pixar Animation Studios': 'src/imagenes/Disney/Pixar_Animation_Studios.png',
+    'Jerry Bruckheimer Films': 'src/imagenes/Disney/Jerry_Bruckheimer_Films.png',
+    'Miramax Films': 'src/imagenes/Disney/Miramax_Films.png',
+    'Disneynature': 'src/imagenes/Disney/Disneynature.png',
+    'Walt Disney Animation Studios': 'src/imagenes/Disney/Walt_Disney_Animation_Studios.png',
+    'DreamWorks Pictures': 'src/imagenes/Disney/DreamWorks_Pictures.png',
+    'Marvel Studios': 'src/imagenes/Disney/Marvel_Studios.png',
+    'Tim Burton Productions': 'src/imagenes/Disney/Tim_Burton_Productions.png',
+    'Disneytoon Studios': 'src/imagenes/Disney/Disneytoon_Studios.png',
+    'Ruby Films': 'src/imagenes/Disney/Ruby_Films.png',
+    'Roth Films': 'src/imagenes/Disney/Roth_Films.png',
+    'Lucamar Productions and Marc Platt Productions': 'src/imagenes/Disney/Lucamar_Productions_and_Marc_Platt_Productions.png',
+    'Mayhem Pictures': 'src/imagenes/Disney/Mayhem_Pictures.png',
+    'Kinberg Genre': 'src/imagenes/Disney/Kinberg_Genre.png',
+    'Lucasfilm': 'src/imagenes/Disney/Lucasfilm.png',
+    'Fairview Entertainment': 'src/imagenes/Disney/Fairview_Entertainment.png',
+    'Amblin Entertainment': 'src/imagenes/Disney/Amblin_Entertainment.png',
+    'Whitaker Entertainment': 'src/imagenes/Disney/Whitaker_Entertainment.png',
+    'The Mark Gordon Company': 'src/imagenes/Disney/The_Mark_Gordon_Company.png',
+    'Silverback Films': 'src/imagenes/Disney/Silverback_Films.png',
+    'Fox Searchlight Pictures': 'src/imagenes/Disney/Fox_Searchlight_Pictures.png',
+    'Regency Enterprises': 'src/imagenes/Disney/Regency_Enterprises.png',
+    'Others': 'src/imagenes/Disney/Others.png'
+}
+
+   
+    
+
 html_movies_files = [
     'Disney_2010_2019.html',
     'Disney_Animation_2010_2019.html',

@@ -394,7 +394,7 @@ class FormularioInversionFutbol():
             self.boton_empezar_inversion_futbol.configure(state="disabled")
 
         try:
-            aux = int(self.lotaje_entry.get())
+            aux = float(self.lotaje_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
