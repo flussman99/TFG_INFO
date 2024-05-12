@@ -514,6 +514,13 @@ class FormularioInversionFormula1():
         lotaje_txt = self.lotaje_entry.get()
         stoploss_txt=self.stop_loss_entry.get()
         takeprofit_txt=self.take_profit_entry.get()
+
+        if ',' in stoploss_txt:
+            stoploss_txt = stoploss_txt.replace(",", ".")
+            
+        if ',' in takeprofit_txt:
+            takeprofit_txt = takeprofit_txt.replace(",", ".")
+            
         self.b.establecer_inversion_directo(frecuencia_txt, self.accion,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         
