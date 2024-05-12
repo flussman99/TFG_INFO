@@ -331,29 +331,6 @@ def cerrar_todas_las_posiciones(trading_data):
     return results
     
 
-def is_market_open(trading_data):
- # Convertir check_time a un objeto datetime
-    check_time = date.datetime.now().time().strftime("%H:%M:%S")
-    print(check_time)
-
-    #check_time_dt = date.datetime.fromtimestamp(check_time)
-
-    session_index = 0  
-    # Obtener la información de sesión para el símbolo y día de la semana especificados
-    sessions = mt5.symbol_info_session_trade(trading_data['market'], get_current_day())
-    
-    # Comprobar si hay sesiones definidas para el día y el índice especificados
-    if session_index < len(sessions):
-        session = sessions[session_index]
-        session_start = session.from_
-        session_end = session.to
-        
-        # Comprobar si check_time está dentro del intervalo de sesión
-        if session_start <= check_time <= session_end:
-            return True
-    
-    return False
-
 def comprobar_mercado(trading_data):
 
     hora_actual = date.datetime.now().strftime("%H:%M")
