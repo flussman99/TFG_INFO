@@ -16,10 +16,9 @@ from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
-from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
 
 
-class FormularioBackTestingCine():
+class FormularioInversionCine():
 
     def __init__(self, panel_principal, id_user):
 
@@ -38,7 +37,7 @@ class FormularioBackTestingCine():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Backtesting Operaciones Cine", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Inversión de Operaciones de Cine", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
@@ -87,9 +86,8 @@ class FormularioBackTestingCine():
         self.tree = None
 
         #Botones
-        self.boton_empezar_backtesting = None
-        self.boton_mostrar_operaciones = None
-        self.boton_guardar_backtesting = None
+        self.boton_empezar_inversion = None
+        self.boton_parar_inversion = None
 
 
         #ComboBoxs
@@ -230,8 +228,8 @@ class FormularioBackTestingCine():
             self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
         # Boton de "Empezar backtesting"
-        self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -261,17 +259,10 @@ class FormularioBackTestingCine():
         self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
-        # Boton de "Mostrar Operaciones"
-        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
-        self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
+        # Boton de "Parar Inversion"
+        self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
+        self.boton_parar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
-        # Boton de "Guardar"
-        self.boton_guardar_backtesting = tk.Button(self.frame_datos, text="Guardar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_backtesting) 
-        self.boton_guardar_backtesting.pack(side="right", padx=(0, 10), pady=5)
-
-        #Boton "Más información"
-        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
-        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
 
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
@@ -280,7 +271,7 @@ class FormularioBackTestingCine():
         #Actualizar vista
         self.on_parent_configure(None)
 
-    def empezar_backtesting(self):
+    def empezar_inversion(self):
         #Verifiar que se han seleccionado todos los campos
         if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_comparativa.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
@@ -304,100 +295,7 @@ class FormularioBackTestingCine():
         # Llamar a la función para obtener nuevos datos
         #self.coger_ticks()
 
-    
 
-    def guardar_backtesting(self):
-        
-        # Conexión a la base de datos
-        self.conn = mysql.connector.connect(
-                    host=DBConfig.HOST,
-                    user=DBConfig.USER,
-                    password=DBConfig.PASSWORD,
-                    database=DBConfig.DATABASE,
-                    port=DBConfig.PORT
-                )
-        
-        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
-        nombre_inversión = ""
-        while True:
-            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
-            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
-
-            if nombre_inversión is None:
-                # Si se hace clic en Cancelar, salimos del bucle
-                break
-
-            if not nombre_inversión:
-                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
-                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
-                continue
-            
-            if self.nombre_inversion_existe(nombre_inversión):
-                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
-                continue
-            
-            # Si llegamos a este punto, el usuario ha ingresado un nombre de inversión válido
-            break
-
-        if(nombre_inversión is None):
-            return
-        
-        # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Futbol"
-
-        # Cogemos la acción en la que ha invertido el usuario	
-        accion = self.combo_accion.get()
-
-        # Cogemos la fecha de inicio y la de fin de la inversión
-        fecha_ini = self.fecha_inicio_entry.get()
-        fecha_fin = self.fecha_fin_entry.get()
-
-        #Cogemos cuando toma las decisiones de comprar y vender el usuario
-        compra = self.combo_metodos_comprar.get()
-        venta = self.combo_metodos_vender.get()
-
-        #Le damos valor a la frecuencia
-        frecuencia = "Diaria"
-
-        # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_futbol.get()
-        # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
-        rentabilidadIndicador = self.rentabilidad_comparativa.get()
-
-        # Guardamos la inversión en la base de datos
-        cursor = self.conn.cursor()
-        try:
-            # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad)
-            cursor.execute(consulta, datos)
-        except Exception as e:
-            print(e)
-        
-        # Cerramos el cursor y la conexxión
-        cursor.close()
-        self.conn.commit()
-        self.conn.close()
-
-    def nombre_inversion_existe(self, nombre_inversion):
-        # Obtener el cursor para ejecutar consultas
-        cursor = self.conn.cursor()
-
-        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
-        datos = (self.id_user, nombre_inversion) 
-        cursor.execute(consulta, datos)
-        cantidad = cursor.fetchone()[0]
-
-        # Cerrar el cursor
-        cursor.close()
-
-        return cantidad > 0
-
-
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -440,16 +338,12 @@ class FormularioBackTestingCine():
             self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
             self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
             #Ajustar botones tanto el tamaño como el texto
-            self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
+            self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
 
-        if self.boton_guardar_backtesting is not None:
-            self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.015))
-            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.015))
-            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.015))
+        if self.boton_parar_inversion is not None:
+            self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
         
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
@@ -475,11 +369,7 @@ class FormularioBackTestingCine():
                 self.combo_estudios.configure(width=int(self.frame_width * 0.02))
 
                 if self.combo_estudios.get() != "":
-                    #destruir imagen estudio
-                    if self.label_imagen_estudio is not None:
-                        self.label_imagen_estudio.destroy()
-                        self.label_imagen_estudio = None
-
+         
                     self.imagen_estudio = util_img.leer_imagen(self.imagenes_estudios[self.estudio], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
                     self.label_imagen_estudio.configure(image=self.imagen_estudio)
 
