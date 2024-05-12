@@ -127,7 +127,7 @@ class FormularioInicioSesion():
         self.boton_iniciar_sesion.pack(pady=(20,0))
 
         # Label para llevar a página de Registro
-        self.label_registro = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Si no tienes cuenta: Regístrate aquí", cursor="hand2", font=("Helvetica", int(self.font_size*0.25)), fg="grey")
+        self.label_registro = tk.Label(self.frame_azul, bg=COLOR_CUERPO_PRINCIPAL, text="Si no tienes cuenta: Regístrate aquí", cursor="hand2", font=("Helvetica", int(self.font_size*0.25)), fg="#0000FF")
         self.label_registro.pack(padx=0)
         self.label_registro.bind("<Button-1>", self.abrir_registro)
 
