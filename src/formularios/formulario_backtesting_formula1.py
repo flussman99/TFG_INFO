@@ -452,30 +452,34 @@ class FormularioBackTestingFormula1():
         self.accion = self.obtenerAccion(self.accion)
         pais_txt = self.obtenerPais(self.accion)
         self.accion = self.accion.split('.')[0]
-
-        print(pais_txt)
-        print(self.accion)
+        indicador= self.combo_comparativa.get()
 
         print("----------------------------------------")
         print(frecuencia_txt, self.accion, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, self.accion) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
-        self.rentabilidad_f1.set(str(rentabilidad))
+        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.treeview()
 
+    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+        #Rentabilidad Futbol
+        self.rentabilidad_f1.set(str(rentabilidad))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
 
-        self.treeview("Backtesting")
+        #Rentabilidad comparativa    
+        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+        
+   
 
-    def treeview(self,modo):
-        if(modo=="Backtesting"):
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+    def treeview(self):
 
-            # Set the initial DataFrame to display
-            self.current_frame = self.frame_without_filter
-        else:
-            self.current_frame = self.frame_directo
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
         print("-----------------------------------")
         print(self.current_frame)
         # Configurar las columnas del widget Treeview
@@ -493,8 +497,6 @@ class FormularioBackTestingFormula1():
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
     
-
-
     def guardar_backtesting(self):
         
         # Conexión a la base de datos
