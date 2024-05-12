@@ -6,6 +6,7 @@ from bot import Bot as bt
 import tick_reader as tr
 import mysql.connector
 from configDB import DBConfig
+import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
 from EquiposdeFutbol import SBS_backtesting as SBS
 import tkinter as tk
 from datetime import datetime, timedelta

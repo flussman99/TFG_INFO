@@ -341,8 +341,35 @@ class FormularioInversionClasicas():
 
     def empezar_inversion(self):
 
-        #Crear interfaz inferior
-        self.crear_interfaz_inferior()
+        # Verificar si se ha seleccionado una liga, un equipo, una acción, un método de compra, un método de venta y un lotaje
+        if self.combo_mercado.get() == "" or self.combo_accion.get() == "" or self.combo_estrategia.get() == "" or self.combo_frecuencia.get() == "" or self.lotaje_entry.get() == "" or self.stop_loss_entry.get() == "" or self.take_profit_entry.get() == "":
+            messagebox.showerror("Error", "Por favor, complete todos los campos")
+            return
+        
+        # Deshabilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.combo_mercado.configure(state="disabled")
+        self.combo_accion.configure(state="disabled")
+        self.combo_estrategia.configure(state="disabled")
+        self.combo_frecuencia.configure(state="disabled")
+        self.lotaje_entry.configure(state="disabled")
+        self.stop_loss_entry.configure(state="disabled")
+        self.take_profit_entry.configure(state="disabled")
+        self.boton_empezar_inversion.configure(state="disabled")
+        
+        # Verificar si la interfaz de usuario ya ha sido creada
+        if not hasattr(self, 'frame_datos'):
+            # Si no ha sido creada, entonces crearla
+            self.crear_interfaz_inferior()
+        else:
+            # Si ya ha sido creada, limpiar el Treeview
+            if self.tree is not None:
+                print("LIMPIANDO TREEVIEW PARTIDOS")
+                for item in self.tree.get_children():
+                    self.tree.delete(item)
+            if self.tree_ticks is not None:
+                print("LIMPIANDO TREEVIEW TICkS")
+                for item in self.tree_ticks.get_children():
+                    self.tree_ticks.delete(item)
 
         self.tickdirecto()
 
@@ -526,10 +553,7 @@ class FormularioInversionClasicas():
                             self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                             self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
                             self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                            if self.lotaje_entry.get() != "":
-                            #Habilitar el boton de empezar inversion
-                                if self.boton_empezar_inversion is not None:
-                                    self.boton_empezar_inversion.configure(state="normal")
+
                             if self.label_stop_loss is not None:
                                 self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                                 self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))

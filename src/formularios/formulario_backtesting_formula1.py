@@ -69,6 +69,7 @@ class FormularioBackTestingFormula1():
 
         #Inicializar imagenes
         self.imagen_piloto = None
+        self.label_imagen_piloto = None
 
         #Inicializar variables
         self.label_fecha_inicio = None
@@ -141,45 +142,66 @@ class FormularioBackTestingFormula1():
 
     def actualizar_formula1_pilotos(self, event):
 
-        if self.label_piloto is None:
-            #Label de "Elige el piloto"
-            self.label_piloto = tk.Label(self.frame_combo_boxs, text="Elige el piloto", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_piloto.grid(row=0, column=1, padx=10, pady=2, sticky="w")
+        if self.combo_pilotos is not None:
+            self.combo_pilotos.destroy()
+            self.label_piloto.destroy()
+            self.label_imagen_piloto.destroy()
+            self.label_accion.destroy()
+            self.combo_pilotos = None
+            self.label_piloto = None
+            self.label_imagen_piloto = None
+            self.label_accion = None
+        
+        #Label de "Elige el piloto"
+        self.label_piloto = tk.Label(self.frame_combo_boxs, text="Elige el piloto", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_piloto.grid(row=0, column=1, padx=10, pady=2, sticky="w")
 
-            #ComboBox de pilotos
-            self.combo_pilotos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_pilotos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+        #ComboBox de pilotos
+        self.combo_pilotos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+        self.combo_pilotos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
 
-            #Añadir pilotos a la lista
-            self.pilotos = SF1.obtener_listado_pilotos(self.combo_anos.get())
-            #Ordenar los pilotos alfabeticamente
-            self.pilotos.sort()
-            self.combo_pilotos["values"] = list(self.pilotos)
+        #Añadir pilotos a la lista
+        self.pilotos = SF1.obtener_listado_pilotos(self.combo_anos.get())
+        #Ordenar los pilotos alfabeticamente
+        self.pilotos.sort()
+        self.combo_pilotos["values"] = list(self.pilotos)
 
         #Al seleccionar un piloto se actualiza la imagen
         self.combo_pilotos.bind("<<ComboboxSelected>>", self.actualizar_formula1_imagen_piloto)
+
+        #Si ya hay una fecha actualizarla
+        if self.fecha_fin_entry is not None:
+            self.set_dates()
 
         #Actualizar vista
         self.on_parent_configure(event)
 
 
     def actualizar_formula1_imagen_piloto(self, event):
+        if self.label_imagen_piloto is not None:
+            self.label_imagen_piloto.destroy()
+            self.label_imagen_piloto = None
+            self.label_accion.destroy()
+            self.label_accion = None
 
-        if self.label_accion is None:
-            #Coger el año seleccionado
-            self.ano = self.combo_anos.get()
-            #Coger el piloto seleccionado
-            self.piloto = self.combo_pilotos.get()
 
-            #Poner imagen del piloto
-            self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100,100))
-            self.label_imagen_piloto = tk.Label(self.frame_superior, image=self.imagen_piloto, bg=COLOR_CUERPO_PRINCIPAL)
-            self.label_imagen_piloto.place(relx=0.8, rely=0.1)
+        #Coger el piloto seleccionado
+        self.piloto = self.combo_pilotos.get()
+        #Poner imagen del piloto
+        self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100,100))
+        self.label_imagen_piloto = tk.Label(self.frame_superior, image=self.imagen_piloto, bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_imagen_piloto.place(relx=0.8, rely=0.1)
 
-            #Label de accion
-            self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
-            self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
+        #Coger el año seleccionado
+        self.ano = self.combo_anos.get()
+        #Label de accion
+        self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
+
+        #Si ya hay una fecha actualizarla
+        if self.fecha_fin_entry is not None:
+            self.set_dates()
 
         #continuar
         self.actualizar_formula1_metodos(None)
@@ -280,6 +302,8 @@ class FormularioBackTestingFormula1():
         self.on_parent_configure(None)
 
     def set_dates(self):
+        print ("set_dates")
+        print(self.piloto)
         min_year, max_year = SF1.obtener_periodo_valido(self.piloto, self.combo_anos.get())
         self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
         self.fecha_ini = datetime(min_year, 1, 1)
@@ -293,41 +317,52 @@ class FormularioBackTestingFormula1():
         self.fecha_inicio_entry.set_date(self.fecha_ini)
     
     def actualizar_formula1_ticks(self, event):
-        if (self.fecha_inicio_entry is None):
-            #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
-            #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+        if self.fecha_fin_entry is not None:
+            self.fecha_fin_entry.destroy()
+            self.fecha_fin_entry = None
+            self.fecha_inicio_entry.destroy()
+            self.fecha_inicio_entry = None
+            self.label_fecha_inicio.destroy()
+            self.label_fecha_inicio = None
+            self.label_fecha_fin.destroy()
+            self.label_fecha_fin = None
 
-            #Date fecha inicio
-            fecha_ayer = datetime.now() - timedelta(days = 1)
-            self.fecha_inicio_entry = DateEntry(
-                self.frame_combo_boxs, 
-                date_pattern='yyyy/mm/dd',
-                background='darkblue', 
-                foreground='white', 
-                borderwidth=2,
-                maxdate=self.fecha_lim,
-                mindate=self.fecha_ini
-            )
-            self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
+       
+        #Label fecha inicio
+        self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
-            #Date fecha fin
-            self.fecha_fin_entry = DateEntry(
-                self.frame_combo_boxs,
-                date_pattern='yyyy/mm/dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2,
-                maxdate=self.fecha_lim,
-                mindate=self.fecha_ini
-            )
-            self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
+        #label fecha fin
+        self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
-            self.set_dates()
+        #Date fecha inicio
+        fecha_ayer = datetime.now() - timedelta(days = 1)
+        self.fecha_inicio_entry = DateEntry(
+            self.frame_combo_boxs, 
+            date_pattern='yyyy/mm/dd',
+            background='darkblue', 
+            foreground='white', 
+            borderwidth=2,
+            maxdate=self.fecha_lim,
+            mindate=self.fecha_ini
+        )
+        self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
+
+        #Date fecha fin
+        self.fecha_fin_entry = DateEntry(
+            self.frame_combo_boxs,
+            date_pattern='yyyy/mm/dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2,
+            maxdate=self.fecha_lim,
+            mindate=self.fecha_ini
+        )
+        self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
+
+        self.set_dates()
 
         # Boton de "Empezar backtesting"
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
@@ -628,7 +663,7 @@ class FormularioBackTestingFormula1():
             self.boton_mas_informacion.configure(width=int(self.frame_width * 0.015))
 
         #ajustar el tamaño de las fechas
-        if self.label_fecha_inicio is not None:
+        if self.fecha_inicio_entry is not None:
             self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))

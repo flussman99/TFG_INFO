@@ -5,7 +5,7 @@ from formularios.formulario_backtesting_futbol import FormularioBackTestingFutbo
 from formularios.formulario_backtesting_formula1 import FormularioBackTestingFormula1
 from formularios.formulario_inversion_futbol import FormularioInversionFutbol
 from formularios.formulario_inversion_formula1 import FormularioInversionFormula1
-#from formularios.formulario_inversion_cine import FormularioInversionCine
+from formularios.formulario_inversion_cine import FormularioInversionCine
 from formularios.formulario_backtesting_cine import FormularioBackTestingCine 
 import util.util_imagenes as util_img
 import pandas as pd
@@ -108,7 +108,7 @@ class FormularioCreativas():
         self.frame_descripcion_formula1.grid(row=5, column=0, columnspan=3, sticky="nsew")
 
         # Descripción de la opción de fórmula 1
-        self.descripcion_formula1 = tk.Label(self.frame_descripcion_formula1, justify="left", text="La estrategia consiste en invertir en acciones de empresas asociadas a equipos de fórmula 1, basándose en el rendimiento deportivo de dichos equipos. Este enfoque implica tomar decisiones de compra y venta de acciones en función de los resultados y desempeño del equipo en el circuito. Se busca capitalizar el éxito deportivo como un indicador potencial de oportunidades de inversión en el mercado financiero relacionadas con la industria del deporte.", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.descripcion_formula1 = tk.Label(self.frame_descripcion_formula1, justify="left", text="Para esta estrategia se ha hecho algo parecido que con los equipos de Fútbol. Se han obtenido los datos de todas las carreras y se han relacionado con los diferentes pilotos y patrocinadores de los mismos.", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.descripcion_formula1.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
 
         #CINE
@@ -133,7 +133,7 @@ class FormularioCreativas():
         self.frame_descripcion_cine.grid(row=7, column=0, columnspan=3, sticky="nsew")
         
         # Descripción de la opción de cine
-        self.descripcion_cine = tk.Label(self.frame_descripcion_cine, justify="left", text="La estrategia consiste en invertir en acciones de empresas asociadas a la industria del cine, basándose en el rendimiento de las películas y la taquilla. Este enfoque implica tomar decisiones de compra y venta de acciones en función de los resultados y desempeño de las películas en la taquilla. Se busca capitalizar el éxito de las películas como un indicador potencial de oportunidades de inversión en el mercado financiero relacionadas con la industria del cine.", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.descripcion_cine = tk.Label(self.frame_descripcion_cine, justify="left", text="La empresa Disney tiene diversas productoras de películas y series, entonces lo que realizamos es una relación entre estas productoras y el momento en el que salen nuevas películas para ver si tiene una relación directa.", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.descripcion_cine.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
 
         #Ajustar vista
@@ -162,7 +162,7 @@ class FormularioCreativas():
 
     def invertir_cine(self):
         self.limpiar_panel(self.frame_principal)
-        #FormularioInversionCine(self.frame_principal, self.user_id)
+        FormularioInversionCine(self.frame_principal, self.user_id)
 
     def on_parent_configure(self, event):
         # Se llama cuando cambia el tamaño de la ventana
