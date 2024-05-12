@@ -354,8 +354,7 @@ class FormularioInversionFutbol():
             self.boton_empezar_inversion_futbol.configure(state="disabled")
 
         try:
-            aux = int(self.stop_loss_entry.get())
-            self.stop_loss_entry.configure(text=aux)    
+            aux_loss = float(self.stop_loss_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
@@ -375,8 +374,7 @@ class FormularioInversionFutbol():
             self.boton_empezar_inversion_futbol.configure(state="disabled")
 
         try:
-            aux = int(self.take_profit_entry.get())
-            self.take_profit_entry.configure(text=aux)    
+            aux_profit = float(self.take_profit_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
@@ -397,7 +395,6 @@ class FormularioInversionFutbol():
 
         try:
             aux = int(self.lotaje_entry.get())
-            self.lotaje_entry.configure(text=aux)    
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
