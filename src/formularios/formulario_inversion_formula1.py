@@ -17,7 +17,7 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
-
+import ordenes as ORD   
 
 class FormularioInversionFormula1():
 
@@ -424,7 +424,7 @@ class FormularioInversionFormula1():
                     self.tree.delete(item)
 
         # Llamar a la función para obtener nuevos datos
-        self.coger_ticks()
+        self.tickdirecto()
 
         #Ajustar vista
         self.on_parent_configure(None)
@@ -449,56 +449,40 @@ class FormularioInversionFormula1():
         self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
 
-        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
-        self.rentabilidad_comparativa = tk.StringVar() 
-
-        rentabilidad_comparativa = 0
-        if self.combo_comparativa.get() == "SP500":
-            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "IBEX35":
-            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "Plazo Fijo":
-            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-
-        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
-
+        # Rentabilidad comparativa
+        self.rentabilidad_comparativa = tk.StringVar()
+        self.rentabilidad_comparativa.set("0")
         self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
-        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
 
-        # Boton de "Mostrar Operaciones"
-        self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
-        self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
+        # Boton de "Parar Inversión"
+        self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
+        self.boton_parar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
-        # Boton de "Guardar"
-        self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
-        self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
+        # Crear un contenedor para los Treeviews
+        self.tree_container = tk.Frame(self.frame_inferior)
+        self.tree_container.pack(side="left", fill="both", expand=True)
 
-        #Boton "Más información"
-        self.boton_mas_informacion = tk.Button(self.frame_datos, text="Más\ninformación", font=("Aptos", 12), bg="green", fg="white", command=self.mas_informacion)
-        self.boton_mas_informacion.pack(side="right", padx=(0, 10), pady=5)
+        # Frame para el primer Treeview
+        self.frame_tree = tk.Frame(self.tree_container)
+        self.frame_tree.grid(row=0, column=0, sticky="nsew")
 
-        #Crear un widget Treeview
-        self.tree = ttk.Treeview(self.frame_inferior)
-        self.tree.pack(side="left", fill="x")
+        # Frame para el segundo Treeview
+        self.frame_tree_ticks = tk.Frame(self.tree_container)
+        self.frame_tree_ticks.grid(row=0, column=1, sticky="nsew")
 
-    def toggle_frames(self):
-        if self.current_frame.equals(self.frame_without_filter):
-            self.current_frame = self.frame_with_filter
-        else:
-            self.current_frame = self.frame_without_filter
-        print("-----------------------------------")
-        print(self.current_frame)
-        # Limpiar el widget Treeview
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        # Primer Treeview
+        self.tree = ttk.Treeview(self.frame_tree)
+        self.tree.pack(side="left", fill="both", expand=True)
 
-        # Añadir todos los datos del DataFrame al widget Treeview
-        for index, row in self.current_frame.iterrows():
-            self.tree.insert("", "end", values=tuple(row))
+        # Segundo Treeview
+        self.tree_ticks = ttk.Treeview(self.frame_tree_ticks)
+        self.tree_ticks.pack(side="right", fill="both", expand=True)
+
+        self.tree_container.grid_rowconfigure(0, weight=1)
+        self.tree_container.grid_columnconfigure(0, weight=1)
+        self.tree_container.grid_columnconfigure(1, weight=1)
+
 
 
     def obtenerPais(self, accion_txt):
@@ -515,7 +499,7 @@ class FormularioInversionFormula1():
         print(accionApi)
         return accionApi
 
-    def coger_ticks(self):
+    def tickdirecto(self):
         
         frecuencia_txt = "Daily"
         inicio_txt = self.fecha_inicio_entry.get()
@@ -527,38 +511,58 @@ class FormularioInversionFormula1():
         self.accion = self.obtenerAccion(self.accion)
         pais_txt = self.obtenerPais(self.accion)
         self.accion = self.accion.split('.')[0]
+        lotaje_txt = self.lotaje_entry.get()
+        stoploss_txt=self.stop_loss_entry.get()
+        takeprofit_txt=self.take_profit_entry.get()
 
-        print(pais_txt)
-        print(self.accion)
-
-        print("----------------------------------------")
-        print(frecuencia_txt, self.accion, inicio_txt, fin_txt, estrategia_txt)
-
-        self.b.establecer_frecuencia_accion(frecuencia_txt, self.accion) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        if ',' in stoploss_txt:
+            stoploss_txt = stoploss_txt.replace(",", ".")
+            
+        if ',' in takeprofit_txt:
+            takeprofit_txt = takeprofit_txt.replace(",", ".")
+            
+        self.b.establecer_inversion_directo(frecuencia_txt, self.accion,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         
-        self.rentabilidad_f1.set(str(rentabilidad))
+        self.b.thread_F1(piloto_txt, self.url, cuando_comprar, cuando_vender)
+        self.b.thread_orders_creativas(estrategia_txt)
+        self.funciones_recursivas = True
+        self.actualizar_carreras()
+        self.actualizar_frame()
 
-        self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
 
-        self.treeview("Backtesting")
+    def actualizar_carreras(self):
+        if(self.funciones_recursivas):
+            print("carreras")
+            # if(SBS.FRAMEDIRECTO.empty):
+            #     self.frame_principal.after(10000, self.actualiar_partidos)#10s
+            self.frame_directo=SF1.FRAMEDIRECTO
+            print("-------------------FRAME TICKS PARTIDO-------------------")
+            print(self.frame_directo)
+            self.treeview_carreras()
+            self.frame_principal.after(7000, self.actualizar_carreras)
+    
+    def actualizar_frame(self):
+        if(self.funciones_recursivas):
+            print("ticks")
+            # if(ORD.FRAMETICKS.empty):
+            #     self.frame_principal.after(10000, self.actualiar_frame)
+            self.frame_ticks=ORD.FRAMETICKS
+            print("-------------------FRAME TICKS -------------------")
+            print(self.frame_ticks)
+            self.treeview_ticks()
+            self.frame_principal.after(7000, self.actualizar_frame)
 
-    def treeview(self,modo):
-        if(modo=="Backtesting"):
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
 
-            # Set the initial DataFrame to display
-            self.current_frame = self.frame_without_filter
-        else:
-            self.current_frame = self.frame_directo
-        print("-----------------------------------")
-        print(self.current_frame)
+    def treeview_carreras(self):
+        self.current_frame =self.frame_directo
+
         # Configurar las columnas del widget Treeview
         self.tree["columns"] = list(self.current_frame.columns)
         self.tree["show"] = "headings"  # Desactivar la columna adicional
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=100)
+            self.tree.column(col, width=50)
 
         # Limpiar el widget Treeview
         for row in self.tree.get_children():
@@ -567,99 +571,162 @@ class FormularioInversionFormula1():
         # Añadir todos los datos del DataFrame al widget Treeview
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
-    
+
+    def treeview_ticks(self):
+        self.current_frame2 = self.frame_ticks
+
+        # Configurar las columnas del widget Treeview
+        self.tree_ticks["columns"] = list(self.current_frame2.columns)
+        self.tree_ticks["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree_ticks["columns"]:
+            self.tree_ticks.heading(col, text=col)
+            self.tree_ticks.column(col, width=50)
+
+        # Limpiar el widget Treeview
+        for row in self.tree_ticks.get_children():
+            self.tree_ticks.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame2.iterrows():
+            self.tree_ticks.insert("", "end", values=tuple(row))
+
+    def parar_inversion(self):
+        # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.combo_anos.configure(state="normal")
+        self.combo_pilotos.configure(state="normal")
+        #self.combo_acciones.configure(state="normal")
+        self.combo_metodos_comprar.configure(state="normal")
+        self.combo_metodos_vender.configure(state="normal")
+        self.stop_loss_entry.configure(state="normal")
+        self.take_profit_entry.configure(state="normal")
+        self.lotaje_entry.configure(state="normal")
+        self.boton_empezar_inversion.configure(state="normal")
+
+        #Calcular la rentabilidad de la comparativa
+        self.calcular_rentabilidad_comparativa()
 
 
-    def guardar_inversion(self):
+        self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
+        self.b.kill_threads()
+        frame_inversiones_finalizadas=self.b.parar_inversion()
+        frame_carreras_final=self.b.parar_carreras()
+        self.frame_ticks=frame_inversiones_finalizadas
+        self.frame_directo=frame_carreras_final
+        self.treeview_carreras()
+        self.treeview_ticks()
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+
+        rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
+        suma_rentabilidades = rentabilidades.sum().round(2)
+        self.rentabilidad_f1.set(str(suma_rentabilidades))
+        self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
+
+
+    def calcular_rentabilidad_comparativa(self): #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
+        rentabilidad_comparativa = 0
+        if self.combo_comparativa.get() == "SP500":
+            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "IBEX35":
+            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "Plazo Fijo":
+            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
+        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
+
+
+    # def guardar_inversion(self):
         
-        # Conexión a la base de datos
-        self.conn = mysql.connector.connect(
-                    host=DBConfig.HOST,
-                    user=DBConfig.USER,
-                    password=DBConfig.PASSWORD,
-                    database=DBConfig.DATABASE,
-                    port=DBConfig.PORT
-                )
+    #     # Conexión a la base de datos
+    #     self.conn = mysql.connector.connect(
+    #                 host=DBConfig.HOST,
+    #                 user=DBConfig.USER,
+    #                 password=DBConfig.PASSWORD,
+    #                 database=DBConfig.DATABASE,
+    #                 port=DBConfig.PORT
+    #             )
         
-        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
-        nombre_inversión = ""
-        while True:
-            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
-            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
+    #     # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
+    #     nombre_inversión = ""
+    #     while True:
+    #         # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
+    #         nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
 
-            if nombre_inversión is None:
-                # Si se hace clic en Cancelar, salimos del bucle
-                break
+    #         if nombre_inversión is None:
+    #             # Si se hace clic en Cancelar, salimos del bucle
+    #             break
 
-            if not nombre_inversión:
-                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
-                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
-                continue
+    #         if not nombre_inversión:
+    #             # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+    #             messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
+    #             continue
             
-            if self.nombre_inversion_existe(nombre_inversión):
-                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
-                continue
+    #         if self.nombre_inversion_existe(nombre_inversión):
+    #             messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
+    #             continue
 
-            # Si llegamos a este punto, el usuario ha introducido un nombre de inversión correcto
-            break
+    #         # Si llegamos a este punto, el usuario ha introducido un nombre de inversión correcto
+    #         break
 
-        if(nombre_inversión is None):
-            return
+    #     if(nombre_inversión is None):
+    #         return
         
-        # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Formula 1"
+    #     # Le damos valor al tipo de inversión que esta haciendo el usuario
+    #     tipo = "Formula 1"
 
-        # Cogemos la acción en la que ha invertido el usuario
-        accion = self.accion
+    #     # Cogemos la acción en la que ha invertido el usuario
+    #     accion = self.accion
 
-        # Cogemos la fecha de inicio y la de fin de la inversión
-        fecha_ini = self.fecha_inicio_entry.get()
-        fecha_fin = self.fecha_fin_entry.get()
+    #     # Cogemos la fecha de inicio y la de fin de la inversión
+    #     fecha_ini = self.fecha_inicio_entry.get()
+    #     fecha_fin = self.fecha_fin_entry.get()
 
-        # Cogemos cuando toma las decisiones de comprar y vender el usuario
-        compra = self.combo_metodos_comprar.get()
-        venta = self.combo_metodos_vender.get()
+    #     # Cogemos cuando toma las decisiones de comprar y vender el usuario
+    #     compra = self.combo_metodos_comprar.get()
+    #     venta = self.combo_metodos_vender.get()
 
-        # Le damos valor a la frecuencia
-        frecuencia = "Diaria"
+    #     # Le damos valor a la frecuencia
+    #     frecuencia = "Diaria"
 
-        # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_f1.get()
+    #     # Cogemos la rentabilidad de la inversión
+    #     rentabilidad = self.rentabilidad_f1.get()
 
-        # Guardamos la inversión en la base de datos
-        cursor = self.conn.cursor()
-        try:
-            # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad)
-            cursor.execute(consulta, datos)
-        except Exception as e:
-            print(e)
+    #     # Guardamos la inversión en la base de datos
+    #     cursor = self.conn.cursor()
+    #     try:
+    #         # Realizamos la consulta para insertar los datos en la tabla Inversiones
+    #         consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    #         datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad)
+    #         cursor.execute(consulta, datos)
+    #     except Exception as e:
+    #         print(e)
         
-        # Cerramos el cursor y la conexxión
-        cursor.close()
-        self.conn.commit()
-        self.conn.close()
+    #     # Cerramos el cursor y la conexxión
+    #     cursor.close()
+    #     self.conn.commit()
+    #     self.conn.close()
 
-    def nombre_inversion_existe(self, nombre_inversion):
-        # Obtener el cursor para ejecutar consultas
-        cursor = self.conn.cursor()
+    # def nombre_inversion_existe(self, nombre_inversion):
+    #     # Obtener el cursor para ejecutar consultas
+    #     cursor = self.conn.cursor()
 
-        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
-        datos = (self.id_user, nombre_inversion) 
-        cursor.execute(consulta, datos)
-        cantidad = cursor.fetchone()[0]
+    #     # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
+    #     consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
+    #     datos = (self.id_user, nombre_inversion) 
+    #     cursor.execute(consulta, datos)
+    #     cantidad = cursor.fetchone()[0]
 
-        # Cerrar el cursor
-        cursor.close()
+    #     # Cerrar el cursor
+    #     cursor.close()
 
-        return cantidad > 0
+    #     return cantidad > 0
 
 
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Formula1", self.rentabilidad_f1.get())
+    # def mas_informacion(self):
+    #     self.limpiar_panel(self.frame_principal)     
+    #     FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Formula1", self.rentabilidad_f1.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel

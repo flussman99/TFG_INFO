@@ -370,29 +370,14 @@ class FormularioBackTestingFormula1():
         self.label_rentabilidad_f1.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
-        rent = self.combo_comparativa.get()
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
 
-        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
-        self.rentabilidad_comparativa = tk.StringVar() 
-
-        rentabilidad_comparativa = 0
-        if self.combo_comparativa.get() == "SP500":
-            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "IBEX35":
-            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "Plazo Fijo":
-            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-
-        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
-
-        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
-        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
+        # Rentabilidad comparativa 
+        self.rentabilidad_comparativa = tk.StringVar()
+        self.rentabilidad_comparativa.set("0")
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
@@ -452,30 +437,34 @@ class FormularioBackTestingFormula1():
         self.accion = self.obtenerAccion(self.accion)
         pais_txt = self.obtenerPais(self.accion)
         self.accion = self.accion.split('.')[0]
-
-        print(pais_txt)
-        print(self.accion)
+        indicador= self.combo_comparativa.get()
 
         print("----------------------------------------")
         print(frecuencia_txt, self.accion, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, self.accion) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
-        self.rentabilidad_f1.set(str(rentabilidad))
+        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.treeview()
 
+    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+        #Rentabilidad Futbol
+        self.rentabilidad_f1.set(str(rentabilidad))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
 
-        self.treeview("Backtesting")
+        #Rentabilidad comparativa    
+        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+        
+   
 
-    def treeview(self,modo):
-        if(modo=="Backtesting"):
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+    def treeview(self):
 
-            # Set the initial DataFrame to display
-            self.current_frame = self.frame_without_filter
-        else:
-            self.current_frame = self.frame_directo
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
         print("-----------------------------------")
         print(self.current_frame)
         # Configurar las columnas del widget Treeview
@@ -493,8 +482,6 @@ class FormularioBackTestingFormula1():
         for index, row in self.current_frame.iterrows():
             self.tree.insert("", "end", values=tuple(row))
     
-
-
     def guardar_backtesting(self):
         
         # Conexión a la base de datos
@@ -551,12 +538,18 @@ class FormularioBackTestingFormula1():
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_f1.get()
 
+        # Cogemos el indicador con el que se compara la inversión
+        indicador = self.combo_comparativa.get()
+
+        # Cogemos la rentabilidad del indicador
+        rentabilidad_indicador = self.rentabilidad_comparativa.get()
+
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)

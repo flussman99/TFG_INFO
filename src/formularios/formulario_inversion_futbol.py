@@ -315,7 +315,7 @@ class FormularioInversionFutbol():
     def actualizar_lotajes(self, event):
         if (self.label_stop_loss is None):
             #Entry stop loss
-            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
 
             self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
@@ -323,7 +323,7 @@ class FormularioInversionFutbol():
         
         if (self.label_take_profit is None):
             #Entry take profit
-            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
 
             self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
@@ -342,21 +342,60 @@ class FormularioInversionFutbol():
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_inversion.grid(row=4, column=3, padx=10, pady=2, sticky="w")
 
+
+        self.stop_loss_entry.bind("<KeyRelease>", self.actualizar_futbol_stop_loss)
+        self.take_profit_entry.bind("<KeyRelease>", self.actualizar_futbol_take_profit)
         self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
 
         #Actualizar vista
         self.on_parent_configure(None)
-        
+    
+    def actualizar_futbol_stop_loss(self, event):
+        if self.stop_loss_entry.get() == "" and self.boton_empezar_inversion_futbol is not None:
+            self.boton_empezar_inversion_futbol.configure(state="disabled")
+
+        try:
+            aux_loss = float(self.stop_loss_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_futbol_take_profit(self, event):
+        if self.take_profit_entry.get() == "" and self.boton_empezar_inversion_futbol is not None:
+            self.boton_empezar_inversion_futbol.configure(state="disabled")
+
+        try:
+            aux_profit = float(self.take_profit_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
 
     def actualizar_futbol_lotaje(self, event):
         if self.lotaje_entry.get() == "" and self.boton_empezar_inversion_futbol is not None:
             self.boton_empezar_inversion_futbol.configure(state="disabled")
-            print("Deshabilitar boton")
-            print("-----------------------------------")
 
         try:
             aux = int(self.lotaje_entry.get())
-            self.lotaje_entry.configure(text=aux)    
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
@@ -374,7 +413,7 @@ class FormularioInversionFutbol():
         self.on_parent_configure(event)
 
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.lotaje_entry.get() != "":
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
             self.actualizar_boton_inversion()
 
 
@@ -388,11 +427,6 @@ class FormularioInversionFutbol():
         # Boton de "Empezar inversion"
         self.boton_empezar_inversion_futbol = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
         self.boton_empezar_inversion_futbol.grid(row=4, column=4, rowspan=2, padx=10, pady=2, sticky="w")
-
-        if self.lotaje_entry.get() == "":
-            self.boton_empezar_inversion_futbol.configure(state="disabled")
-            print("Deshabilitar boton")
-            print("-----------------------------------")
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -503,6 +537,13 @@ class FormularioInversionFutbol():
         lotaje_txt=self.lotaje_entry.get()
         stoploss_txt=self.stop_loss_entry.get()
         takeprofit_txt=self.take_profit_entry.get()
+
+        if ',' in stoploss_txt:
+            stoploss_txt = stoploss_txt.replace(",", ".")
+            
+        if ',' in takeprofit_txt:
+            takeprofit_txt = takeprofit_txt.replace(",", ".")
+            
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         

@@ -6,6 +6,7 @@ import requests
 import numpy as np
 from typing import Tuple
 import tick_reader as tr
+from datetime import datetime
 
 
 data = []
@@ -33,6 +34,7 @@ acciones_api = {
 }
 
 acciones_escuderias = {
+    'Mercedes-AMG Petronas Motorsport' : 'HPQ.NYSE',
     'Mercedes-AMG Petronas Formula One Team': 'HPQ.NYSE',
     'Mercedes AMG Petronas Motorsport': 'QCOM.NYSE',
     'Mercedes AMG Petronas F1 Team': 'QCOM.NYSE',
@@ -65,6 +67,7 @@ acciones_escuderias = {
     'Aston Martin Red Bull Racing': 'HMC.NYSE',
     'Red Bull Toro Rosso Honda': 'HMC.NYSE',
     'Scuderia Toro Rosso': 'RNO.PAR',
+    'Manor Racing MRT': 'RNO.PAR',
     'Stake F1 Team Kick Sauber': 'RACE.NYSE', #Motorista Ferrari
     'Alfa Romeo F1 Team Stake': 'RACE.NYSE', 
     'Alfa Romeo F1 Team ORLEN': 'RACE.NYSE', 
@@ -144,7 +147,7 @@ imagenes_escuderias = {
 imagenes_pilotos = {
     'Fernando Alonso': 'src/imagenes/F1/Alonso.png',
     'Alexander Albon': 'src/imagenes/F1/Albon.png',
-    'Valteri Bottas': 'src/imagenes/F1/Bottas.png',
+    'Valtteri Bottas': 'src/imagenes/F1/Bottas.png',
     'Jenson Button': 'src/imagenes/F1/Button.png',
     'Nick De Vries': 'src/imagenes/F1/DeVries.png',
     'Marcus Ericsson': 'src/imagenes/F1/Ericsson.png',
@@ -153,7 +156,7 @@ imagenes_pilotos = {
     'Roman Grosjean': 'src/imagenes/F1/Grosjean.png',
     'Esteban Gutiérrez': 'src/imagenes/F1/Gutiérrez.png',
     'Lewis Hamilton': 'src/imagenes/F1/Hamilton.png',
-    'Nico Hulkenberg': 'src/imagenes/F1/Hulkenberg.png',
+    'Nico Hülkenberg': 'src/imagenes/F1/Hulkenberg.png',
     'Kamui Kobayashi': 'src/imagenes/F1/Kobayashi.png',
     'Robert Kubica': 'src/imagenes/F1/Kubica.png',
     'Daniil Kvyat': 'src/imagenes/F1/Kvyat.png',
@@ -179,7 +182,7 @@ imagenes_pilotos = {
     'Stoffel Vandoorne': 'src/imagenes/F1/Vandoorne.png',
     'Max Verstappen': 'src/imagenes/F1/Verstappen.png',
     'Sebastian Vettel': 'src/imagenes/F1/Vettel.png',
-    'Guanyu Zhou': 'src/imagenes/F1/Zhou.png'
+    'Zhou Guanyu': 'src/imagenes/F1/Zhou.png'
 }
 
 # List of HTML files to process from https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
@@ -248,7 +251,7 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
         if price is not None:
             # If a price was found, update the 'precio' column in piloto_frame
             piloto_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
-        if 'DNF' in resultado[0] or 'DNS'  in resultado[0] or 'No participo' in resultado[0] or ' ' in resultado[0] or 'N' in resultado[0] or 'DSQ' in resultado[0]:
+        if 'DNF' in resultado[0] or 'DNS'  in resultado[0] or 'No participo' in resultado[0] or ' ' in resultado[0] or 'N' in resultado[0] or 'DSQ' in resultado[0] or 'WD' in resultado[0]:
             resultado = 30
         elif '*' in resultado[0]:
             # Eliminar el asterisco si está presente
@@ -370,7 +373,7 @@ def obtener_resultados_piloto(soup, nombre):
         
         # Transponerlo para que sea una columna
         datos_piloto = list(zip(*datos_piloto))
-        encabezado_tabla = [th.get_text(strip=True) for th in soup.find('tr').find_all('th')]
+        encabezado_tabla = [th.get_text(strip=True) for th in tabla_resultados.find('tr').find_all('th')]
 
     return datos_piloto, encabezado_tabla
 
@@ -400,6 +403,7 @@ def obtener_periodo_valido(piloto, año_base):
     accion_base = obtener_accion_escuderia(piloto, str(año_base))
     año_min = int(año_base)
     año_max = int(año_base)
+    print('Accion base', accion_base)
     for año in años:
         accion_año = obtener_accion_escuderia(piloto, str(año))
         año = int(año)
@@ -512,6 +516,7 @@ def leerURL(url, piloto):
         # Extraer los datos de las filas y transponerlos en una columna
         filas_con_texto, encabezado_tabla = obtener_resultados_piloto(soup_tabla_principal, piloto)
         filas_con_texto = filas_con_texto[3:]
+        encabezado_tabla = encabezado_tabla[3:]
 
 
         # Agregar las columnas adicionales para el encabezado de la tabla y las fechas asociadas
@@ -544,6 +549,12 @@ def leerURL(url, piloto):
         df['Fecha'] = pd.to_datetime(df['Fecha'])
         # Initialize a new column 'precio' in piloto_frame with NaN values
         df['Precio'] = np.nan
+
+        # Obtener la fecha actual
+        fecha_actual = datetime.now()
+
+        # Filtrar las filas cuya fecha es posterior al día de hoy
+        df = df[df['Fecha'] <= fecha_actual]
                         
     else:
         print("Error al obtener la URL. Código de estado:", response.status_code) 
@@ -594,6 +605,8 @@ def ultimaCarrera(piloto_txt:str,url,cola):
         # Asignar el Resultado a cada carrera
         RESULTADO_ULTIMA_CARRERA = piloto_frame.at[piloto_frame.index[-1], 'Resultado']
         print(RESULTADO_ULTIMA_CARRERA)
+        filaAdd=piloto_frame.iloc[[-1]].drop(['Precio'], axis=1)
+        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO,  filaAdd], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]].drop(['Resultado'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         print(last_row)
@@ -601,6 +614,12 @@ def ultimaCarrera(piloto_txt:str,url,cola):
         NUEVA_CARRERA = True
     else:
         print("No hay carrera nueva")
+
+def parar_carreras(self):
+    global FRAMEDIRECTO
+    frame=FRAMEDIRECTO
+    FRAMEDIRECTO = pd.DataFrame(columns=['Circuito', 'Fecha', 'Resultado'])
+    return frame
 
 def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,COMBO_COMPRAR

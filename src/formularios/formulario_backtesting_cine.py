@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
 
 
-class FormularioBackTestingFutbol():
+class FormularioBackTestingCine():
 
     def __init__(self, panel_principal, id_user):
 
@@ -38,7 +38,7 @@ class FormularioBackTestingFutbol():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Backtesting Operaciones Cine", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
@@ -47,29 +47,27 @@ class FormularioBackTestingFutbol():
 
         #VARIABLES
         #Inicializar Labels
-        self.label_liga = None
-        self.label_equipo = None
+        self.label_disney = None
         self.label_accion = None
+        self.label_estudio = None
         self.label_metodo_comprar = None
-        self.label_metodo_vender = None
         self.label_comparativa = None
+
         self.label_rentabilidad = None
         self.label_rentabilidad_futbol = None
         self.label_rentabilidad_comparativa = None
         self.label_rentabilidad_comparativa_texto = None
 
         #Inicializar ComboBoxs
-        self.combo_ligas = None
-        self.combo_equipos = None
-        self.combo_accion = None
+        self.combo_estudios = None
         self.combo_metodos_comprar = None
-        self.combo_metodos_vender = None
         self.combo_comparativa = None
 
         #Inicializar imagenes
-        self.imagen_liga = None
-        self.imagen_equipo = None
-        self.imagen_accion = None
+        self.imagen_disney = None
+        self.label_imagen_disney = None
+        self.imagen_estudio = None
+        self.label_imagen_estudio = None
 
         #Inicializar variables
         self.label_fecha_inicio = None
@@ -118,65 +116,64 @@ class FormularioBackTestingFutbol():
         self.operacion_futbol()
 
     def operacion_futbol(self):
-        #label de "Elige la liga"
-        self.label_liga = tk.Label(self.frame_combo_boxs, text="Elige la liga", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_liga.grid(row=0, column=0, padx=10, pady=2, sticky="w")
+        #label de Disney
+        self.label_disney = tk.Label(self.frame_combo_boxs, text="Acción de Disney:", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_disney.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
-        #ComboBox de ligas
-        self.combo_ligas = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_ligas.grid(row=1, column=0, padx=10, pady=2, sticky="w")
-        self.combo_ligas["values"] = list(self.ligas.keys())
-                
+        #label accion de disney
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="NYSE:DIS", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_accion.grid(row=1, column=0, padx=10, pady=2, sticky="w")
+
+        #label de "Elige el estudio:"
+        self.label_estudio = tk.Label(self.frame_combo_boxs, text="Elige el estudio:", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_estudio.grid(row=0, column=1, padx=10, pady=2, sticky="w")
+
+        #ComboBox de estudios
+        self.combo_estudios = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+        self.combo_estudios.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+
+        #Cargar imagen disney
+        self.imagen_disney = util_img.leer_imagen("src/imagenes/Disney/disney.jpg", (10,10))
+        self.label_imagen_disney = tk.Label(self.frame_superior, image=self.imagen_disney, bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_imagen_disney.place(relx=0.8, rely=0.1)
+
         #Ajustar vista
         self.on_parent_configure(None)
 
         #Actualizar vista al cambiar de liga
-        self.combo_ligas.bind("<<ComboboxSelected>>", self.actualizar_futbol_equipo)
+        self.combo_estudios.bind("<<ComboboxSelected>>", self.actualizar_estudio)
 
-    def actualizar_futbol_equipo(self, event):
-        #Coger la liga seleccionada
-        self.liga = self.combo_ligas.get()
+    def actualizar_estudio(self, event):
+        #Coger el estudio seleccionado
+        self.estudio = self.combo_estudios.get()
 
-        #Poner todo vacio si ya se ha seleccionado algo
-        if self.combo_equipos is not None:
-            if self.combo_equipos == "":
-                self.label_imagen_equipo.destroy()
-            self.label_equipo.destroy()
-            self.combo_equipos.destroy()
-            self.label_imagen_liga.destroy()
-            self.label_equipo = None
-            self.combo_equipos = None
-            if self.combo_accion is not None:
-                self.label_imagen_equipo.destroy()
-                self.label_accion.destroy()
-                self.combo_accion.destroy()
-                self.label_accion = None
-                self.combo_accion = None
+        
 
-        if self.label_equipo is None:
+
+        if self.label_estudio is None:
             #Poner imagen de la liga
-            self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (10,10))
-            self.label_imagen_liga = tk.Label(self.frame_superior, image=self.imagen_liga, bg=COLOR_CUERPO_PRINCIPAL)
+            self.imagen_disney = util_img.leer_imagen(self.imagenes_liga[self.liga], (10,10))
+            self.label_imagen_liga = tk.Label(self.frame_superior, image=self.imagen_disney, bg=COLOR_CUERPO_PRINCIPAL)
             self.label_imagen_liga.place(relx=0.8, rely=0.1)
 
             #Label de "Elige el equipo"
-            self.label_equipo = tk.Label(self.frame_combo_boxs, text="Elige el equipo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_equipo.grid(row=0, column=1, padx=10, pady=2, sticky="w")
+            self.label_estudio = tk.Label(self.frame_combo_boxs, text="Elige el equipo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_estudio.grid(row=0, column=1, padx=10, pady=2, sticky="w")
 
             #ComboBox de equipos
-            self.combo_equipos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_equipos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
-            self.combo_equipos["values"] = self.ligas[self.liga]
+            self.combo_estudios = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_estudios.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+            self.combo_estudios["values"] = self.ligas[self.liga]
 
         #Ajustar vista
         self.on_parent_configure(event)
 
         #Actualizar vista al cambiar de equipo        
-        self.combo_equipos.bind("<<ComboboxSelected>>", self.actualizar_futbol_accion)
+        self.combo_estudios.bind("<<ComboboxSelected>>", self.actualizar_futbol_accion)
 
     def actualizar_futbol_accion(self, event):
         #Coger el equipo seleccionado
-        self.equipo = self.combo_equipos.get()
+        self.equipo = self.combo_estudios.get()
         #self.label_imagen_equipo.destroy()
 
         #Poner todo vacio si ya se ha seleccionado algo
@@ -188,8 +185,8 @@ class FormularioBackTestingFutbol():
 
         if self.label_accion is None:
             #Poner imagen del equipo
-            self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (10,10))
-            self.label_imagen_equipo = tk.Label(self.frame_superior, image=self.imagen_equipo, bg=COLOR_CUERPO_PRINCIPAL)
+            self.imagen_estudio = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (10,10))
+            self.label_imagen_equipo = tk.Label(self.frame_superior, image=self.imagen_estudio, bg=COLOR_CUERPO_PRINCIPAL)
             self.label_imagen_equipo.place(relx=0.9, rely=0.1)
             
             #Label de "Elige acción"
@@ -393,7 +390,7 @@ class FormularioBackTestingFutbol():
 
     def empezar_backtesting(self):
         #Verifiar que se han seleccionado todos los campos
-        if self.combo_ligas.get() == "" or self.combo_equipos.get() == "" or self.combo_accion.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_metodos_vender.get() == "" or self.combo_comparativa.get() == "":
+        if self.combo_ligas.get() == "" or self.combo_estudios.get() == "" or self.combo_accion.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_metodos_vender.get() == "" or self.combo_comparativa.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
         
@@ -442,7 +439,7 @@ class FormularioBackTestingFutbol():
         
         inicio_txt = self.fecha_inicio_entry.get()
         fin_txt = self.fecha_fin_entry.get()
-        equipo_txt = self.combo_equipos.get()
+        equipo_txt = self.combo_estudios.get()
         accion_txt = self.acronimos_acciones[self.combo_accion.get()]
         indicador= self.combo_comparativa.get()
         estrategia_txt = 'Futbol'
@@ -540,19 +537,15 @@ class FormularioBackTestingFutbol():
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_futbol.get()
-
-        # Cogemos el indicador con el que se compara la inversión
-        indicador = self.combo_comparativa.get()
-
-        # Cogemos la rentabilidad de la inversión
-        rentabilidad_indicador = self.rentabilidad_comparativa.get()
+        # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
+        rentabilidadIndicador = self.rentabilidad_comparativa.get()
 
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, indicador, rentabilidad_indicador)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)
@@ -643,23 +636,23 @@ class FormularioBackTestingFutbol():
             
 
         #Ajustar label elegir liga
-        if self.label_liga is not None:
+        if self.label_disney is not None:
             #Ajustar liga
-            self.label_liga.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.label_disney.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.combo_ligas.configure(width=int(self.frame_width * 0.02))
             
             if self.combo_ligas is not None and self.combo_ligas.get() != "": 
-                self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
-                self.label_imagen_liga.configure(image=self.imagen_liga)
+                self.imagen_disney = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
+                self.label_imagen_liga.configure(image=self.imagen_disney)
 
             #Ajustar equipo
-            if self.combo_equipos is not None:
-                self.label_equipo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                self.combo_equipos.configure(width=int(self.frame_width * 0.02))
+            if self.combo_estudios is not None:
+                self.label_estudio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                self.combo_estudios.configure(width=int(self.frame_width * 0.02))
 
-                if self.combo_equipos.get() != "":
-                    self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
-                    self.label_imagen_equipo.configure(image=self.imagen_equipo)
+                if self.combo_estudios.get() != "":
+                    self.imagen_estudio = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
+                    self.label_imagen_equipo.configure(image=self.imagen_estudio)
 
                 #Ajustar accion
                 if self.combo_accion is not None:
