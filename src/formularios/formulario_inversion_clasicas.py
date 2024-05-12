@@ -54,14 +54,12 @@ class FormularioInversionClasicas():
         self.label_accion = None
         self.label_estrategia = None
         self.label_frecuencia = None
-        self.label_comparativa = None
 
         #Inicializar ComboBoxs
         self.combo_mercado = None
         self.combo_accion = None
         self.combo_estrategia = None
         self.combo_frecuencia = None
-        self.combo_comparativa = None
 
         #Inicializar variables
         self.label_stop_loss = None
@@ -143,6 +141,9 @@ class FormularioInversionClasicas():
             filtered_acciones = [accion for accion in self.acciones if '.' not in accion]
         else:
             filtered_acciones = [accion for accion in self.acciones if accion.endswith(selected_market)]
+
+        #Oredear acciones alfabeticamente
+        filtered_acciones.sort()
         self.combo_accion['values'] = filtered_acciones
 
         #Ajustar vista
@@ -182,27 +183,8 @@ class FormularioInversionClasicas():
             self.combo_frecuencia["values"] = ['1M', '3M', '5M', '10M', '15M', '30M', '1H', '2H', '4H','Daily', 'Weekly', 'Monthly']
 
         #al mirar todos los datos actualizar el boton
-        self.combo_frecuencia.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
+        self.combo_frecuencia.bind("<<ComboboxSelected>>", self.actualizar_lotaje)
 
-
-        #Ajustar vista
-        self.on_parent_configure(event)
-
-    def actualizar_comparativa(self, event):
-        
-        if self.label_comparativa is None:
-            
-            #Label de "Comparativa"
-            self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_comparativa.grid(row=2, column=1, padx=10, pady=2, sticky="w")
-
-            #ComboBox de comparativa
-            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_comparativa.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-            self.combo_comparativa["values"] = ['IBEX35','SP500']
-
-        #al mirar todos los datos actualizar el boton
-        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotaje)
 
         #Ajustar vista
         self.on_parent_configure(event)
@@ -213,15 +195,15 @@ class FormularioInversionClasicas():
         if self.label_lotaje is None:
             #Label de "Lotaje"
             self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_lotaje.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+            self.label_lotaje.grid(row=2, column=1, padx=10, pady=2, sticky="w")
 
             #Entry de lotaje
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
-            self.lotaje_entry.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.lotaje_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
 
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_inversion.grid(row=4, column=2, padx=10, pady=2, sticky="w")
+            self.label_inversion.grid(row=2, column=2, padx=10, pady=2, sticky="w")
         
         self.lotaje_entry.bind("<KeyRelease>", self.actualizar_inversion)
 
@@ -482,30 +464,25 @@ class FormularioInversionClasicas():
                         self.label_frecuencia.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_frecuencia.configure(width=int(self.frame_width * 0.02))
                         
-                        #Ajustar comparativa
-                        if self.combo_comparativa is not None:
-                            self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                            self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
+                        #Ajustar lotaje
+                        if self.lotaje_entry is not None:
+                            self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+                            self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            if self.lotaje_entry.get() != "":
+                            #Habilitar el boton de empezar inversion
+                                if self.boton_empezar_inversion is not None:
+                                    self.boton_empezar_inversion.configure(state="normal")
+                            if self.label_stop_loss is not None:
+                                self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
+                                self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
 
-                            #Ajustar lotaje
-                            if self.lotaje_entry is not None:
-                                self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                                self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
-                                self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                                if self.lotaje_entry.get() != "":
-                                #Habilitar el boton de empezar inversion
-                                    if self.boton_empezar_inversion is not None:
-                                        self.boton_empezar_inversion.configure(state="normal")
-                                if self.label_stop_loss is not None:
-                                    self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                                    self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                                    self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
-                                    self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
-
-                            if self.boton_empezar_inversion is not None:
-                                self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-                                self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
+                        if self.boton_empezar_inversion is not None:
+                            self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                            self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
 
 
 
-            
+        

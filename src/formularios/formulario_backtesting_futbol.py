@@ -52,6 +52,11 @@ class FormularioBackTestingFutbol():
         self.label_accion = None
         self.label_metodo_comprar = None
         self.label_metodo_vender = None
+        self.label_comparativa = None
+        self.label_rentabilidad = None
+        self.label_rentabilidad_futbol = None
+        self.label_rentabilidad_comparativa = None
+        self.label_rentabilidad_comparativa_dato = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -59,6 +64,7 @@ class FormularioBackTestingFutbol():
         self.combo_accion = None
         self.combo_metodos_comprar = None
         self.combo_metodos_vender = None
+        self.combo_comparativa = None
 
         #Inicializar imagenes
         self.imagen_liga = None
@@ -147,19 +153,20 @@ class FormularioBackTestingFutbol():
                 self.label_accion = None
                 self.combo_accion = None
 
-        #Poner imagen de la liga
-        self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (10,10))
-        self.label_imagen_liga = tk.Label(self.frame_superior, image=self.imagen_liga, bg=COLOR_CUERPO_PRINCIPAL)
-        self.label_imagen_liga.place(relx=0.8, rely=0.1)
+        if self.label_equipo is None:
+            #Poner imagen de la liga
+            self.imagen_liga = util_img.leer_imagen(self.imagenes_liga[self.liga], (10,10))
+            self.label_imagen_liga = tk.Label(self.frame_superior, image=self.imagen_liga, bg=COLOR_CUERPO_PRINCIPAL)
+            self.label_imagen_liga.place(relx=0.8, rely=0.1)
 
-        #Label de "Elige el equipo"
-        self.label_equipo = tk.Label(self.frame_combo_boxs, text="Elige el equipo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_equipo.grid(row=0, column=1, padx=10, pady=2, sticky="w")
+            #Label de "Elige el equipo"
+            self.label_equipo = tk.Label(self.frame_combo_boxs, text="Elige el equipo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_equipo.grid(row=0, column=1, padx=10, pady=2, sticky="w")
 
-        #ComboBox de equipos
-        self.combo_equipos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_equipos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
-        self.combo_equipos["values"] = self.ligas[self.liga]
+            #ComboBox de equipos
+            self.combo_equipos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_equipos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+            self.combo_equipos["values"] = self.ligas[self.liga]
 
         #Ajustar vista
         self.on_parent_configure(event)
@@ -179,19 +186,20 @@ class FormularioBackTestingFutbol():
             self.label_accion = None
             self.combo_accion = None
 
-        #Poner imagen del equipo
-        self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (10,10))
-        self.label_imagen_equipo = tk.Label(self.frame_superior, image=self.imagen_equipo, bg=COLOR_CUERPO_PRINCIPAL)
-        self.label_imagen_equipo.place(relx=0.9, rely=0.1)
-        
-        #Label de "Elige acción"
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="Elige acción", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_accion.grid(row=0, column=2, padx=10, pady=2, sticky="w")
+        if self.label_accion is None:
+            #Poner imagen del equipo
+            self.imagen_equipo = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (10,10))
+            self.label_imagen_equipo = tk.Label(self.frame_superior, image=self.imagen_equipo, bg=COLOR_CUERPO_PRINCIPAL)
+            self.label_imagen_equipo.place(relx=0.9, rely=0.1)
+            
+            #Label de "Elige acción"
+            self.label_accion = tk.Label(self.frame_combo_boxs, text="Elige acción", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_accion.grid(row=0, column=2, padx=10, pady=2, sticky="w")
 
-        #ComboBox de acciones
-        self.combo_accion = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_accion.grid(row=1, column=2, padx=10, pady=2, sticky="w")
-        self.combo_accion["values"] = self.acciones[self.equipo]
+            #ComboBox de acciones
+            self.combo_accion = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_accion.grid(row=1, column=2, padx=10, pady=2, sticky="w")
+            self.combo_accion["values"] = self.acciones[self.equipo]
         
         #Actualizar vista al cambiar de accion        
         self.combo_accion.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos)
@@ -203,25 +211,24 @@ class FormularioBackTestingFutbol():
         #Coger la accion seleccionada
         self.accion = self.combo_accion.get()
 
-        #Poner todo vacio si ya se ha seleccionado algo
-        
-        #Label de "Elige cuando comprar"
-        self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
+        if self.label_metodo_comprar is None:
+            #Label de "Elige cuando comprar"
+            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
-        #ComboBox de metodos comprar
-        self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-        self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
+            #ComboBox de metodos comprar
+            self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
+            self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
-        #label de "Elige cuando vender"
-        self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_metodo_vender.grid(row=2, column=1, padx=10, pady=2, sticky="w")
+            #label de "Elige cuando vender"
+            self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_vender.grid(row=2, column=1, padx=10, pady=2, sticky="w")
 
-        #ComboBox de metodos vender
-        self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-        self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
+            #ComboBox de metodos vender
+            self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
+            self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
 
         #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
         self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_vender)
@@ -250,7 +257,7 @@ class FormularioBackTestingFutbol():
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_futbol_ticks()
+            self.actualizar_comparativa()
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -276,12 +283,30 @@ class FormularioBackTestingFutbol():
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_futbol_ticks()
+            self.actualizar_comparativa()
 
         #Actualizar vista
-        self.on_parent_configure(event)
+        self.on_parent_configure(None)
 
-    def actualizar_futbol_ticks(self):
+    def actualizar_comparativa(self):
+        if self.label_comparativa is None:
+            
+            #Label de "Comparativa"
+            self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+
+            #ComboBox de comparativa
+            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
+
+        #al mirar todos los datos actualizar el boton
+        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_futbol_ticks)
+
+        #Ajustar vista
+        self.on_parent_configure(None)
+
+    def actualizar_futbol_ticks(self, event):
 
         if (self.fecha_inicio_entry is None):
             #Label fecha inicio
@@ -317,7 +342,10 @@ class FormularioBackTestingFutbol():
 
         # Boton de "Empezar backtesting"
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_backtesting.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+
+        #Actualizar vista
+        self.on_parent_configure(None)
 
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
@@ -334,6 +362,31 @@ class FormularioBackTestingFutbol():
         self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
 
+         #Label rentabalidad comparativa
+        rent = self.combo_comparativa.get()
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+
+        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
+        self.rentabilidad_comparativa = tk.StringVar() 
+
+        rentabilidad_comparativa = 0
+        if self.combo_comparativa.get() == "SP500":
+            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "IBEX35":
+            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "Plazo Fijo":
+            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+
+        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
+
+        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
+        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
+
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
@@ -348,9 +401,21 @@ class FormularioBackTestingFutbol():
 
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
-        self.tree.pack(side="left", fill="x")
+        self.tree.pack(side="left", fill="x", expand=True)
+
+        #Actualizar vista
+        self.on_parent_configure(None)
 
     def empezar_backtesting(self):
+        #Verifiar que se han seleccionado todos los campos
+        if self.combo_ligas.get() == "" or self.combo_equipos.get() == "" or self.combo_accion.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_metodos_vender.get() == "" or self.combo_comparativa.get() == "":
+            messagebox.showerror("Error", "Debes seleccionar todos los campos.")
+            return
+        
+        # Verificar que las fechas de inicio y fin no son la misma fecha
+        if self.fecha_inicio_entry.get() == self.fecha_fin_entry.get():
+            messagebox.showerror("Error", "La fecha de inicio y fin no pueden ser la misma.")
+            return
 
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
@@ -563,14 +628,23 @@ class FormularioBackTestingFutbol():
             self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
             #Ajustar botones tanto el tamaño como el texto
             self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
+
+        if self.boton_guardar_backtesting is not None:
             self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
-            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.01))
-            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.01))
-            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.01))
+            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.015))
+            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.015))
+            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.015))
         
+        #Ajustar rentabilidad
+        if self.label_rentabilidad is not None:
+            self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_comparativa_dato.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+
         #Ajustar label elegir liga
         if self.label_liga is not None:
             #Ajustar liga
@@ -605,5 +679,8 @@ class FormularioBackTestingFutbol():
                         self.label_metodo_vender.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
 
-
+                        #Ajustar comparativa
+                        if self.combo_comparativa is not None:
+                            self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
         

@@ -129,6 +129,10 @@ class FormularioBackTestingClasicas():
             filtered_acciones = [accion for accion in self.acciones if '.' not in accion]
         else:
             filtered_acciones = [accion for accion in self.acciones if accion.endswith(selected_market)]
+
+        #ordenar acciones alfabeticamente
+        filtered_acciones.sort()
+        
         self.combo_accion['values'] = filtered_acciones
 
         #Ajustar vista
