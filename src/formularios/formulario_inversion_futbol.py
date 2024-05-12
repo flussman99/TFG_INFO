@@ -50,8 +50,8 @@ class FormularioInversionFutbol():
         self.label_comparativa = None
         self.label_rentabilidad = None
         self.label_rentabilidad_futbol = None
+        self.label_rentabilidad_comparativa_texto = None
         self.label_rentabilidad_comparativa = None
-        self.label_rentabilidad_comparativa_dato = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -73,6 +73,7 @@ class FormularioInversionFutbol():
         self.stop_loss_entry = None
         self.take_profit_entry = None
         self.lotaje_entry = None
+        self.pais_seleccionado=None
 
         #Variables SBS
         self.ligas=SBS.ligas
@@ -451,14 +452,14 @@ class FormularioInversionFutbol():
 
         #Label rentabalidad comparativa
         rent = self.combo_comparativa.get()
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
 
         # Rentabilidad comparativa
         self.rentabilidad_comparativa = tk.StringVar()
         self.rentabilidad_comparativa.set("0")
-        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Parar Inversión"
         self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
@@ -505,6 +506,11 @@ class FormularioInversionFutbol():
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         
+        accion_txt_comparador = self.acronimos_acciones[self.combo_accion.get()]
+        self.pais_seleccionado = self.pais[accion_txt_comparador]
+
+
+
         self.b.thread_Futbol(equipo_txt, url_txt, cuando_comprar,cuando_vender)
         self.b.thread_orders_creativas(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
@@ -570,6 +576,7 @@ class FormularioInversionFutbol():
             self.tree_ticks.insert("", "end", values=tuple(row))
 
     def parar_inversion(self):
+
         # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
         self.combo_ligas.configure(state="normal")
         self.combo_equipos.configure(state="normal")
@@ -581,40 +588,41 @@ class FormularioInversionFutbol():
         self.lotaje_entry.configure(state="normal")
         self.boton_empezar_inversion_futbol.configure(state="normal")
 
-        #Calcular la rentabilidad de la comparativa
-        self.calcular_rentabilidad_comparativa()
-
-
-        self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
+        #Parar todos los elementos corriendo
+        self.funciones_recursivas=False #paro la ejecucion de las funciones recursivas
         self.b.kill_threads()
         frame_inversiones_finalizadas=self.b.parar_inversion()
         frame_partidos_final=self.b.parar_partidos()
         self.frame_ticks=frame_inversiones_finalizadas
         self.frame_directo=frame_partidos_final
+        
+        #Calcular la rentabilidad de la comparativa
+        indicador=self.combo_comparativa.get()
+        frecuencia_txt = "Daily"
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+        rentabilidad_indicador = self.b.calcular_rentabilidad_comparativa(frecuencia_txt,self.pais_seleccionado,self.fecha_inicio_indicadores, self.fecha_fin_indicadores, indicador)
+        
+        self.establecerRentabilidades(rentabilidad_indicador)
+        
         self.treeview_partidos()
         self.treeview_ticks()
-        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
-
+   
+    def establecerRentabilidades(self, rentabilidad_indicador):
+        #Rentabilidad Futbol
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum().round(2)
+        if rentabilidades.empty:
+            # Handle the case when 'Rentabilidad' column is not found or has no valid values
+            suma_rentabilidades = 0
+        else:
+            # Continue with your existing logic for processing 'Rentabilidad' values
+            suma_rentabilidades = rentabilidades.sum().round(2)
+            # Rest of your code here
+        
         self.rentabilidad_futbol.set(str(suma_rentabilidades))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
-
-
-    def calcular_rentabilidad_comparativa(self): #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
-        rentabilidad_comparativa = 0
-        if self.combo_comparativa.get() == "SP500":
-            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "IBEX35":
-            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "Plazo Fijo":
-            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
-        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
-
+        #Rentabilidad comparativa   
+        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -663,8 +671,8 @@ class FormularioInversionFutbol():
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_rentabilidad_comparativa_dato.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
 
