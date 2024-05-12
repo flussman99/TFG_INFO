@@ -17,7 +17,7 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 import ordenes as ORD   
-
+import time
 
 
 class FormularioInversionClasicas():
@@ -234,8 +234,13 @@ class FormularioInversionClasicas():
         self.on_parent_configure(event)
 
     def getValorPrecio(self):
-        return 5
-        #DAVID AQUI PILLAS EL PRECIO PERRA
+        selected = mt5.symbol_select(self.combo_accion.get(), True)
+        if selected:
+            tick = mt5.symbol_info_tick(self.combo_accion.get())
+            precio=tick[2]
+            
+        return precio
+   
 
     def actualizar_stop_take(self, event):
         if self.label_stop_loss is None:
@@ -323,8 +328,6 @@ class FormularioInversionClasicas():
         self.rentabilidad_clasica.set("0")
         self.label_rentabilidad_clasica = tk.Label(self.frame_datos, textvariable=self.rentabilidad_clasica, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_clasica.pack(side="left", padx=(0, 10), pady=5)
-
-
 
         # Boton de "Parar Inversión"
         self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 

@@ -418,8 +418,12 @@ class FormularioInversionFutbol():
 
 
     def getValorPrecio(self):
-        return 5
-        #DAVID AQUI PILLAS EL PRECIO PERRA
+        selected = mt5.symbol_select(self.combo_accion.get(), True)
+        if selected:
+            tick = mt5.symbol_info_tick(self.combo_accion.get())
+            precio=tick[2]
+            
+        return precio
 
 
     def actualizar_boton_inversion(self):
