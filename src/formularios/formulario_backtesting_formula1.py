@@ -52,6 +52,11 @@ class FormularioBackTestingFormula1():
         self.label_accion = None
         self.label_metodo_comprar = None
         self.label_metodo_vender = None
+        self.label_comparativa = None
+        self.label_rentabilidad = None
+        self.label_rentabilidad_futbol = None
+        self.label_rentabilidad_comparativa = None
+        self.label_rentabilidad_comparativa_dato = None
 
         #Inicializar ComboBoxs
         self.combo_anos = None
@@ -59,6 +64,8 @@ class FormularioBackTestingFormula1():
         self.combo_acciones = None
         self.combo_metodos_comprar = None
         self.combo_metodos_vender = None
+        self.combo_comparativa = None
+
 
         #Inicializar imagenes
         self.imagen_piloto = None
@@ -112,7 +119,7 @@ class FormularioBackTestingFormula1():
         self.frame_combo_boxs.place(relx=0.05, rely=0.3)
 
         #Label de "Elige el año"
-        self.label_ano = tk.Label(self.frame_combo_boxs, text="Elige el año", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_ano = tk.Label(self.frame_combo_boxs, text="Elige el año", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_ano.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         #ComboBox de años
@@ -133,19 +140,21 @@ class FormularioBackTestingFormula1():
         self.on_parent_configure(None)
 
     def actualizar_formula1_pilotos(self, event):
-        #Poner todo vacio si ya se ha seleccionado algo
 
-        #Label de "Elige el piloto"
-        self.label_piloto = tk.Label(self.frame_combo_boxs, text="Elige el piloto", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_piloto.grid(row=0, column=1, padx=10, pady=2, sticky="w")
+        if self.label_piloto is None:
+            #Label de "Elige el piloto"
+            self.label_piloto = tk.Label(self.frame_combo_boxs, text="Elige el piloto", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_piloto.grid(row=0, column=1, padx=10, pady=2, sticky="w")
 
-        #ComboBox de pilotos
-        self.combo_pilotos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_pilotos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+            #ComboBox de pilotos
+            self.combo_pilotos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_pilotos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
 
-        #Añadir pilotos a la lista
-        self.pilotos = SF1.obtener_listado_pilotos(self.combo_anos.get())
-        self.combo_pilotos["values"] = list(self.pilotos)
+            #Añadir pilotos a la lista
+            self.pilotos = SF1.obtener_listado_pilotos(self.combo_anos.get())
+            #Ordenar los pilotos alfabeticamente
+            self.pilotos.sort()
+            self.combo_pilotos["values"] = list(self.pilotos)
 
         #Al seleccionar un piloto se actualiza la imagen
         self.combo_pilotos.bind("<<ComboboxSelected>>", self.actualizar_formula1_imagen_piloto)
@@ -155,29 +164,22 @@ class FormularioBackTestingFormula1():
 
 
     def actualizar_formula1_imagen_piloto(self, event):
-        #Coger el año seleccionado
-        self.ano = self.combo_anos.get()
-        #Coger el piloto seleccionado
-        self.piloto = self.combo_pilotos.get()
 
-        #escuderia e imagen
-        #self.escuderia=SF1.obtener_escuderia_piloto(self.piloto, self.ano)
-        #self.imagen_escuderia = util_img.leer_imagen(self.acciones[self.escuderia], (100,100))
-        #self.label_imagen_escuderia = tk.Label(self.frame_superior, image=self.imagen_escuderia, bg=COLOR_CUERPO_PRINCIPAL)
-        #self.label_imagen_escuderia.place(relx=0.6, rely=0.1)
+        if self.label_accion is None:
+            #Coger el año seleccionado
+            self.ano = self.combo_anos.get()
+            #Coger el piloto seleccionado
+            self.piloto = self.combo_pilotos.get()
 
-        #Poner imagen del piloto
-        self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100,100))
-        self.label_imagen_piloto = tk.Label(self.frame_superior, image=self.imagen_piloto, bg=COLOR_CUERPO_PRINCIPAL)
-        self.label_imagen_piloto.place(relx=0.8, rely=0.1)
+            #Poner imagen del piloto
+            self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100,100))
+            self.label_imagen_piloto = tk.Label(self.frame_superior, image=self.imagen_piloto, bg=COLOR_CUERPO_PRINCIPAL)
+            self.label_imagen_piloto.place(relx=0.8, rely=0.1)
 
-        #Label de accion
-        self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
-        print(self.accion)
-        print(self.piloto)
-        print("--------------------ACCIONcita--------------------")
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
+            #Label de accion
+            self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
+            self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
 
         #continuar
         self.actualizar_formula1_metodos(None)
@@ -185,25 +187,24 @@ class FormularioBackTestingFormula1():
 
 
     def actualizar_formula1_metodos(self, event):
-        #Poner todo vacio si ya se ha seleccionado algo
-        
-        #Label de "Elige cuando comprar"
-        self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_metodo_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
+        if self.label_metodo_comprar is None:
+            #Label de "Elige cuando comprar"
+            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
 
-        #ComboBox de metodos comprar
-        self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_metodos_comprar.grid(row=4, column=0, padx=10, pady=2, sticky="w")
-        self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
+            #ComboBox de metodos comprar
+            self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_metodos_comprar.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
 
-        #label de "Elige cuando vender"
-        self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_metodo_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
+            #label de "Elige cuando vender"
+            self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
 
-        #ComboBox de metodos vender
-        self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_metodos_vender.grid(row=4, column=1, padx=10, pady=2, sticky="w")
-        self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
+            #ComboBox de metodos vender
+            self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_metodos_vender.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
 
         #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
         self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_formula1_metodos_vender)
@@ -231,7 +232,7 @@ class FormularioBackTestingFormula1():
        
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_formula1_ticks()
+            self.actualizar_comparativa()
 
         #Actualizar vista
         self.on_parent_configure(event)
@@ -255,10 +256,28 @@ class FormularioBackTestingFormula1():
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
         if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_formula1_ticks()
+            self.actualizar_comparativa()
 
         #Actualizar vista
         self.on_parent_configure(event)
+
+    def actualizar_comparativa(self):
+        if self.label_comparativa is None:
+            
+            #Label de "Comparativa"
+            self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+
+            #ComboBox de comparativa
+            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            self.combo_comparativa.grid(row=4, column=2, padx=10, pady=2, sticky="w")
+            self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
+
+        #al mirar todos los datos actualizar el boton
+        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_formula1_ticks)
+
+        #Ajustar vista
+        self.on_parent_configure(None)
 
     def set_dates(self):
         min_year, max_year = SF1.obtener_periodo_valido(self.piloto, self.combo_anos.get())
@@ -273,14 +292,14 @@ class FormularioBackTestingFormula1():
         self.fecha_inicio_entry.config(mindate=self.fecha_ini)
         self.fecha_inicio_entry.set_date(self.fecha_ini)
     
-    def actualizar_formula1_ticks(self):
+    def actualizar_formula1_ticks(self, event):
         if (self.fecha_inicio_entry is None):
             #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
             #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
             #Date fecha inicio
@@ -312,7 +331,10 @@ class FormularioBackTestingFormula1():
 
         # Boton de "Empezar backtesting"
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=4, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_backtesting.grid(row=5, column=2, rowspan=2, padx=10, pady=2, sticky="w")
+
+        #Ajustar vista
+        self.on_parent_configure(None)
 
     def empezar_backtesting(self):
 
@@ -329,6 +351,9 @@ class FormularioBackTestingFormula1():
         # Llamar a la función para obtener nuevos datos
         self.coger_ticks()
 
+        #Ajustar vista
+        self.on_parent_configure(None)
+
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
         self.frame_datos = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL, width=399)
@@ -343,6 +368,31 @@ class FormularioBackTestingFormula1():
         self.rentabilidad_f1.set("0")
         self.label_rentabilidad_f1 = tk.Label(self.frame_datos, textvariable=self.rentabilidad_f1, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_f1.pack(side="left", padx=(0, 10), pady=5)
+
+        #Label rentabalidad comparativa
+        rent = self.combo_comparativa.get()
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+
+        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
+        self.rentabilidad_comparativa = tk.StringVar() 
+
+        rentabilidad_comparativa = 0
+        if self.combo_comparativa.get() == "SP500":
+            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "IBEX35":
+            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "Plazo Fijo":
+            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+
+        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
+
+        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
+        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
@@ -570,4 +620,53 @@ class FormularioBackTestingFormula1():
         #Ajustar el tamaño del titulo
         self.label_titulo_formula1.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
-       
+        #Ajustar el tamaño del boton iniciar backtesting
+        if self.boton_empezar_backtesting is not None:
+            self.boton_empezar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_empezar_backtesting.configure(width=int(self.frame_width * 0.015))
+
+        #Ajustar el tamaño de los botones
+        if self.boton_mostrar_operaciones is not None:
+            self.boton_guardar_backtesting.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_mostrar_operaciones.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_mas_informacion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_guardar_backtesting.configure(width=int(self.frame_width * 0.015))
+            self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.015))
+            self.boton_mas_informacion.configure(width=int(self.frame_width * 0.015))
+
+        #ajustar el tamaño de las fechas
+        if self.label_fecha_inicio is not None:
+            self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
+            self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
+
+        #Ajustar el tamaño de los labels
+        if self.label_ano is not None:
+            self.label_ano.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.combo_anos.configure(width=int(self.frame_width * 0.02))
+
+            if self.label_piloto is not None:
+                self.label_piloto.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                self.combo_pilotos.configure(width=int(self.frame_width * 0.02))
+
+                if self.label_accion is not None:
+                    self.label_accion.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                    
+                    if self.label_metodo_comprar is not None:
+                        self.label_metodo_comprar.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                        self.combo_metodos_comprar.configure(width=int(self.frame_width * 0.02))
+
+                        if self.label_metodo_vender is not None:
+                            self.label_metodo_vender.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
+
+                            if self.label_comparativa is not None:
+                                self.label_comparativa.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
+
+                                if self.label_rentabilidad is not None:
+                                    self.label_rentabilidad.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_f1.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_comparativa.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_comparativa_dato.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))

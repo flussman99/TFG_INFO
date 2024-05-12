@@ -4,6 +4,7 @@ from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINC
 from formularios.formulario_backtesting_futbol import FormularioBackTestingFutbol
 from formularios.formulario_backtesting_formula1 import FormularioBackTestingFormula1
 from formularios.formulario_inversion_futbol import FormularioInversionFutbol
+from formularios.formulario_inversion_formula1 import FormularioInversionFormula1
 import util.util_imagenes as util_img
 import pandas as pd
 import psutil
@@ -97,7 +98,7 @@ class FormularioCreativas():
         self.boton_empezar_backtesting_formula1.pack(side="right", padx=5)
 
         #boton para "Empezar inversión"
-        self.boton_empezar_inversion_formula1 = tk.Button(self.frame_botones_formula1, text="Empezar Inversión", font=("Aptos", 12), bg="green", fg="white")
+        self.boton_empezar_inversion_formula1 = tk.Button(self.frame_botones_formula1, text="Empezar Inversión", font=("Aptos", 12), bg="green", fg="white", command=self.invertir_formula1)
         self.boton_empezar_inversion_formula1.pack(side="right", padx=5)
 
         #frame para la descripción
@@ -148,6 +149,10 @@ class FormularioCreativas():
     def formula1(self):
         self.limpiar_panel(self.frame_principal)     
         FormularioBackTestingFormula1(self.frame_principal, self.user_id)
+
+    def invertir_formula1(self):
+        self.limpiar_panel(self.frame_principal)     
+        FormularioInversionFormula1(self.frame_principal, self.user_id)
 
     def cine(self):
         pass

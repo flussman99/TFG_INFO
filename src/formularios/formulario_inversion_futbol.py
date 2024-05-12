@@ -32,7 +32,7 @@ class FormularioInversionFutbol():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Backtesting Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Inversión Operaciones Fútbol", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
         self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
@@ -46,7 +46,6 @@ class FormularioInversionFutbol():
         self.label_accion = None
         self.label_metodo_comprar = None
         self.label_metodo_vender = None
-        self.label_lotaje = None
         self.label_inversion = None
         self.label_comparativa = None
         self.label_rentabilidad = None
@@ -68,6 +67,7 @@ class FormularioInversionFutbol():
         self.imagen_accion = None
 
         #Inicializar variables
+        self.label_lotaje = None
         self.label_stop_loss = None
         self.label_take_profit = None
         self.stop_loss_entry = None

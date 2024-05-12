@@ -362,7 +362,7 @@ class FormularioBackTestingFutbol():
         self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
 
-         #Label rentabalidad comparativa
+        #Label rentabalidad comparativa
         rent = self.combo_comparativa.get()
         self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
