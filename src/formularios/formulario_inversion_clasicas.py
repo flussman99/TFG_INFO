@@ -375,6 +375,15 @@ class FormularioInversionClasicas():
         lotaje_txt = self.lotaje_entry.get()
         stoploss_txt= self.stop_loss_entry.get()
         takeprofit_txt=self.take_profit_entry.get()
+
+        if ',' in stoploss_txt:
+        # Reemplazar la coma por un punto
+            stoploss_txt = stoploss_txt.replace(",", ".")
+            
+        if ',' in takeprofit_txt:
+        # Reemplazar la coma por un punto
+            takeprofit_txt = takeprofit_txt.replace(",", ".")
+
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt,lotaje_txt,stoploss_txt,takeprofit_txt)
 
         if estrategia == 'RSI':
