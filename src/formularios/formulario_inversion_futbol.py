@@ -10,7 +10,8 @@ from EquiposdeFutbol import SBS_backtesting as SBS
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
-import ordenes as ORD   
+import ordenes as ORD  
+import MetaTrader5 as mt5 
 
 
 

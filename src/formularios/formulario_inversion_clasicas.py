@@ -397,7 +397,6 @@ class FormularioInversionClasicas():
 
         self.b.thread_orders(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
-        # self.frame_ticks=ORD.FRAMETICKS
         self.actualiar_frame()
 
 
