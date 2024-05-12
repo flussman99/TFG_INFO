@@ -11,7 +11,7 @@ import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as pa
 import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
-from EquiposdeFutbol import SBS_backtesting as SBS
+from Disney import Dis_backtesting as Disney
 from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
@@ -76,13 +76,8 @@ class FormularioBackTestingCine():
         self.fecha_fin_entry = None
 
         #Variables SBS
-        self.ligas=SBS.ligas
-        self.acciones=SBS.acciones
-        self.pais=SBS.pais
-        self.url=SBS.urls_equipos
-        self.acronimos_acciones=SBS.acronimo_acciones_api
-        self.imagenes_liga=SBS.imagenes_ligas
-        self.imagenes_equipos=SBS.imagenes_equipos
+        self.estudios = Disney.estudios_Disney
+        self.imagenes_estudios = Disney.imagenes_estudios
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -130,7 +125,11 @@ class FormularioBackTestingCine():
 
         #ComboBox de estudios
         self.combo_estudios = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-        self.combo_estudios.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+        self.combo_estudios.grid(row=1, column=1, columnspan=2, padx=10, pady=2, sticky="w")
+        #ordenar los valores alfabeticamente
+        self.estudios.sort()
+        self.combo_estudios["values"] = self.estudios
+        
 
         #Cargar imagen disney
         self.imagen_disney = util_img.leer_imagen("src/imagenes/Disney/disney.jpg", (10,10))
@@ -147,67 +146,21 @@ class FormularioBackTestingCine():
         #Coger el estudio seleccionado
         self.estudio = self.combo_estudios.get()
 
-        
+        #Poner a none todo
+        self.label_imagen_estudio = None
 
-
-        if self.label_estudio is None:
-            #Poner imagen de la liga
-            self.imagen_disney = util_img.leer_imagen(self.imagenes_liga[self.liga], (10,10))
-            self.label_imagen_liga = tk.Label(self.frame_superior, image=self.imagen_disney, bg=COLOR_CUERPO_PRINCIPAL)
-            self.label_imagen_liga.place(relx=0.8, rely=0.1)
-
-            #Label de "Elige el equipo"
-            self.label_estudio = tk.Label(self.frame_combo_boxs, text="Elige el equipo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_estudio.grid(row=0, column=1, padx=10, pady=2, sticky="w")
-
-            #ComboBox de equipos
-            self.combo_estudios = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_estudios.grid(row=1, column=1, padx=10, pady=2, sticky="w")
-            self.combo_estudios["values"] = self.ligas[self.liga]
+        #Cargar imagen estudio
+        self.imagen_estudio = util_img.leer_imagen(self.imagenes_estudios[self.estudio], (10,10))
+        self.label_imagen_estudio = tk.Label(self.frame_superior, image=self.imagen_estudio, bg=COLOR_CUERPO_PRINCIPAL)
+        self.label_imagen_estudio.place(relx=0.9, rely=0.1)
 
         #Ajustar vista
         self.on_parent_configure(event)
 
-        #Actualizar vista al cambiar de equipo        
-        self.combo_estudios.bind("<<ComboboxSelected>>", self.actualizar_futbol_accion)
+        #Actualizar vista
+        self.actualizar_metodos()
 
-    def actualizar_futbol_accion(self, event):
-        #Coger el equipo seleccionado
-        self.equipo = self.combo_estudios.get()
-        #self.label_imagen_equipo.destroy()
-
-        #Poner todo vacio si ya se ha seleccionado algo
-        if self.combo_accion is not None:
-            self.label_accion.destroy()
-            self.combo_accion.destroy()
-            self.label_accion = None
-            self.combo_accion = None
-
-        if self.label_accion is None:
-            #Poner imagen del equipo
-            self.imagen_estudio = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (10,10))
-            self.label_imagen_equipo = tk.Label(self.frame_superior, image=self.imagen_estudio, bg=COLOR_CUERPO_PRINCIPAL)
-            self.label_imagen_equipo.place(relx=0.9, rely=0.1)
-            
-            #Label de "Elige acción"
-            self.label_accion = tk.Label(self.frame_combo_boxs, text="Elige acción", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_accion.grid(row=0, column=2, padx=10, pady=2, sticky="w")
-
-            #ComboBox de acciones
-            self.combo_accion = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_accion.grid(row=1, column=2, padx=10, pady=2, sticky="w")
-            self.combo_accion["values"] = self.acciones[self.equipo]
-        
-        #Actualizar vista al cambiar de accion        
-        self.combo_accion.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos)
-
-        #Ajustar vista
-        self.on_parent_configure(event)
-
-    def actualizar_futbol_metodos(self, event):
-        #Coger la accion seleccionada
-        self.accion = self.combo_accion.get()
-
+    def actualizar_metodos(self):
         if self.label_metodo_comprar is None:
             #Label de "Elige cuando comprar"
             self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -216,85 +169,21 @@ class FormularioBackTestingCine():
             #ComboBox de metodos comprar
             self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
             self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-            self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
+            self.combo_metodos_comprar["values"] = ["Mayor a", "Menor a", "Igual a"]
 
-            #label de "Elige cuando vender"
-            self.label_metodo_vender = tk.Label(self.frame_combo_boxs, text="Elige cuando vender", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_metodo_vender.grid(row=2, column=1, padx=10, pady=2, sticky="w")
+            #Actualizar al seleccionar algo
+            self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
 
-            #ComboBox de metodos vender
-            self.combo_metodos_vender = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_metodos_vender.grid(row=3, column=1, padx=10, pady=2, sticky="w")
-            self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Empatado", "Ganado/Empatado", "Empatado/Perdido", "Ganado/Perdido"]
-
-        #Cuando o comprar o vender tenga un valor seleccionado quitar esa opcion del otro
-        self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_vender)
-        self.combo_metodos_vender.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos_comprar)
-
-        #Ajustar vista
-        self.on_parent_configure(event)
-
-    def actualizar_futbol_metodos_comprar(self, event):
-        #Coger el metodo de vender seleccionado
-        self.metodo_vender = self.combo_metodos_vender.get()
-        
-        #Quitar opciones dependiendo de lo que se eliga en vender, opciones especiales en cada caso
-        if self.metodo_vender == "Ganado":
-            self.combo_metodos_comprar["values"] = ["Perdido", "Empatado", "Empatado/Perdido"]
-        elif self.metodo_vender == "Perdido":
-            self.combo_metodos_comprar["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
-        elif self.metodo_vender == "Empatado":
-            self.combo_metodos_comprar["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
-        elif self.metodo_vender == "Ganado/Empatado":
-            self.combo_metodos_comprar["values"] = ["Perdido"]
-        elif self.metodo_vender == "Empatado/Perdido":
-            self.combo_metodos_comprar["values"] = ["Ganado"]
-        elif self.metodo_vender == "Ganado/Perdido":
-            self.combo_metodos_comprar["values"] = ["Empatado"]
-       
-        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_comparativa()
-
-        #Actualizar vista
-        self.on_parent_configure(None)
-
-    def actualizar_futbol_metodos_vender(self, event):
-        #Coger el metodo de comprar seleccionado
-        self.metodo_comprar = self.combo_metodos_comprar.get()
-
-        #Quitar opciones dependiendo de lo que se eliga en comprar, opciones especiales en cada caso 
-        if self.metodo_comprar == "Ganado":
-            self.combo_metodos_vender["values"] = ["Perdido", "Empatado", "Empatado/Perdido"]
-        elif self.metodo_comprar == "Perdido":
-            self.combo_metodos_vender["values"] = ["Ganado", "Empatado", "Ganado/Empatado"]
-        elif self.metodo_comprar == "Empatado":
-            self.combo_metodos_vender["values"] = ["Ganado", "Perdido", "Ganado/Perdido"]
-        elif self.metodo_comprar == "Ganado/Empatado":
-            self.combo_metodos_vender["values"] = ["Perdido"]
-        elif self.metodo_comprar == "Ganado/Perdido":
-            self.combo_metodos_vender["values"] = ["Ganado"]
-        elif self.metodo_comprar == "Ganado/Perdido":
-            self.combo_metodos_vender["values"] = ["Empatado"]       
-        
-        
-        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.combo_metodos_comprar.get() != "" and self.combo_metodos_vender.get() != "":
-            self.actualizar_comparativa()
-
-        #Actualizar vista
-        self.on_parent_configure(None)
-
-    def actualizar_comparativa(self):
+    def actualizar_comparativa(self, event):
         if self.label_comparativa is None:
             
             #Label de "Comparativa"
             self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
+            self.label_comparativa.grid(row=2, column=1, padx=10, pady=2, sticky="w")
 
             #ComboBox de comparativa
             self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.combo_comparativa.grid(row=3, column=1, padx=10, pady=2, sticky="w")
             self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
 
         #al mirar todos los datos actualizar el boton
@@ -639,35 +528,26 @@ class FormularioBackTestingCine():
         if self.label_disney is not None:
             #Ajustar liga
             self.label_disney.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.combo_ligas.configure(width=int(self.frame_width * 0.02))
-            
-            if self.combo_ligas is not None and self.combo_ligas.get() != "": 
-                self.imagen_disney = util_img.leer_imagen(self.imagenes_liga[self.liga], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
-                self.label_imagen_liga.configure(image=self.imagen_disney)
+            self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
-            #Ajustar equipo
+            if self.frame_width > 10 and self.frame_height > 10:
+                self.imagen_disney = util_img.leer_imagen("src/imagenes/Disney/disney.jpg", (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
+                self.label_imagen_disney.configure(image=self.imagen_disney)
+
+            #Ajustar estudio
             if self.combo_estudios is not None:
                 self.label_estudio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                 self.combo_estudios.configure(width=int(self.frame_width * 0.02))
 
                 if self.combo_estudios.get() != "":
-                    self.imagen_estudio = util_img.leer_imagen(self.imagenes_equipos[self.equipo], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
-                    self.label_imagen_equipo.configure(image=self.imagen_estudio)
-
-                #Ajustar accion
-                if self.combo_accion is not None:
-                    self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                    self.combo_accion.configure(width=int(self.frame_width * 0.02))
+         
+                    self.imagen_estudio = util_img.leer_imagen(self.imagenes_estudios[self.estudio], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
+                    self.label_imagen_estudio.configure(image=self.imagen_estudio)
 
                     #Ajustar metodo comprar
                     if self.combo_metodos_comprar is not None:
                         self.label_metodo_comprar.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                         self.combo_metodos_comprar.configure(width=int(self.frame_width * 0.02))
-
-                    #Ajustar metodo vender
-                    if self.combo_metodos_vender is not None:
-                        self.label_metodo_vender.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                        self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
 
                         #Ajustar comparativa
                         if self.combo_comparativa is not None:
