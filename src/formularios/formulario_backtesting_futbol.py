@@ -540,15 +540,19 @@ class FormularioBackTestingFutbol():
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_futbol.get()
-        # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
-        rentabilidadIndicador = self.rentabilidad_comparativa.get()
+
+        # Cogemos el indicador con el que se compara la inversión
+        indicador = self.combo_comparativa.get()
+
+        # Cogemos la rentabilidad de la inversión
+        rentabilidad_indicador = self.rentabilidad_comparativa.get()
 
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, indicador, rentabilidad_indicador)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)
