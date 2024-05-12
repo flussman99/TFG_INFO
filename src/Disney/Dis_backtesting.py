@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import re
 import numpy as np
+from typing import Tuple
 import tick_reader as tr
 
 data = []
@@ -257,16 +258,19 @@ def ultimaPelicula(studio_txt:str,url,cola):
     else:
         print("No hay pelicula nueva")
 
-def check_buy() -> bool:
+def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,COMBO_COMPRAR
     print(NUEVA_PELICULA)
 
-    if(NUEVA_PELICULA and RESULTADO_ULTIMA_PELICULA >= COMBO_COMPRAR):#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
-        NUEVO_PARTIDO=False#si he invertido una vez por la carrera no invierto mas
-        return True
+    if(NUEVA_PELICULA):
+        if RESULTADO_ULTIMA_PELICULA >= COMBO_COMPRAR:#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
+            NUEVA_PELICULA = False#si he invertido una vez por la carrera no invierto mas
+            return True, True
+        else:
+            NUEVA_PELICULA = False
+            return True, False
     else:
-        NUEVA_PELICULA=False#si el resultado no es el que buscba el usuario para invertir no invertimos y esperamos a la siguiente carrera
-        return False
+        return False, False
     
     # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
     #     return True

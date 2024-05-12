@@ -4,6 +4,7 @@ import os
 import re
 import requests
 import numpy as np
+from typing import Tuple
 import tick_reader as tr
 
 
@@ -601,16 +602,19 @@ def ultimaCarrera(piloto_txt:str,url,cola):
     else:
         print("No hay carrera nueva")
 
-def check_buy() -> bool:
+def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMA_CARRERA,NUEVA_CARRERA,COMBO_COMPRAR
     print(NUEVA_CARRERA)
 
-    if(NUEVA_CARRERA and RESULTADO_ULTIMA_CARRERA <= COMBO_COMPRAR):#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
-        NUEVO_PARTIDO=False#si he invertido una vez por la carrera no invierto mas
-        return True
+    if(NUEVA_CARRERA):
+        if RESULTADO_ULTIMA_CARRERA <= COMBO_COMPRAR:#lo que ha elegido el usuario es lo mismo que el resultado de la carrera y es una carrera nueva
+            NUEVA_CARRERA=False#si he invertido una vez por la carrera no invierto mas
+            return True, True
+        else:
+            NUEVA_CARRERA=False
+            return True, False
     else:
-        NUEVA_CARRERA=False#si el resultado no es el que buscba el usuario para invertir no invertimos y esperamos a la siguiente carrera
-        return False
+        return False, False
     
     # if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
     #     return True
