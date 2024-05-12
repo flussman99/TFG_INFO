@@ -370,29 +370,14 @@ class FormularioBackTestingFormula1():
         self.label_rentabilidad_f1.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
-        rent = self.combo_comparativa.get()
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
 
-        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
-        self.rentabilidad_comparativa = tk.StringVar() 
-
-        rentabilidad_comparativa = 0
-        if self.combo_comparativa.get() == "SP500":
-            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "IBEX35":
-            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "Plazo Fijo":
-            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-
-        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
-
-        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
-        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
+        # Rentabilidad comparativa 
+        self.rentabilidad_comparativa = tk.StringVar()
+        self.rentabilidad_comparativa.set("0")
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
