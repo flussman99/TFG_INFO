@@ -246,7 +246,7 @@ def comprobar(resultado,operar):
 
 def datosEquipos(ticks:list,inicio: str, fin: str, url:str,equipos_txt:str):
 
-    # leerHtml(equipos_txt)
+    leerHtml(equipos_txt)
     leerUrl(url)
     print(data)
     dataframe=crearDf(ticks,inicio, fin,equipos_txt)

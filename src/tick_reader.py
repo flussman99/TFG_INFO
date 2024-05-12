@@ -79,7 +79,7 @@ def estrategias(ticks: list, nombre:str):
     return frame
 
 
-def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt,cola):
+def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt,indicador,cola):
     """Function executed by a thread. It fills the list of ticks and
     it also computes the average spread.
 
@@ -93,34 +93,19 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
 
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
-
-    #rentabilidad_indicador=load_SP500(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt)
-    rentabilidad_indicador= calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
+    rentabilidad_indicador= elegirIndicador(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt,indicador)
     frame = estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad, rentabilidad_indicador))
     print("[THREAD - tick_reader] - Ticks loaded")
 
-# def thread_F1(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_actuar,piloto_txt,cola):
-#     """Function executed by a thread. It fills the list of ticks and
-#     it also computes the average spread.
-
-#     Args:
-#         pill2kill (Threading.Event): Event to stop the execution of the thread.
-#         ticks (list): List of ticks to fill.
-#         trading_data (dict): Trading data needed for loading ticks.
-#     """
-   
-#     print("[THREAD - tick_futbol] - Working")
-
-#     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
-#     # Filling the list with previos ticks
-    
-#     frame= estrategias_Creativas(ticks,trading_data['market'],estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_actuar, '',piloto_txt)
-#     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
-#     cola.put((frame, rentabilidad))
-#     print("[THREAD - tick_reader] - Ticks loaded")
-
+def elegirIndicador(time_period, inicio_txt, fin_txt, pais_txt,indicador):
+    if(indicador == 'SP500'):
+        return load_SP500(time_period, inicio_txt, fin_txt, pais_txt)
+    elif(indicador == 'IBEX35'):
+        return load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt)
+    elif(indicador == 'Plazo Fijo'):
+        return calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
 
 def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt):
     if nombre == 'Futbol':

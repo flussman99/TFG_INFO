@@ -56,7 +56,7 @@ class FormularioBackTestingFutbol():
         self.label_rentabilidad = None
         self.label_rentabilidad_futbol = None
         self.label_rentabilidad_comparativa = None
-        self.label_rentabilidad_comparativa_dato = None
+        self.label_rentabilidad_comparativa_texto = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -363,29 +363,14 @@ class FormularioBackTestingFutbol():
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
-        rent = self.combo_comparativa.get()
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(10, 0), pady=5)
+        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
 
-        # Rentabilidad comparativa #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
-        self.rentabilidad_comparativa = tk.StringVar() 
-
-        rentabilidad_comparativa = 0
-        if self.combo_comparativa.get() == "SP500":
-            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "IBEX35":
-            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-        elif self.combo_comparativa.get() == "Plazo Fijo":
-            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
-            rentabilidad_comparativa = 5
-
-        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
-
-        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
-        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)
+        # Rentabilidad comparativa 
+        self.rentabilidad_comparativa = tk.StringVar()
+        self.rentabilidad_comparativa.set("0")
+        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
@@ -430,14 +415,12 @@ class FormularioBackTestingFutbol():
         # Llamar a la función para obtener nuevos datos
         self.coger_ticks()
 
-    def treeview(self,modo):
-        if(modo=="Backtesting"):
-            self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+    def treeview(self):
+        
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
 
-            # Set the initial DataFrame to display
-            self.current_frame = self.frame_without_filter
-        else:
-            self.current_frame = self.frame_directo
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
         print("-----------------------------------")
         print(self.current_frame)
         # Configurar las columnas del widget Treeview
@@ -458,10 +441,10 @@ class FormularioBackTestingFutbol():
     def coger_ticks(self):
         
         inicio_txt = self.fecha_inicio_entry.get()
-        print(inicio_txt)
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
         accion_txt = self.acronimos_acciones[self.combo_accion.get()]
+        indicador= self.combo_comparativa.get()
         estrategia_txt = 'Futbol'
         pais_txt = self.pais[accion_txt]
         url_txt = self.url[equipo_txt]
@@ -471,15 +454,22 @@ class FormularioBackTestingFutbol():
        
         print(equipo_txt, accion_txt, pais_txt, url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt,indicador)
         
-        
+        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.treeview()
+     
+    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+        #Rentabilidad Futbol
         self.rentabilidad_futbol.set(str(rentabilidad))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
 
+        #Rentabilidad comparativa    
+        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+        
+        
 
-        self.treeview("Backtesting")
-     
     def toggle_frames(self):
         if self.current_frame.equals(self.frame_without_filter):
             self.current_frame = self.frame_with_filter
@@ -550,6 +540,8 @@ class FormularioBackTestingFutbol():
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_futbol.get()
+        # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
+        rentabilidadIndicador = self.rentabilidad_comparativa.get()
 
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
@@ -642,8 +634,9 @@ class FormularioBackTestingFutbol():
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_comparativa_dato.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            
 
         #Ajustar label elegir liga
         if self.label_liga is not None:
