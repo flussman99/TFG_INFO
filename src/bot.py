@@ -127,10 +127,10 @@ class Bot:
         return frame, rentabilidad
         
     
-    def thread_creativas(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
+    def thread_creativas(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,indicador):
         """Function to launch the tick reader thread.
         """
-        tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
+        tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,indicador,self.almacenar_frame_rentabilidad)
         # t = threading.Thread(target=tr.thread_Futbol, 
         #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
         # self.threads.append(t)
