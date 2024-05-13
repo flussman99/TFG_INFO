@@ -28,8 +28,8 @@ class FormularioMaestroDesign(tk.Tk):
 
     def cerrar_aplicacion(self):
         print("------------Cerrando aplicación------------")
-        #DAVID aqui para parar los threads
-        
+        #DAVID aqui para parar los threads BOTELLA DE AGUA
+
         self.destroy()
     
     def config_window(self):
