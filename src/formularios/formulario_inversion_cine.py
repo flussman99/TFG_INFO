@@ -16,6 +16,7 @@ from tkcalendar import DateEntry
 import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
+import ordenes as ORD   
 
 
 class FormularioInversionCine():
@@ -54,7 +55,7 @@ class FormularioInversionCine():
 
         self.label_rentabilidad = None
         self.label_rentabilidad_cine = None
-        self.label_rentabilidad_comparativa = None
+        self.label_rentabilidad_comparativa_dato = None
         self.label_rentabilidad_comparativa_texto = None
 
         #Inicializar ComboBoxs
@@ -80,6 +81,7 @@ class FormularioInversionCine():
         #Variables SBS
         self.estudios = Disney.estudios_Disney
         self.imagenes_estudios = Disney.imagenes_estudios
+        self.url = 'https://en.wikipedia.org/wiki/List_of_Walt_Disney_Studios_films_(2020-2029)'
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -117,7 +119,7 @@ class FormularioInversionCine():
         self.label_disney.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         #label accion de disney
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="NYSE:DIS", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="DIS.NYSE", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_accion.grid(row=1, column=0, padx=10, pady=2, sticky="w")
 
         #label de "Elige el estudio:"
@@ -302,9 +304,11 @@ class FormularioInversionCine():
 
 
     def getValorPrecio(self):
-        selected = mt5.symbol_select(self.label_accion.get(), True)
+        print(self.label_accion.cget('text'))
+        selected = mt5.symbol_select(self.label_accion.cget('text'), True)
         if selected:
-            tick = mt5.symbol_info_tick(self.label_accion.get())
+            tick = mt5.symbol_info_tick(self.label_accion.cget('text'))
+            print(tick)
             precio=tick[2]
             
         return precio
@@ -328,9 +332,9 @@ class FormularioInversionCine():
         self.label_rentabilidad.pack(side="left", padx=(10, 0), pady=5)
 
         # Rentabilidad
-        self.rentabilidad_futbol = tk.StringVar()
-        self.rentabilidad_futbol.set("0")
-        self.label_rentabilidad_cine = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.rentabilidad_cine = tk.StringVar()
+        self.rentabilidad_cine.set("0")
+        self.label_rentabilidad_cine = tk.Label(self.frame_datos, textvariable=self.rentabilidad_cine, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_cine.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
@@ -340,32 +344,39 @@ class FormularioInversionCine():
         # Rentabilidad comparativa 
         self.rentabilidad_comparativa = tk.StringVar()
         self.rentabilidad_comparativa.set("0")
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
+        self.label_rentabilidad_comparativa_dato = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_comparativa_dato.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Parar Inversion"
-        self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
+        self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
         self.boton_parar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
 
-        #Crear un widget Treeview
-        self.tree = ttk.Treeview(self.frame_inferior)
-        self.tree.pack(side="left", fill="x", expand=True)
+        # Crear un contenedor para los Treeviews
+        self.tree_container = tk.Frame(self.frame_inferior)
+        self.tree_container.pack(side="left", fill="both", expand=True)
 
-        #Actualizar vista
-        self.on_parent_configure(None)
+        # Frame para el primer Treeview
+        self.frame_tree = tk.Frame(self.tree_container)
+        self.frame_tree.grid(row=0, column=0, sticky="nsew")
+
+        # Frame para el segundo Treeview
+        self.frame_tree_ticks = tk.Frame(self.tree_container)
+        self.frame_tree_ticks.grid(row=0, column=1, sticky="nsew")
+
+        # Primer Treeview
+        self.tree = ttk.Treeview(self.frame_tree)
+        self.tree.pack(side="left", fill="both", expand=True)
+
+        # Segundo Treeview
+        self.tree_ticks = ttk.Treeview(self.frame_tree_ticks)
+        self.tree_ticks.pack(side="right", fill="both", expand=True)
+
+        self.tree_container.grid_rowconfigure(0, weight=1)
+        self.tree_container.grid_columnconfigure(0, weight=1)
+        self.tree_container.grid_columnconfigure(1, weight=1)
 
     def empezar_inversion(self):
-        #Verifiar que se han seleccionado todos los campos
-        if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_comparativa.get() == "":
-            messagebox.showerror("Error", "Debes seleccionar todos los campos.")
-            return
-        
-        # Verificar que las fechas de inicio y fin no son la misma fecha
-        if self.fecha_inicio_entry.get() == self.fecha_fin_entry.get():
-            messagebox.showerror("Error", "La fecha de inicio y fin no pueden ser la misma.")
-            return
-
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
             # Si no ha sido creada, entonces crearla
@@ -377,7 +388,10 @@ class FormularioInversionCine():
                     self.tree.delete(item)
 
         # Llamar a la función para obtener nuevos datos
-        #self.coger_ticks()
+        self.tickdirecto()
+
+        #Ajustar vista
+        self.on_parent_configure(None)
 
 
 
@@ -405,6 +419,57 @@ class FormularioInversionCine():
             self.obtener_dimensiones()
             self.update()
         self.frame_principal.after(1000, self.on_parent_configure2)
+
+    def tickdirecto(self):
+        
+        frecuencia_txt = "Daily"
+        estrategia_txt = 'Disney'
+        estudio_txt = self.estudio
+        cuando_comprar = self.combo_metodos_comprar.get()
+        pais_txt = 'united states'
+        accion = self.label_accion.cget('text').split(".")
+        accion_txt = accion[0]
+        lotaje_txt = self.lotaje_entry.get()
+        stoploss_txt=self.stop_loss_entry.get()
+        takeprofit_txt=self.take_profit_entry.get()
+
+        if ',' in stoploss_txt:
+            stoploss_txt = stoploss_txt.replace(",", ".")
+            
+        if ',' in takeprofit_txt:
+            takeprofit_txt = takeprofit_txt.replace(",", ".")
+            
+        self.b.establecer_inversion_directo(frecuencia_txt, accion_txt, lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
+        self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
+        
+        self.b.thread_Disney(estudio_txt, self.url, cuando_comprar, cuando_comprar)
+        self.b.thread_orders_creativas(estrategia_txt)
+        self.funciones_recursivas = True
+        self.actualizar_peliculas()
+        self.actualizar_frame()
+
+    def actualizar_peliculas(self):
+        if(self.funciones_recursivas):
+            print("peliculas")
+            # if(SBS.FRAMEDIRECTO.empty):
+            #     self.frame_principal.after(10000, self.actualiar_partidos)#10s
+            self.frame_directo=Disney.FRAMEDIRECTO
+            print("-------------------FRAME TICKS PARTIDO-------------------")
+            print(self.frame_directo)
+            self.treeview_peliculas()
+            self.frame_principal.after(7000, self.actualizar_peliculas)
+    
+    def actualizar_frame(self):
+        if(self.funciones_recursivas):
+            print("ticks")
+            # if(ORD.FRAMETICKS.empty):
+            #     self.frame_principal.after(10000, self.actualiar_frame)
+            self.frame_ticks=ORD.FRAMETICKS
+            print("-------------------FRAME TICKS -------------------")
+            print(self.frame_ticks)
+            self.treeview_ticks()
+            self.frame_principal.after(7000, self.actualizar_frame)
+
 
     def update(self):
 
@@ -473,4 +538,93 @@ class FormularioInversionCine():
                         if self.combo_comparativa is not None:
                             self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                             self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
-        
+                        
+                            if self.label_lotaje is not None:
+                                self.label_lotaje.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+                                self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
+                                if self.label_rentabilidad is not None:
+                                    self.label_rentabilidad.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_cine.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_comparativa.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                    self.label_rentabilidad_comparativa_dato.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
+    
+    def treeview_peliculas(self):
+        self.current_frame =self.frame_directo
+
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(self.current_frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=50)
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+
+    def treeview_ticks(self):
+        self.current_frame2 = self.frame_ticks
+
+        # Configurar las columnas del widget Treeview
+        self.tree_ticks["columns"] = list(self.current_frame2.columns)
+        self.tree_ticks["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree_ticks["columns"]:
+            self.tree_ticks.heading(col, text=col)
+            self.tree_ticks.column(col, width=50)
+
+        # Limpiar el widget Treeview
+        for row in self.tree_ticks.get_children():
+            self.tree_ticks.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame2.iterrows():
+            self.tree_ticks.insert("", "end", values=tuple(row))
+
+    def parar_inversion(self): 
+        # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.combo_estudios.configure(state="normal")
+        self.combo_metodos_comprar.configure(state="normal")
+        self.stop_loss_entry.configure(state="normal")
+        self.take_profit_entry.configure(state="normal")
+        self.lotaje_entry.configure(state="normal")
+        self.boton_empezar_inversion.configure(state="normal")
+
+        #Calcular la rentabilidad de la comparativa
+        self.calcular_rentabilidad_comparativa()
+
+
+        self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
+        self.b.kill_threads()
+        frame_inversiones_finalizadas=self.b.parar_inversion()
+        frame_carreras_final=self.b.parar_peliculas()
+        self.frame_ticks=frame_inversiones_finalizadas
+        self.frame_directo=frame_carreras_final
+        self.treeview_peliculas()
+        self.treeview_ticks()
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+
+        rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
+        suma_rentabilidades = rentabilidades.sum().round(2)
+        self.rentabilidad_cine.set(str(suma_rentabilidades))
+        self.label_rentabilidad_cine.configure(textvariable=self.rentabilidad_cine)
+
+    def calcular_rentabilidad_comparativa(self): #PARA HACER JOSE Y DAVID, NO SE COMO COÑO VA ESTO, MIRARLO ANDA, HE PUESTO 5 PA QUE NO PETE
+        rentabilidad_comparativa = 0
+        if self.combo_comparativa.get() == "SP500":
+            #rentabilidad_comparativa = tr.calcularSP(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "IBEX35":
+            #rentabilidad_comparativa = tr.calcularIBEX35(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        elif self.combo_comparativa.get() == "Plazo Fijo":
+            #rentabilidad_comparativa = tr.calcular_rentabilidad_plazo_fijo(self.fecha_inicio_indicadores, self.fecha_fin_indicadores)
+            rentabilidad_comparativa = 5
+        self.rentabilidad_comparativa.set(str(rentabilidad_comparativa))
+        self.label_rentabilidad_comparativa_dato.configure(textvariable=self.rentabilidad_comparativa)

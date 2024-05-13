@@ -4,6 +4,7 @@ import MetaTrader5 as mt5
 import pandas as pd
 from EquiposdeFutbol import SBS_backtesting as SBS
 from Formula1 import SF1_backtesting as F1
+from Disney import Dis_backtesting as DIS
 import schedule
 import time
 from datetime import timedelta
@@ -271,8 +272,8 @@ def check_buy(nombre:str) -> bool:
         return SBS.check_buy()
     elif nombre == 'Formula1':
         return F1.check_buy()
-    # elif nombre == 'Disney':
-    #     return Disney.check_buy()
+    elif nombre == 'Disney':
+        return DIS.check_buy()
 
 
 def check_sell(nombre : str) -> bool:
@@ -290,8 +291,8 @@ def check_sell(nombre : str) -> bool:
         return SBS.check_sell()
     elif nombre == 'Formula1':
         return F1.check_sell()
-    # elif nombre == 'Disney':
-    #     return Disney.check_sell()
+    elif nombre == 'Disney':
+        return DIS.check_sell()
     
 
 def cerrar_posicion(orders: dict):

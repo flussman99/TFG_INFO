@@ -288,6 +288,8 @@ def ultimaPelicula(studio_txt:str,url,cola):
         # Asignar el Resultado a cada carrera
         RESULTADO_ULTIMA_PELICULA = studio_frame.at[studio_frame.index[-1], 'Rating']
         print(RESULTADO_ULTIMA_PELICULA)
+        filaAdd=studio_frame.iloc[[-1]]
+        FRAMEDIRECTO = pd.concat([FRAMEDIRECTO,  filaAdd], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]]], ignore_index=True)#GUARDO EL ULTIMO
         # FRAMEDIRECTO = pd.concat([FRAMEDIRECTO, piloto_frame.iloc[[-1]].drop(['Resultado'], axis=1)], ignore_index=True)#GUARDO EL ULTIMO sin las columnas que no me interesan
         print(last_row)
@@ -295,6 +297,12 @@ def ultimaPelicula(studio_txt:str,url,cola):
         NUEVA_PELICULA = True
     else:
         print("No hay pelicula nueva")
+
+def parar_peliculas(self):
+    global FRAMEDIRECTO
+    frame=FRAMEDIRECTO
+    FRAMEDIRECTO = pd.DataFrame(columns=['Title', 'Release Date', 'Rating', 'Studio'])
+    return frame
 
 def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,COMBO_COMPRAR

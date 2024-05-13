@@ -54,7 +54,7 @@ class FormularioBackTestingCine():
         self.label_comparativa = None
 
         self.label_rentabilidad = None
-        self.label_rentabilidad_futbol = None
+        self.label_rentabilidad_cine = None
         self.label_rentabilidad_comparativa = None
         self.label_rentabilidad_comparativa_texto = None
 
@@ -78,6 +78,7 @@ class FormularioBackTestingCine():
         #Variables SBS
         self.estudios = Disney.estudios_Disney
         self.imagenes_estudios = Disney.imagenes_estudios
+        self.url = 'src/Disney/html/Disney_Pelis_2010_2024.csv'
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -246,10 +247,10 @@ class FormularioBackTestingCine():
         self.label_rentabilidad.pack(side="left", padx=(10, 0), pady=5)
 
         # Rentabilidad
-        self.rentabilidad_futbol = tk.StringVar()
-        self.rentabilidad_futbol.set("0")
-        self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
+        self.rentabilidad_cine = tk.StringVar()
+        self.rentabilidad_cine.set("0")
+        self.label_rentabilidad_cine = tk.Label(self.frame_datos, textvariable=self.rentabilidad_cine, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_cine.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
         self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -280,6 +281,21 @@ class FormularioBackTestingCine():
         #Actualizar vista
         self.on_parent_configure(None)
 
+    def toggle_frames(self):
+        if self.current_frame.equals(self.frame_without_filter):
+            self.current_frame = self.frame_with_filter
+        else:
+            self.current_frame = self.frame_without_filter
+        print("-----------------------------------")
+        print(self.current_frame)
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
+
     def empezar_backtesting(self):
         #Verifiar que se han seleccionado todos los campos
         if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_comparativa.get() == "":
@@ -302,8 +318,67 @@ class FormularioBackTestingCine():
                     self.tree.delete(item)
 
         # Llamar a la función para obtener nuevos datos
-        #self.coger_ticks()
+        self.coger_ticks()
 
+        #Ajustar vista
+        self.on_parent_configure(None)
+
+    def coger_ticks(self):
+        
+        frecuencia_txt = "Daily"
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        estrategia_txt = 'Disney'
+        estudio_txt = self.estudio
+        pais_txt = 'united states'
+        cuando_comprar = self.combo_metodos_comprar.get()
+        accion = self.label_accion.cget('text').split(".")
+        accion_txt = accion[0]
+        indicador= self.combo_comparativa.get()
+
+
+        print("----------------------------------------")
+        print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
+
+        self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_comprar, estudio_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        
+        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.treeview()
+
+    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+        #Rentabilidad Futbol
+        self.rentabilidad_cine.set(str(rentabilidad))
+        self.label_rentabilidad_cine.configure(textvariable=self.rentabilidad_cine)
+
+        #Rentabilidad comparativa    
+        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
+        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+        
+   
+
+    def treeview(self):
+
+        self.frame_with_filter = self.frame_without_filter[self.frame_without_filter['Decision'].isin(['Compra', 'Venta'])]
+
+        # Set the initial DataFrame to display
+        self.current_frame = self.frame_without_filter
+        print("-----------------------------------")
+        print(self.current_frame)
+        # Configurar las columnas del widget Treeview
+        self.tree["columns"] = list(self.current_frame.columns)
+        self.tree["show"] = "headings"  # Desactivar la columna adicional
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=100)
+
+        # Limpiar el widget Treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # Añadir todos los datos del DataFrame al widget Treeview
+        for index, row in self.current_frame.iterrows():
+            self.tree.insert("", "end", values=tuple(row))
     
 
     def guardar_backtesting(self):
@@ -360,7 +435,7 @@ class FormularioBackTestingCine():
         frecuencia = "Diaria"
 
         # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_futbol.get()
+        rentabilidad = self.rentabilidad_cine.get()
         # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
         rentabilidadIndicador = self.rentabilidad_comparativa.get()
 
@@ -397,7 +472,7 @@ class FormularioBackTestingCine():
 
     def mas_informacion(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_cine.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -454,7 +529,7 @@ class FormularioBackTestingCine():
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_cine.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             

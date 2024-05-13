@@ -167,6 +167,10 @@ class Bot:
     def parar_carreras(self):
         frame=SF1.parar_carreras(self.trading_data)
         return frame
+    
+    def parar_peliculas(self):
+        frame=DIS.parar_peliculas(self.trading_data)
+        return frame
 
     def thread_orders(self, estrategia_directo):
         t = threading.Thread(target=orders.thread_orders,
