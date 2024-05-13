@@ -22,6 +22,15 @@ class FormularioMaestroDesign(tk.Tk):
         self.controles_barra_superior()        
         self.controles_menu_lateral()
         self.controles_cuerpo()
+
+        #Al cerrar la ventana se cierra la aplicación
+        self.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+
+    def cerrar_aplicacion(self):
+        print("------------Cerrando aplicación------------")
+        #DAVID aqui para parar los threads
+        
+        self.destroy()
     
     def config_window(self):
         # Configuración inicial de la ventana

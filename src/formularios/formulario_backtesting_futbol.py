@@ -42,7 +42,7 @@ class FormularioBackTestingFutbol():
         self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
-        self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray", width=399, height=276)
+        self.frame_inferior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL, width=399, height=276)
         self.frame_inferior.pack(fill=tk.BOTH)
 
         #VARIABLES
@@ -64,7 +64,19 @@ class FormularioBackTestingFutbol():
         self.combo_accion = None
         self.combo_metodos_comprar = None
         self.combo_metodos_vender = None
-        self.combo_comparativa = None
+
+
+        self.ibex35 = None
+        self.sp500 = None
+        self.plazo_fijo = None
+
+        self.label_rentabilidad_ibex35 = None
+        self.label_rentabilidad_sp500 = None
+        self.label_rentabilidad_plazo_fijo = None
+
+        self.var_ibex35 = None
+        self.var_sp500 = None
+        self.var_plazo_fijo = None
 
         #Inicializar imagenes
         self.imagen_liga = None
@@ -114,6 +126,14 @@ class FormularioBackTestingFutbol():
         #Crear frame para añadir todo los combo boxs
         self.frame_combo_boxs = tk.Frame(self.frame_superior, bg=COLOR_CUERPO_PRINCIPAL)
         self.frame_combo_boxs.place(relx=0.05, rely=0.3)
+
+        #definir prioridades de las columnas
+        self.frame_combo_boxs.grid_columnconfigure(0, weight=1)
+        self.frame_combo_boxs.grid_columnconfigure(1, weight=1)
+        self.frame_combo_boxs.grid_columnconfigure(2, weight=1)
+        self.frame_combo_boxs.grid_columnconfigure(3, weight=1)
+        self.frame_combo_boxs.grid_columnconfigure(4, weight=1)
+
 
         #seguir
         self.operacion_futbol()
@@ -297,12 +317,25 @@ class FormularioBackTestingFutbol():
             self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
 
             #ComboBox de comparativa
-            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
-            self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
+            #self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            #self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            #self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
+
+            #CheckBox de comparativas
+            self.var_ibex35 = tk.BooleanVar()
+            self.var_sp500 = tk.BooleanVar()
+            self.var_plazo_fijo = tk.BooleanVar()
+            self.ibex35 = tk.Checkbutton(self.frame_combo_boxs, text="IBEX35", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_ibex35)
+            self.ibex35.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.sp500 = tk.Checkbutton(self.frame_combo_boxs, text="SP500", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_sp500)
+            self.sp500.grid(row=4, column=2, padx=10, pady=2, sticky="w")
+            self.plazo_fijo = tk.Checkbutton(self.frame_combo_boxs, text="Plazo Fijo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_plazo_fijo)
+            self.plazo_fijo.grid(row=5, column=2, padx=10, pady=2, sticky="w")
+
+
 
         #al mirar todos los datos actualizar el boton
-        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_futbol_ticks)
+        self.actualizar_futbol_ticks(None)
 
         #Ajustar vista
         self.on_parent_configure(None)
@@ -345,7 +378,7 @@ class FormularioBackTestingFutbol():
 
         # Boton de "Empezar backtesting"
         self.boton_empezar_backtesting = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_backtesting) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_backtesting.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_backtesting.grid(row=4, column=4, rowspan=2, padx=10, pady=2)
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -353,7 +386,11 @@ class FormularioBackTestingFutbol():
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
         self.frame_datos = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL, width=399)
-        self.frame_datos.pack(fill=tk.BOTH, expand=True)
+        self.frame_datos.pack(side="top", fill=tk.BOTH, expand=True)
+
+        # Crear una sub-frame para las etiquetas
+        self.frame_rentabilidades = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL)
+        self.frame_rentabilidades.pack(side="top", anchor="w", padx=(10, 0), pady=5)
 
         # Label de "Rentabilidad"
         self.label_rentabilidad = tk.Label(self.frame_datos, text="Rentabilidad", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -389,14 +426,59 @@ class FormularioBackTestingFutbol():
 
         #Crear un widget Treeview
         self.tree = ttk.Treeview(self.frame_inferior)
-        self.tree.pack(side="left", fill="x", expand=True)
+        self.tree.pack(side="bottom", fill="x", expand=True)
 
         #Actualizar vista
         self.on_parent_configure(None)
 
+    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
+        
+        #Ibex35 si está seleccionado
+        if self.var_ibex35.get():
+            if self.label_rentabilidad_ibex35 is not None:
+                self.label_rentabilidad_ibex35.destroy()
+                self.label_rentabilidad_ibex35 = None
+            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_ibex35 is not None:
+                self.label_rentabilidad_ibex35.destroy()
+                self.label_rentabilidad_ibex35 = None
+    
+        #SP500 si está seleccionado
+        if self.var_sp500.get():
+            if self.label_rentabilidad_sp500 is not None:
+                self.label_rentabilidad_sp500.destroy()
+                self.label_rentabilidad_sp500 = None
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_sp500 is not None:
+                self.label_rentabilidad_sp500.destroy()
+                self.label_rentabilidad_sp500 = None
+
+        #Plazo fijo si está seleccionado
+        if self.var_plazo_fijo.get():
+            if self.label_rentabilidad_plazo_fijo is not None:
+                self.label_rentabilidad_plazo_fijo.destroy()
+                self.label_rentabilidad_plazo_fijo = None
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_plazo_fijo is not None:
+                self.label_rentabilidad_plazo_fijo.destroy()
+                self.label_rentabilidad_plazo_fijo = None
+            
+        
+
+            
+
+
+
     def empezar_backtesting(self):
         #Verifiar que se han seleccionado todos los campos
-        if self.combo_ligas.get() == "" or self.combo_equipos.get() == "" or self.combo_accion.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_metodos_vender.get() == "" or self.combo_comparativa.get() == "":
+        if self.combo_ligas.get() == "" or self.combo_equipos.get() == "" or self.combo_accion.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_metodos_vender.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
         
@@ -414,6 +496,8 @@ class FormularioBackTestingFutbol():
             if self.tree is not None:
                 for item in self.tree.get_children():
                     self.tree.delete(item)
+
+        self.rentabilidades_comparativas()
 
         # Llamar a la función para obtener nuevos datos
         self.coger_ticks()
@@ -447,7 +531,7 @@ class FormularioBackTestingFutbol():
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
         accion_txt = self.acronimos_acciones[self.combo_accion.get()]
-        indicador= self.combo_comparativa.get()
+        indicador= 'Ibex35'
         estrategia_txt = 'Futbol'
         pais_txt = self.pais[accion_txt]
         url_txt = self.url[equipo_txt]
@@ -644,7 +728,12 @@ class FormularioBackTestingFutbol():
             self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             
-
+        if self.label_rentabilidad_ibex35 is not None:
+            self.label_rentabilidad_ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+        if self.label_rentabilidad_sp500 is not None:
+            self.label_rentabilidad_sp500.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+        if self.label_rentabilidad_plazo_fijo is not None:
+            self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
         #Ajustar label elegir liga
         if self.label_liga is not None:
             #Ajustar liga
@@ -680,7 +769,9 @@ class FormularioBackTestingFutbol():
                         self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
 
                         #Ajustar comparativa
-                        if self.combo_comparativa is not None:
+                        if self.label_comparativa is not None:
                             self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                            self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
+                            self.ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.sp500.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
         
