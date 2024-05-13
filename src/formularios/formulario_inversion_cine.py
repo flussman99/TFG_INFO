@@ -53,7 +53,7 @@ class FormularioInversionCine():
         self.label_comparativa = None
 
         self.label_rentabilidad = None
-        self.label_rentabilidad_futbol = None
+        self.label_rentabilidad_cine = None
         self.label_rentabilidad_comparativa = None
         self.label_rentabilidad_comparativa_texto = None
 
@@ -69,10 +69,13 @@ class FormularioInversionCine():
         self.label_imagen_estudio = None
 
         #Inicializar variables
-        self.label_fecha_inicio = None
-        self.label_fecha_fin = None
-        self.fecha_inicio_entry = None
-        self.fecha_fin_entry = None
+        self.label_stop_loss = None
+        self.label_take_profit = None
+        self.label_lotaje = None
+
+        self.stop_loss_entry = None
+        self.take_profit_entry = None
+        self.lotaje_entry = None
 
         #Variables SBS
         self.estudios = Disney.estudios_Disney
@@ -188,48 +191,129 @@ class FormularioInversionCine():
             self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
 
         #al mirar todos los datos actualizar el boton
-        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_futbol_ticks)
+        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotajes)
 
         #Ajustar vista
         self.on_parent_configure(None)
 
-    def actualizar_futbol_ticks(self, event):
+    def actualizar_lotajes(self, event):
+        if (self.label_stop_loss is None):
+            #Entry stop loss
+            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
 
-        if (self.fecha_inicio_entry is None):
-            #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_inicio.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+            self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
+            self.stop_loss_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+        
+        if (self.label_take_profit is None):
+            #Entry take profit
+            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
 
-            #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_fin.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+            self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
+            self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
-            #Date fecha inicio
-            fecha_ayer = datetime.now() - timedelta(days = 1)
-            self.fecha_inicio_entry = DateEntry(
-                self.frame_combo_boxs, 
-                date_pattern='yyyy/mm/dd',
-                background='darkblue', 
-                foreground='white', 
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+        if self.label_lotaje is None:
+            #Label lotaje
+            self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_lotaje.grid(row=4, column=2, padx=10, pady=2, sticky="w")
+            
+            #Entry lotaje
+            self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
+            self.lotaje_entry.grid(row=5, column=2, padx=10, pady=2, sticky="w")
 
-            #Date fecha fin
-            self.fecha_fin_entry = DateEntry(
-                self.frame_combo_boxs,
-                date_pattern='yyyy/mm/dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2,
-                maxdate=fecha_ayer
-            )
-            self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+            #Label inversion
+            self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_inversion.grid(row=4, column=3, padx=10, pady=2, sticky="w")
 
-        # Boton de "Empezar backtesting"
-        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\nbacktesting", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_inversion.grid(row=4, column=3, rowspan=2, padx=10, pady=2, sticky="w")
+
+        self.stop_loss_entry.bind("<KeyRelease>", self.actualizar_futbol_stop_loss)
+        self.take_profit_entry.bind("<KeyRelease>", self.actualizar_futbol_take_profit)
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
+
+        #Actualizar vista
+        self.on_parent_configure(None)
+    
+    def actualizar_futbol_stop_loss(self, event):
+        if self.stop_loss_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux_loss = float(self.stop_loss_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_futbol_take_profit(self, event):
+        if self.take_profit_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux_profit = float(self.take_profit_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_futbol_lotaje(self, event):
+        if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux = float(self.lotaje_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+    
+        #Cambiar texto inversion
+        self.valor_precio = self.getValorPrecio()
+        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
+        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+
+    def getValorPrecio(self):
+        selected = mt5.symbol_select(self.label_accion.get(), True)
+        if selected:
+            tick = mt5.symbol_info_tick(self.label_accion.get())
+            precio=tick[2]
+            
+        return precio
+
+    def actualizar_boton_inversion(self):
+
+        # Boton de "Empezar inversion"
+        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion.grid(row=4, column=4, rowspan=2, padx=10, pady=2, sticky="w")
 
         #Actualizar vista
         self.on_parent_configure(None)
@@ -246,8 +330,8 @@ class FormularioInversionCine():
         # Rentabilidad
         self.rentabilidad_futbol = tk.StringVar()
         self.rentabilidad_futbol.set("0")
-        self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
+        self.label_rentabilidad_cine = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_rentabilidad_cine.pack(side="left", padx=(0, 10), pady=5)
 
         #Label rentabalidad comparativa
         self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -332,11 +416,7 @@ class FormularioInversionCine():
         self.label_titulo_futbol.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
         #Ajustar info ticks
-        if self.label_fecha_inicio is not None:
-            self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
-            self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
+        if self.boton_empezar_inversion is not None:
             #Ajustar botones tanto el tamaño como el texto
             self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
@@ -348,10 +428,21 @@ class FormularioInversionCine():
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
+            self.label_rentabilidad_cine.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            
+        
+                #Ajustar info ticks
+        if self.label_stop_loss is not None:
+            self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.label_take_profit.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.stop_loss_entry.configure(width=int(self.frame_width * 0.02))
+            self.take_profit_entry.configure(width=int(self.frame_width * 0.02))
+        
+        if self.lotaje_entry is not None:
+            self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
+            self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))       
 
         #Ajustar label elegir liga
         if self.label_disney is not None:

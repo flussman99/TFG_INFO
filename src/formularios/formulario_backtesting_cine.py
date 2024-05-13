@@ -477,11 +477,8 @@ class FormularioBackTestingCine():
                 if self.combo_estudios.get() != "":
                     #destruir imagen estudio
                     if self.label_imagen_estudio is not None:
-                        self.label_imagen_estudio.destroy()
-                        self.label_imagen_estudio = None
-
-                    self.imagen_estudio = util_img.leer_imagen(self.imagenes_estudios[self.estudio], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
-                    self.label_imagen_estudio.configure(image=self.imagen_estudio)
+                        self.imagen_estudio = util_img.leer_imagen(self.imagenes_estudios[self.estudio], (int(self.frame_width * 0.08), int(self.frame_width * 0.08)))
+                        self.label_imagen_estudio.configure(image=self.imagen_estudio)
 
                     #Ajustar metodo comprar
                     if self.combo_metodos_comprar is not None:
