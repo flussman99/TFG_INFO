@@ -118,7 +118,7 @@ class FormularioBackTestingCine():
         self.label_disney.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         #label accion de disney
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="NYSE:DIS", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="DIS.NYSE", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_accion.grid(row=1, column=0, padx=10, pady=2, sticky="w")
 
         #label de "Elige el estudio:"
@@ -342,6 +342,7 @@ class FormularioBackTestingCine():
         cuando_comprar_float = float(cuando_comprar_str)
         accion = self.label_accion.cget('text').split(".")
         accion_txt = accion[0]
+        print(accion_txt)
         indicador= self.combo_comparativa.get()
 
 
