@@ -172,7 +172,7 @@ class FormularioInversionCine():
             #ComboBox de metodos comprar
             self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
             self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-            self.combo_metodos_comprar["values"] = ["Mayor a", "Menor a", "Igual a"]
+            self.combo_metodos_comprar["values"] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
 
             #Actualizar al seleccionar algo
             self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
@@ -425,7 +425,8 @@ class FormularioInversionCine():
         frecuencia_txt = "Daily"
         estrategia_txt = 'Disney'
         estudio_txt = self.estudio
-        cuando_comprar = self.combo_metodos_comprar.get()
+        cuando_comprar_str = self.combo_metodos_comprar.get()
+        cuando_comprar_float = float(cuando_comprar_str) 
         pais_txt = 'united states'
         accion = self.label_accion.cget('text').split(".")
         accion_txt = accion[0]
@@ -442,7 +443,7 @@ class FormularioInversionCine():
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt, lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         
-        self.b.thread_Disney(estudio_txt, self.url, cuando_comprar, cuando_comprar)
+        self.b.thread_Disney(estudio_txt, self.url, cuando_comprar_float, cuando_comprar_float)
         self.b.thread_orders_creativas(estrategia_txt)
         self.funciones_recursivas = True
         self.actualizar_peliculas()

@@ -164,13 +164,17 @@ class FormularioBackTestingCine():
     def actualizar_metodos(self):
         if self.label_metodo_comprar is None:
             #Label de "Elige cuando comprar"
-            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Comprar con Rating mayor a:", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
             #ComboBox de metodos comprar
             self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
             self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-            self.combo_metodos_comprar["values"] = ["Mayor a", "Menor a", "Igual a"]
+            self.combo_metodos_comprar["values"] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+
+            # Entry para el rating
+            #self.combo_metodos_comprar = tk.Entry(self.frame_combo_boxs, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            #self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
 
             #Actualizar al seleccionar algo
             self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
@@ -298,7 +302,7 @@ class FormularioBackTestingCine():
 
     def empezar_backtesting(self):
         #Verifiar que se han seleccionado todos los campos
-        if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "" or self.combo_comparativa.get() == "":
+        if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == ""  or self.combo_comparativa.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
         
@@ -331,7 +335,8 @@ class FormularioBackTestingCine():
         estrategia_txt = 'Disney'
         estudio_txt = self.estudio
         pais_txt = 'united states'
-        cuando_comprar = self.combo_metodos_comprar.get()
+        cuando_comprar_str = self.combo_metodos_comprar.get()
+        cuando_comprar_float = float(cuando_comprar_str)
         accion = self.label_accion.cget('text').split(".")
         accion_txt = accion[0]
         indicador= self.combo_comparativa.get()
@@ -341,7 +346,7 @@ class FormularioBackTestingCine():
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_comprar, estudio_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar_float, cuando_comprar_float, estudio_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
         self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
         self.treeview()
@@ -421,7 +426,8 @@ class FormularioBackTestingCine():
         tipo = "Futbol"
 
         # Cogemos la acción en la que ha invertido el usuario	
-        accion = self.combo_accion.get()
+        accion = self.label_accion.cget('text').split(".")
+        #accion = "NYSE:DI"
 
         # Cogemos la fecha de inicio y la de fin de la inversión
         fecha_ini = self.fecha_inicio_entry.get()
@@ -429,7 +435,7 @@ class FormularioBackTestingCine():
 
         #Cogemos cuando toma las decisiones de comprar y vender el usuario
         compra = self.combo_metodos_comprar.get()
-        venta = self.combo_metodos_vender.get()
+        venta = self.combo_metodos_comprar.get()
 
         #Le damos valor a la frecuencia
         frecuencia = "Diaria"
