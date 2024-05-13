@@ -93,7 +93,7 @@ class FormularioBackTestingMasInformacion():
         print("Rentabilidad: ", self.rentabilidad)
         self.rent100 = 100 + float(self.rentabilidad)
         self.rent100string = str(self.rent100)
-        self.texto = "La rentabilidad obtenida en base a esta operación es de: " + self.rentabilidad + "%. Esto quiere decir que por cada 100 euros invertidos, se obtienen " + self.rent100string + " euros."
+        self.texto = "La rentabilidad obtenida en base a esta operación es de: " + self.rentabilidad + "%. Esto quiere decir que por cada 100 euros invertidos, se obtienen " + self.rent100string + " euros. En las siguientes gráficas se muestra la evolución de la rentabilidad y los precios de compra y venta. En la primera de ellas se muestra la rentabilidad obtenida en cada operación, mientras que en la segunda se muestra el precio de compra y venta de cada operación. En la tabla se muestran los resultados de cada operación."
         self.descripcion_rentabilidad = tk.Label(self.frame_resultados, justify="left", text=self.texto, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.descripcion_rentabilidad.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
 
@@ -104,11 +104,11 @@ class FormularioBackTestingMasInformacion():
 
         # FRAMES
         # Crear un marco general
-        self.frame_general_graficas = tk.Frame(self.frame_resultados, bg="red")
+        self.frame_general_graficas = tk.Frame(self.frame_resultados, bg=COLOR_CUERPO_PRINCIPAL)
         self.frame_general_graficas.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
 
         # Crear un marco para la gráfica de la izquierda
-        self.frame_grafica = tk.Frame(self.frame_general_graficas, bg="red", width=200, height=100)
+        self.frame_grafica = tk.Frame(self.frame_general_graficas, bg=COLOR_CUERPO_PRINCIPAL, width=200, height=100)
         self.frame_grafica.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Crear un marco para la gráfica de la derecha
@@ -177,11 +177,11 @@ class FormularioBackTestingMasInformacion():
 
 
 
-        # Crear la lista de etiquetas con el formato "OpX precio"
+        # Crear la lista de etiquetas con el formato "X"
         if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
-            etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['Precio'])]
+            etiquetas = ['{}'.format(i+1) for i, _ in enumerate(valores_vender['Precio'])]
         else:
-            etiquetas = ['Op{} {:.2f}'.format(i+1, precio) for i, precio in enumerate(valores_vender['price'])]
+            etiquetas = ['{}'.format(i+1) for i, _ in enumerate(valores_vender['price'])]
 
         # Numerar los puntos
         for i, txt in enumerate(etiquetas):
