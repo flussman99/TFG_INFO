@@ -6,11 +6,13 @@ from bot import Bot as bt
 import tick_reader as tr
 import mysql.connector
 from configDB import DBConfig
+import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
 from EquiposdeFutbol import SBS_backtesting as SBS
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
-import ordenes as ORD   
+import ordenes as ORD  
+import MetaTrader5 as mt5 
 
 
 
@@ -395,7 +397,7 @@ class FormularioInversionFutbol():
             self.boton_empezar_inversion_futbol.configure(state="disabled")
 
         try:
-            aux = int(self.lotaje_entry.get())
+            aux = float(self.lotaje_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
@@ -418,8 +420,12 @@ class FormularioInversionFutbol():
 
 
     def getValorPrecio(self):
-        return 5
-        #DAVID AQUI PILLAS EL PRECIO PERRA
+        selected = mt5.symbol_select(self.combo_accion.get(), True)
+        if selected:
+            tick = mt5.symbol_info_tick(self.combo_accion.get())
+            precio=tick[2]
+            
+        return precio
 
 
     def actualizar_boton_inversion(self):

@@ -266,7 +266,7 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
     data.clear()#ya lo tengo que limpiar
     # Convertir la columna 'Fecha' a datetime
-    # equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
+    equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
 
     # Filtrar el DataFrame basado en las fechas de inicio y fin
     equipos_frame = equipos_frame[equipos_frame['Fecha'].between(inicio, fin)]
