@@ -118,7 +118,7 @@ class FormularioBackTestingCine():
         self.label_disney.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         #label accion de disney
-        self.label_accion = tk.Label(self.frame_combo_boxs, text="NYSE:DIS", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_accion = tk.Label(self.frame_combo_boxs, text="DIS.NYSE", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_accion.grid(row=1, column=0, padx=10, pady=2, sticky="w")
 
         #label de "Elige el estudio:"
@@ -342,6 +342,7 @@ class FormularioBackTestingCine():
         cuando_comprar_float = float(cuando_comprar_str)
         accion = self.label_accion.cget('text').split(".")
         accion_txt = accion[0]
+        print(accion_txt)
         indicador= self.combo_comparativa.get()
 
 
@@ -426,11 +427,10 @@ class FormularioBackTestingCine():
             return
         
         # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Futbol"
+        tipo = "Disney"
 
         # Cogemos la acción en la que ha invertido el usuario	
-        accion = self.label_accion.cget('text').split(".")
-        #accion = "NYSE:DI"
+        accion = "DIS.NYSE"
 
         # Cogemos la fecha de inicio y la de fin de la inversión
         fecha_ini = self.fecha_inicio_entry.get()
@@ -445,15 +445,19 @@ class FormularioBackTestingCine():
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_cine.get()
-        # Cogemos la rentabilidad de la inversión#SEGOVIAN TIENES QUE HACER EL INSERT TB DE ESTO
+
+        # Cogemos el indicador con el que se compara la inversión
+        indicador = self.combo_comparativa.get()
+
+        # Cogemos la rentabilidad de la inversión
         rentabilidadIndicador = self.rentabilidad_comparativa.get()
 
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, indicador, rentabilidadIndicador)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)

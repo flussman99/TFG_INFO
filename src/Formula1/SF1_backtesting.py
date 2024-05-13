@@ -262,12 +262,12 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
         precioCompra = piloto_frame.at[i, 'Precio']
             
         if comprobar(resultado, combo_resultado) and len(compras) < 10:
-            decisiones.append("1")#COMPRO
+            decisiones.append("Compra")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
             posicion_abierta=True
         elif not comprobar(resultado, combo_resultado) and posicion_abierta == True:
-            decisiones.append("-1")#VENDO
+            decisiones.append("Venta")#VENDO
             posicion_abierta=False
             print(compras)
             rentabilidad.append(tr.calcular_rentabilidad(compras,precioCompra))
