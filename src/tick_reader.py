@@ -140,6 +140,10 @@ def load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt):
 
     if response.status_code == 200:
         data = response.json()
+        if data['data'] is None:
+            print("The 'data' field is null.")
+            # Handle the null case here, e.g., return a default value or perform any other desired action
+            return 0
         loaded_ticks = pd.DataFrame(data['data'])
         loaded_ticks = loaded_ticks.rename(columns={'last_close': 'price', 'rowDateRaw': 'time'})
         loaded_ticks['time'] = pd.to_datetime(loaded_ticks['time'], unit='s')
@@ -350,88 +354,3 @@ def txt_to_int_fecha(fecha):
 
 
 
-
-
-
-
-
-
-
-# def load_tick_aux(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
-    
-#     # Loading data
-#     timezone = pytz.timezone("Etc/UTC")
-#     fecha_inicio = txt_to_int_fecha(inicio_txt)
-#     fecha_fin = txt_to_int_fecha(fin_txt)
-
-#     utc_from = dt.datetime(fecha_inicio[2], fecha_inicio[1], fecha_inicio[0], tzinfo=timezone)
-#     print(utc_from)
-#     utc_to = dt.datetime(fecha_fin[2], fecha_fin[1], fecha_fin[0], tzinfo=timezone)
-
-#     loaded_ticks = yf.download("TSLA", utc_from, utc_to,interval="1m")
-#     loaded_ticks.reset_index(inplace=True)
-
-#     loaded_ticks['Datetime'] = loaded_ticks['Datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
-
-
-#     if loaded_ticks is None:
-#         print("Error loading the ticks")
-#         return -1
-
-#     # create DataFrame out of the obtained data
-#     ticks_frame = pd.DataFrame(loaded_ticks)
-   
-#     loaded_ticks['Datetime'] = pd.to_datetime(loaded_ticks['Datetime']).apply(lambda x: int(x.timestamp()))
-
-
-#     print(ticks_frame)
-#     print(loaded_ticks)
-
-#     # mostrar todos los ticks con todas las columnas
-#     # print("\nDisplay dataframe with ticks")
-
-#     # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
-#     second_to_include = 0
-
-#     for index, row in loaded_ticks.iterrows():
-#         if row['Datetime'] > second_to_include + time_period:
-#             ticks.append([pd.to_datetime(row['Datetime'], unit='s'), row['Close']])
-#             second_to_include = row['Datetime']
-
- 
-#     print("\nDisplay dataframe with ticks tratados")
-#     final_frame=pd.DataFrame(ticks)
-
-#     print(final_frame)
-#     # # Removing the ticks that we do not need
-#     # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-#     # if not_needed_ticks > 0:
-#     #     for i in range(not_needed_ticks):
-#     #         del ticks[0]
-
-
-
-#                             #Funciones de ticks EN DIRECTO
-
-
-                                    #Funciones que no se usan
-
-
-# def moving_average_crossover_strategy(prices, short_window, long_window):
-
-#     signals = pd.DataFrame(index=prices.index)
-#     signals['signal'] = 0.0
-
-#     # Crear media móvil simple corta
-#     signals['short_mavg'] = prices.rolling(window=short_window, min_periods=5, center=False).mean()
-
-#     # Crear media móvil simple larga
-#     signals['long_mavg'] = prices.rolling(window=long_window, min_periods=1, center=False).mean()
-#     # Crear señales de trading
-#     signals['signal'][short_window:] = np.where(signals['short_mavg'][short_window:] > signals['long_mavg'][short_window:], 1.0, 0.0)
-
-#     # Generar órdenes de trading
-#     signals['positions'] = signals['signal'].diff()
-
-#     return signals
