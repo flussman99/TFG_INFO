@@ -223,8 +223,8 @@ class FormularioInversionClasicas():
     
         #Cambiar texto inversion
         self.valor_precio = self.getValorPrecio()
-        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
-        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
+        self.valor_inversion = round(float(self.lotaje_entry.get()) * self.valor_precio, 2)
+        self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion) + " um")
 
         #actualizar si se ha puesto algo en el lotaje
         if self.lotaje_entry.get() != "":
@@ -325,7 +325,7 @@ class FormularioInversionClasicas():
 
         # Rentabilidad
         self.rentabilidad_clasica = tk.StringVar()
-        self.rentabilidad_clasica.set("0")
+        self.rentabilidad_clasica.set("0%")
         self.label_rentabilidad_clasica = tk.Label(self.frame_datos, textvariable=self.rentabilidad_clasica, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_clasica.pack(side="left", padx=(0, 10), pady=5)
 
@@ -469,6 +469,19 @@ class FormularioInversionClasicas():
 
 
     def parar_inversion(self):
+
+        # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.combo_mercado.configure(state="normal")
+        self.combo_accion.configure(state="normal")
+        self.combo_estrategia.configure(state="normal")
+        self.combo_frecuencia.configure(state="normal")
+        self.lotaje_entry.configure(state="normal")
+        self.stop_loss_entry.configure(state="normal")
+        self.take_profit_entry.configure(state="normal")
+        self.boton_empezar_inversion.configure(state="normal")
+
+
+
         self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
         self.b.kill_threads()
         frame_inversiones_finalizadas=self.b.parar_inversion()
@@ -484,7 +497,7 @@ class FormularioInversionClasicas():
             suma_rentabilidades = rentabilidades.sum().round(2)
             # Rest of your code here
         
-        self.rentabilidad_clasica.set(str(suma_rentabilidades))
+        self.rentabilidad_clasica.set(str(suma_rentabilidades) + "%")
         self.label_rentabilidad_clasica.configure(textvariable=self.rentabilidad_clasica)
 
 
