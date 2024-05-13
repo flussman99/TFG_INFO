@@ -74,6 +74,7 @@ class FormularioBackTestingCine():
         self.label_fecha_fin = None
         self.fecha_inicio_entry = None
         self.fecha_fin_entry = None
+        self.fecha_min = datetime(year=2010, month=1, day=28)
 
         #Variables SBS
         self.estudios = Disney.estudios_Disney
@@ -219,7 +220,8 @@ class FormularioBackTestingCine():
                 background='darkblue', 
                 foreground='white', 
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_min
             )
             self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
@@ -230,7 +232,8 @@ class FormularioBackTestingCine():
                 background='darkblue',
                 foreground='white',
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_min
             )
             self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 

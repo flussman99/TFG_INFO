@@ -76,6 +76,7 @@ class FormularioBackTestingFutbol():
         self.label_fecha_fin = None
         self.fecha_inicio_entry = None
         self.fecha_fin_entry = None
+        self.fecha_ini = datetime(year=2014, month=7, day=1)
 
         #Variables SBS
         self.ligas=SBS.ligas
@@ -325,7 +326,8 @@ class FormularioBackTestingFutbol():
                 background='darkblue', 
                 foreground='white', 
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_ini
             )
             self.fecha_inicio_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
@@ -336,7 +338,8 @@ class FormularioBackTestingFutbol():
                 background='darkblue',
                 foreground='white',
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_ini
             )
             self.fecha_fin_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 

@@ -66,6 +66,7 @@ class FormularioBackTestingClasicas():
         self.label_fecha_fin = None
         self.fecha_inicio_entry = None
         self.fecha_fin_entry = None
+        self.fecha_ini = datetime(year=2023, month=2, day=1)
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -177,7 +178,8 @@ class FormularioBackTestingClasicas():
                 background='darkblue', 
                 foreground='white', 
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_ini
             )
             self.fecha_inicio_entry.grid(row=3, column=0, padx=10, pady=2, sticky="w")
 
@@ -188,7 +190,8 @@ class FormularioBackTestingClasicas():
                 background='darkblue',
                 foreground='white',
                 borderwidth=2,
-                maxdate=fecha_ayer
+                maxdate=fecha_ayer,
+                mindate=self.fecha_ini
             )
             self.fecha_fin_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
         
