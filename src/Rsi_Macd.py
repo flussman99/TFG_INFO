@@ -202,8 +202,8 @@ def check_buy() -> bool:
     #operacion abierta se comprueba en ordenes.
 
     if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
-        return False
-    return True
+        return True
+    return False
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
@@ -211,7 +211,7 @@ def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado c
     allows a buy operation"""
 
     if CUR_SIGNAL.iloc[-1] <= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] > 65:
-        return False
-    return True
+        return True
+    return False
 
 

@@ -103,7 +103,7 @@ acronimo_acciones_mt5 = {
 
 
 acciones = {
-    'Real Madrid': ['Grupo ACS(ACS)', 'Adidas(ADS)'],
+    'Real Madrid': ['Adidas(ADS)','Grupo ACS(ACS)'],
     'Barcelona': [ 'Nike(NKE)'],
     'Arsenal': ['Adidas(ADS)'],
     'Bayern Munich': ['Deutsche Bank(DTE)', 'Allianz(ALV)'],

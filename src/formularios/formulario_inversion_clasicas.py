@@ -234,6 +234,7 @@ class FormularioInversionClasicas():
         self.on_parent_configure(event)
 
     def getValorPrecio(self):
+        print(self.combo_accion.get())
         selected = mt5.symbol_select(self.combo_accion.get(), True)
         if selected:
             tick = mt5.symbol_info_tick(self.combo_accion.get())
@@ -424,6 +425,7 @@ class FormularioInversionClasicas():
 
         self.b.thread_orders(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
+      
         self.actualiar_frame()
 
 
@@ -465,7 +467,7 @@ class FormularioInversionClasicas():
             # else:    
             self.frame_ticks=ORD.FRAMETICKS
             self.treeview_ticks()
-            self.frame_principal.after(self.frec_milisegundos, self.actualiar_frame)
+            self.frame_principal.after(10000, self.actualiar_frame)
 
 
     def parar_inversion(self):
