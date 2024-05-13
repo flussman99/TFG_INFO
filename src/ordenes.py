@@ -530,7 +530,8 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
     FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
    
 
-    while not pill2kill.wait(trading_data['time_period']):
+    while not pill2kill.wait(10):
+        trading_data['time_period'] = 86400
         if(comprobar_mercado(trading_data)):
             Nuevo,comprobacion = check_buy(estrategia_directo)
             if(Nuevo):#ha habido partdo nuevo

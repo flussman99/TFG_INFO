@@ -191,8 +191,6 @@ class Bot:
         print("Hilos en la lista threads:", self.threads)
 
 
-                    
-
         
 
     def thread_F1(self,piloto,url,cuando_comprar,cuando_vender):
