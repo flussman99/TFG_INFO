@@ -424,6 +424,7 @@ class FormularioInversionClasicas():
 
         self.b.thread_orders(estrategia)
         self.funciones_recursivas = True#se puedene ejecutar las funciones recursivas
+        self.frame_ticks=ORD.FRAMETICKS
         self.actualiar_frame()
 
 
@@ -465,7 +466,7 @@ class FormularioInversionClasicas():
             # else:    
             self.frame_ticks=ORD.FRAMETICKS
             self.treeview_ticks()
-            self.frame_principal.after(self.frec_milisegundos, self.actualiar_frame)
+            self.frame_principal.after(10000, self.actualiar_frame)
 
 
     def parar_inversion(self):
