@@ -422,13 +422,18 @@ class FormularioBackTestingFutbol():
 
     def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
         
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        frecuencia_txt = "Daily"
+
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
-            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='IBEX35'
+            rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: "+str(rentIbex35), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_ibex35 is not None:
@@ -440,7 +445,9 @@ class FormularioBackTestingFutbol():
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
-            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='SP500'
+            rentSP = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: "+str(rentSP), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_sp500 is not None:
@@ -452,7 +459,9 @@ class FormularioBackTestingFutbol():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='Plazo Fijo'
+            rentPF = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: "+str(rentPF), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_plazo_fijo is not None:
@@ -520,7 +529,6 @@ class FormularioBackTestingFutbol():
         fin_txt = self.fecha_fin_entry.get()
         equipo_txt = self.combo_equipos.get()
         accion_txt = self.acronimos_acciones[self.combo_accion.get()]
-        indicador= 'Ibex35'
         estrategia_txt = 'Futbol'
         pais_txt = self.pais[accion_txt]
         url_txt = self.url[equipo_txt]
@@ -530,12 +538,12 @@ class FormularioBackTestingFutbol():
        
         print(equipo_txt, accion_txt, pais_txt, url_txt)
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) #le pasamos el acronimo de la API para el backtesting que es de donde importo los datos
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt,indicador)
+        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt, fin_txt, pais_txt, url_txt, estrategia_txt, cuando_comprar, cuando_vender, equipo_txt)
         
-        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.establecerRentabilidades(rentabilidad)
         self.treeview()
      
-    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+    def establecerRentabilidades(self, rentabilidad):
         #Rentabilidad Futbol
         self.rentabilidad_futbol.set(str(rentabilidad))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)

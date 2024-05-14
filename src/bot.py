@@ -127,19 +127,19 @@ class Bot:
         return frame, rentabilidad
         
     
-    def thread_creativas(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,indicador):
+    def thread_creativas(self,inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt):
         """Function to launch the tick reader thread.
         """
-        tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,indicador,self.almacenar_frame_rentabilidad)
+        tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
         # t = threading.Thread(target=tr.thread_Futbol, 
         #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
         # self.threads.append(t)
         # t.start()
         print('Thread - tick_reader. LAUNCHED')
         # Obtener el resultado de la almacenar_frame_rentabilidad
-        frame, rentabilidad , rentabilidad_indicador= self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
+        frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
         
-        return frame, rentabilidad, rentabilidad_indicador
+        return frame, rentabilidad
 
 
     def thread_Futbol(self,equipo,url,cuando_comprar,cuando_vender):
@@ -190,7 +190,8 @@ class Bot:
         print('Thread - orders - Creativas. LAUNCHED')
         print("Hilos en la lista threads:", self.threads)
 
-
+    def rentabilidadIndicador(self,time_period,inicio,fin, indicador):
+        return tr.rentabilidadIndicador(time_period,inicio,fin,indicador)
         
 
     def thread_F1(self,piloto,url,cuando_comprar,cuando_vender):
