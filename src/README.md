@@ -2,6 +2,8 @@
 
 En primer lugar para la correcta utilizacion de este proyecto , les dejamos una cuenta de prueba para poder probar la aplicacion y que esta relacionada con Metatrader5. Es necesario que se tenga instalado ICMARKETS de METATRADER5 , les dejamos el link para que sea mas facil y con los datos siguientes podran descargarse la plataforma.
 
+Link Descarga:  https://www.icmarkets.eu/ss/plataforma-de-trading-metatrader/metatrader-5
+
 Your Secure Area Login Details:
 Username:	tfginfotrading@gmail.com
 Password:	VNHP4614
