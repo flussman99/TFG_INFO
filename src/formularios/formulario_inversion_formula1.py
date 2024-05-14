@@ -21,10 +21,12 @@ import ordenes as ORD
 
 class FormularioInversionFormula1():
 
-    def __init__(self, panel_principal, id_user):
+    def __init__(self, panel_principal, id_user, deshabilitar_botones, habilitar_botones):
 
         self.id_user = id_user
         self.b = bt(1)
+        self.deshabilitar_botones = deshabilitar_botones
+        self.habilitar_botones = habilitar_botones
 
         self.frame_width = 0
         self.frame_height = 0
@@ -526,6 +528,7 @@ class FormularioInversionFormula1():
 
         #Deshabilitar los combo boxs, entrys y botones
         # self.combo_anos.configure(state="disabled")
+        self.deshabilitar_botones()
         self.combo_pilotos.configure(state="disabled")
         self.combo_metodos_comprar.configure(state="disabled")
         self.combo_metodos_vender.configure(state="disabled")
@@ -763,8 +766,8 @@ class FormularioInversionFormula1():
     def parar_inversion(self):
         # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
         # self.combo_anos.configure(state="normal")
+        self.habilitar_botones()
         self.combo_pilotos.configure(state="normal")
-        #self.combo_acciones.configure(state="normal")
         self.combo_metodos_comprar.configure(state="normal")
         self.combo_metodos_vender.configure(state="normal")
         self.stop_loss_entry.configure(state="normal")

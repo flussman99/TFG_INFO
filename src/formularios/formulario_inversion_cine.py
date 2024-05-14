@@ -21,10 +21,12 @@ import ordenes as ORD
 
 class FormularioInversionCine():
 
-    def __init__(self, panel_principal, id_user):
+    def __init__(self, panel_principal, id_user, deshabilitar_botones, habilitar_botones):
 
         self.b = bt(1)
         self.id_user = id_user
+        self.deshabilitar_botones = deshabilitar_botones
+        self.habilitar_botones = habilitar_botones
 
         self.frame_width = 0
         self.frame_height = 0
@@ -434,6 +436,7 @@ class FormularioInversionCine():
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
         # Deshabilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.deshabilitar_botones()
         self.combo_estudios.configure(state="disabled")
         self.combo_metodos_comprar.configure(state="disabled")
         self.stop_loss_entry.configure(state="disabled")
@@ -667,6 +670,7 @@ class FormularioInversionCine():
 
     def parar_inversion(self): 
         # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.habilitar_botones()
         self.combo_estudios.configure(state="normal")
         self.combo_metodos_comprar.configure(state="normal")
         self.stop_loss_entry.configure(state="normal")

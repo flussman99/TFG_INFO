@@ -17,11 +17,13 @@ from configDB import DBConfig
 
 class FormularioClasicas():
 
-    def __init__(self, panel_principal, user_id):
+    def __init__(self, panel_principal, user_id, deshabilitar_botones, habilitar_botones):
 
         self.user_id = user_id
         self.frame_width = 0
         self.frame_height = 0
+        self.deshabilitar_botones = deshabilitar_botones
+        self.habilitar_botones = habilitar_botones
 
         #Frame principal 
         self.frame_principal = tk.Frame(panel_principal, bg=COLOR_CUERPO_PRINCIPAL)
@@ -133,7 +135,7 @@ class FormularioClasicas():
     def invertir(self):
         # Función para abrir el formulario de inversión
         self.limpiar_panel(self.frame_principal)
-        FormularioInversionClasicas(self.frame_principal, self.user_id)
+        FormularioInversionClasicas(self.frame_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones)
 
     def on_parent_configure(self, event):
         # Se llama cuando cambia el tamaño de la ventana

@@ -21,11 +21,13 @@ from configDB import DBConfig
 
 class FormularioCreativas():
 
-    def __init__(self, panel_principal, user_id):
+    def __init__(self, panel_principal, user_id, deshabilitar_botones, habilitar_botones):
 
         self.user_id = user_id
         self.frame_width = 0
         self.frame_height = 0
+        self.deshabilitar_botones = deshabilitar_botones
+        self.habilitar_botones = habilitar_botones
 
         #Frame principal 
         self.frame_principal = tk.Frame(panel_principal, bg=COLOR_CUERPO_PRINCIPAL)
@@ -146,7 +148,7 @@ class FormularioCreativas():
 
     def invertirfutbol(self):
         self.limpiar_panel(self.frame_principal)
-        FormularioInversionFutbol(self.frame_principal)
+        FormularioInversionFutbol(self.frame_principal, self.deshabilitar_botones, self.habilitar_botones)
 
     def formula1(self):
         self.limpiar_panel(self.frame_principal)     
@@ -154,7 +156,7 @@ class FormularioCreativas():
 
     def invertir_formula1(self):
         self.limpiar_panel(self.frame_principal)     
-        FormularioInversionFormula1(self.frame_principal, self.user_id)
+        FormularioInversionFormula1(self.frame_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones)
 
     def cine(self):
         self.limpiar_panel(self.frame_principal)
@@ -162,7 +164,7 @@ class FormularioCreativas():
 
     def invertir_cine(self):
         self.limpiar_panel(self.frame_principal)
-        FormularioInversionCine(self.frame_principal, self.user_id)
+        FormularioInversionCine(self.frame_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones)
 
     def on_parent_configure(self, event):
         # Se llama cuando cambia el tamaño de la ventana

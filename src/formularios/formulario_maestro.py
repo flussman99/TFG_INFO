@@ -164,11 +164,11 @@ class FormularioMaestroDesign(tk.Tk):
 
     def abrir_panel_clasicas(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioClasicas(self.cuerpo_principal, self.user_id) 
+        FormularioClasicas(self.cuerpo_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones) 
 
     def abrir_panel_creativas(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioCreativas(self.cuerpo_principal, self.user_id) 
+        FormularioCreativas(self.cuerpo_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones) 
 
     def abrir_panel_informacion(self):   
         self.limpiar_panel(self.cuerpo_principal)     
