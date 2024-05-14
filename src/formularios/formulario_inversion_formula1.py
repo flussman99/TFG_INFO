@@ -265,14 +265,12 @@ class FormularioInversionFormula1():
         self.metodo_vender = self.combo_metodos_vender.get()
         
         #Quitar la opcion seleccionada en comprar del metodo vender
-        if self.metodo_vender == "Top 1":
-            self.combo_metodos_comprar["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
-        elif self.metodo_vender == "Top 3":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 5", "Top 10", "No puntúa"]
+        if self.metodo_vender == "Top 3":
+            self.combo_metodos_comprar["values"] = ["Top 1"]
         elif self.metodo_vender == "Top 5":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 10", "No puntúa"]
+            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3"]
         elif self.metodo_vender == "Top 10":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "No puntúa"]
+            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5"]
         elif self.metodo_vender == "No puntúa":
             self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "Top 10"]
                 
@@ -292,13 +290,11 @@ class FormularioInversionFormula1():
         if self.metodo_comprar == "Top 1":
             self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 3":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 5":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 10":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "No puntúa"]
-        elif self.metodo_comprar == "No puntúa":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10"]
+            self.combo_metodos_vender["values"] = ["No puntúa"]
                 
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado

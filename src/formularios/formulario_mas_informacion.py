@@ -74,9 +74,9 @@ class FormularioBackTestingMasInformacion():
         if (self.estrategia == "Futbol"):
             self.descripcion_creativa.configure(text="La operación creativa de fútbol consiste en inveritr en los equipos de fútbol, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados de los partidos.")
         elif (self.estrategia == "Formula1"):
-            self.descripcion_creativa.configure(text="La operación creativa de Formula 1 consiste en inveritr en los equipos de Formula 1, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados de las carreras.")
+            self.descripcion_creativa.configure(text="La operación creativa de Formula 1 consiste en inveritr en los pilotos de Formula 1, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados obtenidos en cada una de las carreras.")
         elif (self.estrategia == "Cine"):
-            self.descripcion_creativa.configure(text="La operación creativa de cine consiste en inveritr en las películas, con el fin de obtener una rentabilidad a partir de las predicciones de los resultados en taquilla.")
+            self.descripcion_creativa.configure(text="La operación creativa de cine consiste en inveritr en las películas, con el fin de obtener una rentabilidad a partir de las predicciones de los ratings obtenidos en TMDb.")
         if (self.estrategia == "RSI"):
             self.descripcion_creativa.configure(text="La estrategia de RSI consiste en detectar zonas de sobreventa y sobrecompra mediante el calculo del mismo y detectaremos zonas de compra cuando se encuentre por debajo de los 35 puntos y zonas de venta por encima de los 65. Ademas le añadimos el calculo del indice MACD que en funcion de las dos componentes que tiene obtenemos señales mas fuertes")
         elif (self.estrategia == "Media Movil"):

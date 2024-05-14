@@ -93,19 +93,24 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
 
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
     # Filling the list with previos ticks
-    rentabilidad_indicador= elegirIndicador(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt,indicador)
+    rentabilidad_indicadores = elegirIndicador(trading_data['time_period'] ,inicio_txt, fin_txt, pais_txt,indicador)
     frame = estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
-    cola.put((frame, rentabilidad, rentabilidad_indicador))
+    cola.put((frame, rentabilidad, rentabilidad_indicadores))
     print("[THREAD - tick_reader] - Ticks loaded")
 
-def elegirIndicador(time_period, inicio_txt, fin_txt, pais_txt,indicador):
-    if(indicador == 'SP500'):
-        return load_SP500(time_period, inicio_txt, fin_txt, pais_txt)
-    elif(indicador == 'IBEX35'):
-        return load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt)
-    elif(indicador == 'Plazo Fijo'):
-        return calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
+def elegirIndicador(time_period, inicio_txt, fin_txt, pais_txt,indicadores):
+    rentabilidad_indicadores = np.zeros(3, dtype=float)
+    print(indicadores)
+    for indicador in indicadores:
+        if(indicador == 'IBEX35'):
+            rentabilidad_indicadores[0] = load_IBEX35(time_period, inicio_txt, fin_txt, pais_txt)
+        elif(indicador == 'SP500'):
+            rentabilidad_indicadores[1] = load_SP500(time_period, inicio_txt, fin_txt, pais_txt)
+        elif(indicador == 'Plazo Fijo'):
+            rentabilidad_indicadores[2] = calcular_rentabilidad_plazo_fijo(inicio_txt,fin_txt)
+    print(rentabilidad_indicadores)
+    return rentabilidad_indicadores
 
 def estrategias_Creativas(ticks: list,nombre:str,inicio_txt, fin_txt,url,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt):
     if nombre == 'Futbol':

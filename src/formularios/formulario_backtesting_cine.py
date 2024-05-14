@@ -536,9 +536,8 @@ class FormularioBackTestingCine():
         return cantidad > 0
 
 
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_cine.get())
+    def mas_informacion(self):  
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Cine", self.rentabilidad_cine.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
