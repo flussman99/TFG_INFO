@@ -102,6 +102,7 @@ class FormularioBackTestingFormula1():
         self.paisAcciones = SF1.pais_Accion
         self.accionesAPI = SF1.acciones_api
         self.url = 'https://www.f1-fansite.com/f1-results/f1-standings-2024-championship'
+        self.indicadores = [False] * 3
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -254,14 +255,12 @@ class FormularioBackTestingFormula1():
         self.metodo_vender = self.combo_metodos_vender.get()
         
         #Quitar la opcion seleccionada en comprar del metodo vender
-        if self.metodo_vender == "Top 1":
-            self.combo_metodos_comprar["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
-        elif self.metodo_vender == "Top 3":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 5", "Top 10", "No puntúa"]
+        if self.metodo_vender == "Top 3":
+            self.combo_metodos_comprar["values"] = ["Top 1"]
         elif self.metodo_vender == "Top 5":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 10", "No puntúa"]
+            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3"]
         elif self.metodo_vender == "Top 10":
-            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "No puntúa"]
+            self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5"]
         elif self.metodo_vender == "No puntúa":
             self.combo_metodos_comprar["values"] = ["Top 1", "Top 3", "Top 5", "Top 10"]
                 
@@ -281,13 +280,11 @@ class FormularioBackTestingFormula1():
         if self.metodo_comprar == "Top 1":
             self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 3":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 5":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 10":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "No puntúa"]
-        elif self.metodo_comprar == "No puntúa":
-            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10"]
+            self.combo_metodos_vender["values"] = ["No puntúa"]
                 
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
@@ -308,6 +305,7 @@ class FormularioBackTestingFormula1():
             self.var_ibex35 = tk.BooleanVar()
             self.var_sp500 = tk.BooleanVar()
             self.var_plazo_fijo = tk.BooleanVar()
+
             self.ibex35 = tk.Checkbutton(self.frame_combo_boxs, text="IBEX35", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_ibex35)
             self.ibex35.grid(row=1, column=2, padx=10, pady=2, sticky="w")
             self.sp500 = tk.Checkbutton(self.frame_combo_boxs, text="SP500", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_sp500)
@@ -430,15 +428,15 @@ class FormularioBackTestingFormula1():
         self.label_rentabilidad_f1 = tk.Label(self.frame_datos, textvariable=self.rentabilidad_f1, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_f1.pack(side="left", padx=(0, 10), pady=5)
 
-        #Label rentabalidad comparativa
-        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
+        # #Label rentabalidad comparativa
+        # self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        # self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
 
-        # Rentabilidad comparativa 
-        self.rentabilidad_comparativa = tk.StringVar()
-        self.rentabilidad_comparativa.set("0")
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
+        # # Rentabilidad comparativa 
+        # self.rentabilidad_comparativa = tk.StringVar()
+        # self.rentabilidad_comparativa.set("0")
+        # self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        # self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
@@ -460,12 +458,17 @@ class FormularioBackTestingFormula1():
         
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
+            self.indicadores[0] = True
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
-            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
+
+            self.label_rentabilidad_ibex35_texto = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: " , font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_ibex35_texto.pack(side="left", padx=(10, 0), pady=5)
+            self.rentabilidad_ibex35 = tk.StringVar() 
+            self.rentabilidad_ibex35.set("0")
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, textvariable= self.rentabilidad_ibex35, font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_ibex35.pack(side="left", pady=5)
         else:
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
@@ -473,11 +476,17 @@ class FormularioBackTestingFormula1():
     
         #SP500 si está seleccionado
         if self.var_sp500.get():
+            self.indicadores[1] = True
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
-            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
+
+            self.label_rentabilidad_sp500_texto = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: " , font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_sp500_texto.pack(side="left", padx=(10, 0), pady=5)
+            self.rentabilidad_sp500 = tk.StringVar() 
+            self.rentabilidad_sp500.set("0")
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, textvariable= self.rentabilidad_sp500, font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_sp500.pack(side="left", pady=5)
         else:
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
@@ -485,15 +494,22 @@ class FormularioBackTestingFormula1():
 
         #Plazo fijo si está seleccionado
         if self.var_plazo_fijo.get():
+            self.indicadores[2] = True
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
+
+            self.label_rentabilidad_plazo_fijo_texto = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: " , font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_plazo_fijo_texto.pack(side="left", padx=(10, 0), pady=5)
+            self.rentabilidad_plazo_fijo = tk.StringVar()
+            self.rentabilidad_plazo_fijo.set("0")
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, textvariable= self.rentabilidad_plazo_fijo, font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_plazo_fijo.pack(side="left", pady=5)
         else:
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
+        
 
     def toggle_frames(self):
         if self.current_frame.equals(self.frame_without_filter):
@@ -525,6 +541,16 @@ class FormularioBackTestingFormula1():
         print(accionApi)
         return accionApi
 
+    def status_indicadores(self, indicadores):
+        indicadores_txt = []
+        if indicadores[0] == True:
+            indicadores_txt.append('IBEX35')
+        if indicadores[1] == True:
+            indicadores_txt.append('SP500')
+        if indicadores[2] == True:
+            indicadores_txt.append('Plazo Fijo')
+        return indicadores_txt
+
     def coger_ticks(self):
         
         frecuencia_txt = "Daily"
@@ -537,25 +563,34 @@ class FormularioBackTestingFormula1():
         self.accion = self.obtenerAccion(self.accion)
         pais_txt = self.obtenerPais(self.accion)
         self.accion = self.accion.split('.')[0]
-        indicador= self.combo_comparativa.get()
+        indicadores_txt = self.status_indicadores(self.indicadores)
+        print(self.indicadores)
+        print(indicadores_txt)
 
         print("----------------------------------------")
         print(frecuencia_txt, self.accion, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, self.accion) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad, rentabilidad_indicadores = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar, cuando_vender, piloto_txt, indicadores_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
-        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.establecerRentabilidades(rentabilidad, rentabilidad_indicadores)
         self.treeview()
 
-    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
+    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicadores):
         #Rentabilidad Futbol
         self.rentabilidad_f1.set(str(rentabilidad))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
 
         #Rentabilidad comparativa    
-        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
-        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+        if self.label_rentabilidad_ibex35 is not None:
+            self.rentabilidad_ibex35.set(str(rentabilidad_indicadores[0]))
+            self.label_rentabilidad_ibex35.configure(textvariable=self.rentabilidad_ibex35)
+        if self.label_rentabilidad_sp500 is not None:
+            self.rentabilidad_sp500.set(str(rentabilidad_indicadores[1]))
+            self.label_rentabilidad_sp500.configure(textvariable=self.rentabilidad_sp500)
+        if self.label_rentabilidad_plazo_fijo is not None:
+            self.rentabilidad_plazo_fijo.set(str(rentabilidad_indicadores[2]))
+            self.label_rentabilidad_plazo_fijo.configure(textvariable=self.rentabilidad_plazo_fijo)
         
    
 
@@ -675,9 +710,8 @@ class FormularioBackTestingFormula1():
         return cantidad > 0
 
 
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_f1.get())
+    def mas_informacion(self):  
+        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Formula1", self.rentabilidad_f1.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
