@@ -67,7 +67,7 @@ acronimo_acciones_api = {
     'Allianz(ALV)': 'ALVG',#ALV en metatrader
     'Coca cola(KO)': 'KO',
     'DXC Technology(DXC)': 'DXC',
-    'Standar Chartered(STAN)': 'STAN',
+    'Standard Chartered(STAN)': 'STAN',
     'Electronic Arts(EA)': 'EA',
     'Trivago(TRVG)': 'TRVG',
     'Evonik Industries(EVK)': 'EVKn',#EVK en metatrader
@@ -77,7 +77,7 @@ acronimo_acciones_api = {
     'Ebay Inc(EBAY)': 'EBAY',
     'Bayerische Motoren Werke(BMW)': 'BMWG',#BMW en metatrader
     'McDonalds(MCD)': 'MCD',
-    'Orange(ORA)': 'ORAN',
+    'Orange(ORAN)': 'ORAN',
 }
 
 acronimo_acciones_mt5 = {
@@ -88,7 +88,7 @@ acronimo_acciones_mt5 = {
     'Allianz(ALV)': 'ALV.ETR',#ALV en metatrader
     'Coca cola(KO)': 'KO.NYSE',
     'DXC Technology(DXC)': 'DXC.NYSE',
-    'Standar Chartered(STAN)': 'STAN.LSE',
+    'Standard Chartered(STAN)': 'STAN.LSE',
     'Electronic Arts(EA)': 'EA.NAS',
     'Trivago(TRVG)': 'TRVG.NAS',
     'Evonik Industries(EVK)': 'EVK.ETR',#EVK en metatrader
@@ -110,7 +110,7 @@ acciones = {
     'Atletico de Madrid':['Nike(NKE)'],
     'Valencia': ['Coca cola(KO)'],
     'Manchester United':['DXC Technology(DXC)'],
-    'Liverpool': ['Standar Chartered(STAN)'],
+    'Liverpool': ['Standard Chartered(STAN)'],
     'Manchester City': ['Electronic Arts(EA)'],
     'Chelsea': ['Trivago(TRVG)'],
     'Borussia Dortmund':['Evonik Industries(EVK)'],
@@ -484,12 +484,12 @@ def cargar_html(equipo):
     elif equipo == 'Atletico de Madrid':
         # List of HTML files to process
         html_files = [
-            # '2014-2015_Atletico.html',
-            # '2015-2016_Atletico.html',
-            # '2016-2017_Atletico.html',
-            # '2017-2018_Atletico.html',
-            # '2018-2019_Atletico.html',
-            # '2019-2020_Atletico.html',
+            '2014-2015_Atletico.html',
+            '2015-2016_Atletico.html',
+            '2016-2017_Atletico.html',
+            '2017-2018_Atletico.html',
+            '2018-2019_Atletico.html',
+            '2019-2020_Atletico.html',
             '2020-2021_Atletico.html',
             '2021-2022_Atletico.html'
         ]
@@ -609,7 +609,7 @@ def cargar_html(equipo):
             '2021-2022_RB.html'
         ] 
 
-    elif equipo == 'Bayern Leverkusen':
+    elif equipo == 'Bayer Leverkusen':
         # List of HTML files to process
         html_files = [
             '2014-2015_Leverkusen.html',
