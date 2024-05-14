@@ -399,18 +399,19 @@ class FormularioBackTestingClasicas():
         frecuencia = self.combo_frecuencia.get()
 
         # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_clasica.get()
+        rentabilidad = str(self.rentabilidad_clasica.get()) + "%"
 
-        # En el caso de las clásicas, no comparamos con indicadores, por lo que insertamos guiones en su lugar
-        indicador = "----"
-        rentabilidad_indicador =  "----"
-
+        # Aquí no se aplica la rentabilidad de los índices
+        rentabilidad_ibex = "No aplica"
+        rentabilidad_sp500 = "No aplica"
+        rentabilidad_plazos = "No aplica"
+        
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia , rentabilidad, indicador, rentabilidad_indicador)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, rentabilidad_ibex, rentabilidad_sp500, rentabilidad_plazos)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)
