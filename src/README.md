@@ -32,4 +32,4 @@ pip install mysql-connector-python
 pip install requests
 pip instal investpy
 pip install schedule
-
+pip install -r requirements.txt-->Este comando lee el archivo requirements.txt y descarga e instala automáticamente todas las librerías y paquetes listados.
