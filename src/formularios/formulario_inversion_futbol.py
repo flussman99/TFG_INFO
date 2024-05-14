@@ -18,12 +18,14 @@ import MetaTrader5 as mt5
 
 class FormularioInversionFutbol():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, deshabilitar_botones, habilitar_botones):
 
         self.b = bt(1)
 
         self.frame_width = 0
         self.frame_height = 0
+        self.deshabilitar_botones = deshabilitar_botones
+        self.habilitar_botones = habilitar_botones
 
         #Frame principal
         self.frame_principal = tk.Frame(panel_principal, bg=COLOR_CUERPO_PRINCIPAL)
@@ -437,6 +439,7 @@ class FormularioInversionFutbol():
     def getValorPrecio(self):
         accion=self.acronimos_acciones_mt5.get(self.combo_accion.get())
         selected = mt5.symbol_select(accion, True)
+        print(accion)
         if selected:
             tick = mt5.symbol_info_tick(accion)
             precio=tick[2]
@@ -461,6 +464,7 @@ class FormularioInversionFutbol():
             return
         
         # Deshabilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.deshabilitar_botones()
         self.combo_ligas.configure(state="disabled")
         self.combo_equipos.configure(state="disabled")
         self.combo_accion.configure(state="disabled")
@@ -687,6 +691,7 @@ class FormularioInversionFutbol():
     def parar_inversion(self):
 
         # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
+        self.habilitar_botones()
         self.combo_ligas.configure(state="normal")
         self.combo_equipos.configure(state="normal")
         self.combo_accion.configure(state="normal")
