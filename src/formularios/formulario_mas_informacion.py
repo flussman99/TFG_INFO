@@ -29,7 +29,7 @@ class FormularioBackTestingMasInformacion():
 
         #Frame principal 
         self.frame_principal = tk.Frame(panel_principal, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_principal.pack(fill=tk.BOTH, expand=True)
+        self.frame_principal.place(relwidth=1, relheight=1)
 
 
         self.informacion()
@@ -44,15 +44,19 @@ class FormularioBackTestingMasInformacion():
     def informacion(self):
         # Título arriba a la izquierda
         self.label_titulo_informacion = tk.Label(self.frame_principal, text="Información del backtesting", font=("Berlin Sans FB", 16, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_titulo_informacion.pack(pady=10, padx=10, anchor="w", side="top", fill="x")
+        self.label_titulo_informacion.pack(pady=5, padx=10, anchor="w", side="top", fill="x")
+
+        #Boton de volver
+        self.boton_volver = tk.Button(self.frame_principal, text="Volver", font=("Berlin Sans FB", 12), bg="#2d367b", fg="white", command=lambda: self.limpiar_panel(self.frame_principal))
+        self.boton_volver.place(x=10, y=10)
 
         # Frame grid para las opciones
         self.frame_opciones = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_opciones.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
+        self.frame_opciones.pack(pady=5, padx=10, anchor="center", side="top", fill="x")
         
         #Subtitulo "Información de la estrategia"
         self.label_info = tk.Label(self.frame_opciones, text="Información de la estrategia de " + self.estrategia, font=("Berlin Sans FB", 12, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_info.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky="w")
+        self.label_info.grid(row=0, column=0, columnspan=2, pady=5, padx=10, sticky="w")
 
         #frame para la descripción
         self.frame_info_inicial = tk.Frame(self.frame_opciones, bg=COLOR_CUERPO_PRINCIPAL, width=200, height=100)
@@ -60,11 +64,11 @@ class FormularioBackTestingMasInformacion():
         
         # Descripción de la operacion creativa
         self.descripcion_creativa = tk.Label(self.frame_info_inicial, justify="left", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.descripcion_creativa.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
+        self.descripcion_creativa.pack(pady=5, padx=5, anchor="w", side="top", fill="x")
 
         # Descripción de la operacion creativa
         self.descripcion_clasica = tk.Label(self.frame_info_inicial, justify="left", wraplength=200, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.descripcion_clasica.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
+        self.descripcion_clasica.pack(pady=5, padx=5, anchor="w", side="top", fill="x")
         
         print("estrategia: ", self.estrategia)
         if (self.estrategia == "Futbol"):
@@ -83,7 +87,7 @@ class FormularioBackTestingMasInformacion():
             self.descripcion_creativa.configure(text="La estrategia de Estocastico se basa en el cruce de dos de sus componentes que son la linea K y D. Ademas le añadimos el calculo del RSI, y en funcion de si se cumplen las dos condiciones se generara una señal de compra o venta")
         #Subtitulo "Resultados del backtesting"
         self.label_resultado = tk.Label(self.frame_opciones, text="Resultados del backtesting", font=("Berlin Sans FB", 12, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_resultado.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="w")
+        self.label_resultado.grid(row=2, column=0, columnspan=2, pady=5, padx=10, sticky="w")
 
         #Frame para los resultados
         self.frame_resultados = tk.Frame(self.frame_opciones, bg=COLOR_CUERPO_PRINCIPAL, width=200, height=100)
@@ -92,10 +96,10 @@ class FormularioBackTestingMasInformacion():
         #Label para la rentabilidad
         print("Rentabilidad: ", self.rentabilidad)
         self.rent100 = 100 + float(self.rentabilidad)
-        self.rent100string = str(self.rent100)
-        self.texto = "La rentabilidad obtenida en base a esta operación es de: " + self.rentabilidad + "%. Esto quiere decir que por cada 100 euros invertidos, se obtienen " + self.rent100string + " euros. En las siguientes gráficas se muestra la evolución de la rentabilidad y los precios de compra y venta. En la primera de ellas se muestra la rentabilidad obtenida en cada operación, mientras que en la segunda se muestra el precio de compra y venta de cada operación. En la tabla se muestran los resultados de cada operación."
+        self.rent100string = str(round(self.rent100,2))
+        self.texto = "La rentabilidad obtenida en base a esta operación es de: " + self.rent100string + "%. Esto quiere decir que por cada 100 euros invertidos, se obtienen " + self.rent100string + " euros. En las siguientes gráficas se muestra la evolución de la rentabilidad y los precios de compra y venta. En la primera de ellas se muestra la rentabilidad obtenida en cada operación, mientras que en la segunda se muestra el precio de compra y venta de cada operación. En la tabla se muestran los resultados de cada operación."
         self.descripcion_rentabilidad = tk.Label(self.frame_resultados, justify="left", text=self.texto, font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.descripcion_rentabilidad.pack(pady=10, padx=5, anchor="w", side="top", fill="x")
+        self.descripcion_rentabilidad.pack(pady=5, padx=5, anchor="w", side="top", fill="x")
 
         #Grafica de la rentabilidad
         print("Graficando rentabilidad")
@@ -105,19 +109,20 @@ class FormularioBackTestingMasInformacion():
         # FRAMES
         # Crear un marco general
         self.frame_general_graficas = tk.Frame(self.frame_resultados, bg=COLOR_CUERPO_PRINCIPAL)
-        self.frame_general_graficas.pack(pady=10, padx=10, anchor="center", side="top", fill="x")
+        self.frame_general_graficas.pack(pady=5, padx=10, anchor="center", side="top", fill="x")
+
+        #Prioridad de los frames
+        self.frame_general_graficas.grid_rowconfigure(0, weight=1)
+        self.frame_general_graficas.grid_columnconfigure(0, weight=1)
+        self.frame_general_graficas.grid_columnconfigure(1, weight=1)
 
         # Crear un marco para la gráfica de la izquierda
         self.frame_grafica = tk.Frame(self.frame_general_graficas, bg=COLOR_CUERPO_PRINCIPAL, width=200, height=100)
-        self.frame_grafica.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self.frame_grafica.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 
         # Crear un marco para la gráfica de la derecha
         self.frame_grafica_precios = tk.Frame(self.frame_general_graficas, bg="blue", width=200, height=100)
-        self.frame_grafica_precios.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
-        # Crear un marco para la tabla
-        self.frame_tabla = tk.Frame(self.frame_general_graficas, bg="blue")
-        self.frame_tabla.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.frame_grafica_precios.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
     
 
 
@@ -142,9 +147,9 @@ class FormularioBackTestingMasInformacion():
                 self.ax.annotate(str(i+1), (df_valid_rentabilidad['time'].iloc[i], rentabilidad), ha='center', va='bottom')
 
 
-        self.ax.set_title('Rentabilidad de la operación')
+        self.ax.set_title('Rentabilidades de las operaciones')
         self.ax.set_xlabel('Fecha')
-        self.ax.set_ylabel('Rentabilidad')
+        self.ax.set_ylabel('Rentabilidades')
         self.ax.grid()
         self.canvas = FigureCanvasTkAgg(self.figura, master=self.frame_grafica)
         self.canvas.draw()
@@ -190,59 +195,13 @@ class FormularioBackTestingMasInformacion():
             else:
                 self.ax_precios.annotate(txt, (valores_vender['time'].iloc[i], valores_vender['price'].iloc[i]))
 
-        self.ax_precios.set_title('Precio de la operación')
+        self.ax_precios.set_title('Precios de las operaciones de compra y venta')
         self.ax_precios.set_xlabel('Fecha')
-        self.ax_precios.set_ylabel('Precio')
+        self.ax_precios.set_ylabel('Precios')
         self.ax_precios.grid()
         self.canvas_precios = FigureCanvasTkAgg(self.figura_precios, master=self.frame_grafica_precios)
         self.canvas_precios.draw()
         self.canvas_precios.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
- #Tabla de resultados
-        print("------------------------------------")
-        print("Creando tabla de resultados")
-
-
-        # Crear la tabla con matplotlib con las columnas: "Num Operación", "Rentabilidad", "Precio de Venta"
-        self.figura_tabla = plt.Figure(figsize=(5, 4), dpi=100)
-        self.ax_tabla = self.figura_tabla.add_subplot(111)
-        self.ax_tabla.axis('off')
-
-        # Obtener los datos de las columnas
-        num_operacion = [str(i + 1) for i in range(len(df_valid_rentabilidad))]
-        
-        #Obtener la rentabilidad y los precios de venta de las operaciones cuando Decision sea Venta
-        if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
-            precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['Precio'].tolist()
-        else:
-            precios_venta = df_valid_precios.loc[df_valid_precios['Decision'] == 'Venta']['price'].tolist()
-        rentabilidad = df_valid_rentabilidad['Rentabilidad'].tolist()
-        # Formatear los valores para que solo muestren dos decimales
-        rentabilidad = ["{:.2f}".format(valor) for valor in rentabilidad]
-
-        # Combinar los datos en una lista de listas para la tabla
-        data = []
-        for i in range(len(num_operacion)):
-            data.append([num_operacion[i], rentabilidad[i], precios_venta[i]])
-
-        print("------------------------------------")
-        print("------------------------------------")
-        print("------------------------------------")
-        print("------------------------------------")
-
-        print("Data: ", data)
-        # Crear la tabla con los datos
-        self.ax_tabla.table(cellText=data, colLabels=['Num Operación', 'Rentabilidad', 'Precio de Venta'], cellLoc='center', loc='center')
-
-        # Crear el lienzo de matplotlib en el marco
-        self.canvas_tabla = FigureCanvasTkAgg(self.figura_tabla, master=self.frame_tabla)
-        self.canvas_tabla.draw()
-        # Ajustar el relleno (padding) del widget pack a cero
-        self.canvas_tabla.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=0, pady=0)
-        # Configurar el borde del widget a cero
-        self.canvas_tabla.get_tk_widget().configure(borderwidth=0)
-
 
 
 
@@ -284,15 +243,15 @@ class FormularioBackTestingMasInformacion():
         self.frame_general_graficas.configure(width=self.frame_width-25)
         self.frame_grafica.configure(width=(self.frame_width-25)/2)
         self.frame_grafica_precios.configure(width=(self.frame_width-25)/2)
-        self.frame_tabla.configure(width=self.frame_width-25)
 
         #Ajustar el tamaño de las graficas
-        self.canvas.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/4)
-        self.canvas_precios.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/4)
-        self.canvas_tabla.get_tk_widget().configure(width=self.frame_width-25, height=self.frame_height/4)
+        self.canvas.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/3)
+        self.canvas_precios.get_tk_widget().configure(width=(self.frame_width-25)/2, height=(self.frame_height)/3)
 
 
     def limpiar_panel(self,panel):
     # Función para limpiar el contenido del panel
         for widget in panel.winfo_children():
             widget.destroy()
+
+        panel.destroy()

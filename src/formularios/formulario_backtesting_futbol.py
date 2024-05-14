@@ -22,7 +22,8 @@ from formularios.formulario_mas_informacion import FormularioBackTestingMasInfor
 class FormularioBackTestingFutbol():
 
     def __init__(self, panel_principal, id_user):
-
+        
+        self.panel_principal = panel_principal
         self.b = bt(1)
         self.id_user = id_user
 
@@ -55,8 +56,6 @@ class FormularioBackTestingFutbol():
         self.label_comparativa = None
         self.label_rentabilidad = None
         self.label_rentabilidad_futbol = None
-        self.label_rentabilidad_comparativa = None
-        self.label_rentabilidad_comparativa_texto = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -402,16 +401,6 @@ class FormularioBackTestingFutbol():
         self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
 
-        #Label rentabalidad comparativa
-        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad Indicador " , font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
-
-        # Rentabilidad comparativa 
-        self.rentabilidad_comparativa = tk.StringVar()
-        self.rentabilidad_comparativa.set("0")
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
-
         # Boton de "Mostrar Operaciones"
         self.boton_mostrar_operaciones = tk.Button(self.frame_datos, text="Mostrar\noperaciones", font=("Aptos", 12), bg="green", fg="white", command=self.toggle_frames) 
         self.boton_mostrar_operaciones.pack(side="right", padx=(0, 10), pady=5)
@@ -550,11 +539,6 @@ class FormularioBackTestingFutbol():
         #Rentabilidad Futbol
         self.rentabilidad_futbol.set(str(rentabilidad))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
-
-        #Rentabilidad comparativa    
-        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
-        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
-        
         
 
     def toggle_frames(self):
@@ -629,7 +613,7 @@ class FormularioBackTestingFutbol():
         rentabilidad = self.rentabilidad_futbol.get()
 
         # Cogemos el indicador con el que se compara la inversión
-        indicador = self.combo_comparativa.get()
+        indicador = 'Ibex35'
 
         # Cogemos la rentabilidad de la inversión
         rentabilidad_indicador = self.rentabilidad_comparativa.get()
@@ -665,8 +649,7 @@ class FormularioBackTestingFutbol():
         return cantidad > 0
 
 
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
+    def mas_informacion(self):     
         FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Futbol", self.rentabilidad_futbol.get())
 
     def limpiar_panel(self,panel):
@@ -724,9 +707,6 @@ class FormularioBackTestingFutbol():
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
-            self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
             
         if self.label_rentabilidad_ibex35 is not None:
             self.label_rentabilidad_ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))

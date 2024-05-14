@@ -38,7 +38,7 @@ class FormularioInversionFutbol():
         self.label_titulo_futbol.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
-        self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray", width=399, height=276)
+        self.frame_inferior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL, width=399, height=276)
         self.frame_inferior.pack(fill=tk.BOTH)
 
         #VARIABLES
@@ -52,8 +52,6 @@ class FormularioInversionFutbol():
         self.label_comparativa = None
         self.label_rentabilidad = None
         self.label_rentabilidad_futbol = None
-        self.label_rentabilidad_comparativa_texto = None
-        self.label_rentabilidad_comparativa = None
 
         #Inicializar ComboBoxs
         self.combo_ligas = None
@@ -61,7 +59,18 @@ class FormularioInversionFutbol():
         self.combo_accion = None
         self.combo_metodos_comprar = None
         self.combo_metodos_vender = None
-        self.combo_comparativa = None
+        
+        self.ibex35 = None
+        self.sp500 = None
+        self.plazo_fijo = None
+
+        self.label_rentabilidad_ibex35 = None
+        self.label_rentabilidad_sp500 = None
+        self.label_rentabilidad_plazo_fijo = None
+
+        self.var_ibex35 = None
+        self.var_sp500 = None
+        self.var_plazo_fijo = None
 
         #Inicializar imagenes
         self.imagen_liga = None
@@ -302,13 +311,19 @@ class FormularioInversionFutbol():
             self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
 
-            #ComboBox de comparativa
-            self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
-            self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
+            #CheckBox de comparativas
+            self.var_ibex35 = tk.BooleanVar()
+            self.var_sp500 = tk.BooleanVar()
+            self.var_plazo_fijo = tk.BooleanVar()
+            self.ibex35 = tk.Checkbutton(self.frame_combo_boxs, text="IBEX35", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_ibex35)
+            self.ibex35.grid(row=3, column=2, padx=10, pady=2, sticky="w")
+            self.sp500 = tk.Checkbutton(self.frame_combo_boxs, text="SP500", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_sp500)
+            self.sp500.grid(row=3, column=3, padx=10, pady=2, sticky="w")
+            self.plazo_fijo = tk.Checkbutton(self.frame_combo_boxs, text="Plazo Fijo", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black", variable=self.var_plazo_fijo)
+            self.plazo_fijo.grid(row=3, column=4, padx=10, pady=2, sticky="w")
 
         #al mirar todos los datos actualizar el boton
-        self.combo_comparativa.bind("<<ComboboxSelected>>", self.actualizar_lotajes)
+        self.actualizar_lotajes(None)
 
         #Ajustar vista
         self.on_parent_configure(None)
@@ -408,7 +423,7 @@ class FormularioInversionFutbol():
     
         #Cambiar texto inversion
         self.valor_precio = self.getValorPrecio()
-        self.valor_inversion = int(self.lotaje_entry.get()) * self.valor_precio
+        self.valor_inversion = round(float(self.lotaje_entry.get()) * self.valor_precio, 2)
         self.label_inversion.configure(text="Inversión: " + str(self.valor_inversion))
 
         #Actualizar vista
@@ -455,6 +470,10 @@ class FormularioInversionFutbol():
         self.take_profit_entry.configure(state="disabled")
         self.lotaje_entry.configure(state="disabled")
         self.boton_empezar_inversion_futbol.configure(state="disabled")
+        self.ibex35.configure(state="disabled")
+        self.sp500.configure(state="disabled")
+        self.plazo_fijo.configure(state="disabled")
+
 
 
         # Verificar si la interfaz de usuario ya ha sido creada
@@ -472,6 +491,8 @@ class FormularioInversionFutbol():
                 for item in self.tree_ticks.get_children():
                     self.tree_ticks.delete(item)
 
+        self.rentabilidades_comparativas()
+
         self.tickdirecto()
 
         self.on_parent_configure(None)
@@ -479,7 +500,11 @@ class FormularioInversionFutbol():
     def crear_interfaz_inferior(self):
         # Frame para mostrar los datos
         self.frame_datos = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL, width=399)
-        self.frame_datos.pack(fill=tk.BOTH, expand=True)
+        self.frame_datos.pack(side="top", fill=tk.BOTH, expand=True)
+
+        # Crear una sub-frame para las etiquetas
+        self.frame_rentabilidades = tk.Frame(self.frame_inferior, bg=COLOR_CUERPO_PRINCIPAL)
+        self.frame_rentabilidades.pack(side="top", anchor="w", padx=(10, 0), pady=5)
 
         # Label de "Rentabilidad"
         self.label_rentabilidad = tk.Label(self.frame_datos, text="Rentabilidad", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -490,17 +515,6 @@ class FormularioInversionFutbol():
         self.rentabilidad_futbol.set("0")
         self.label_rentabilidad_futbol = tk.Label(self.frame_datos, textvariable=self.rentabilidad_futbol, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_rentabilidad_futbol.pack(side="left", padx=(0, 10), pady=5)
-
-        #Label rentabalidad comparativa
-        rent = self.combo_comparativa.get()
-        self.label_rentabilidad_comparativa_texto = tk.Label(self.frame_datos, text="Rentabilidad " + rent, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa_texto.pack(side="left", padx=(10, 0), pady=5)
-
-        # Rentabilidad comparativa
-        self.rentabilidad_comparativa = tk.StringVar()
-        self.rentabilidad_comparativa.set("0")
-        self.label_rentabilidad_comparativa = tk.Label(self.frame_datos, textvariable=self.rentabilidad_comparativa, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        self.label_rentabilidad_comparativa.pack(side="left", padx=(0, 10), pady=5)
 
         # Boton de "Parar Inversión"
         self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
@@ -530,7 +544,46 @@ class FormularioInversionFutbol():
         self.tree_container.grid_columnconfigure(0, weight=1)
         self.tree_container.grid_columnconfigure(1, weight=1)
 
+    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
+        
+        #Ibex35 si está seleccionado
+        if self.var_ibex35.get():
+            if self.label_rentabilidad_ibex35 is not None:
+                self.label_rentabilidad_ibex35.destroy()
+                self.label_rentabilidad_ibex35 = None
+            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_ibex35 is not None:
+                self.label_rentabilidad_ibex35.destroy()
+                self.label_rentabilidad_ibex35 = None
+    
+        #SP500 si está seleccionado
+        if self.var_sp500.get():
+            if self.label_rentabilidad_sp500 is not None:
+                self.label_rentabilidad_sp500.destroy()
+                self.label_rentabilidad_sp500 = None
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_sp500 is not None:
+                self.label_rentabilidad_sp500.destroy()
+                self.label_rentabilidad_sp500 = None
 
+        #Plazo fijo si está seleccionado
+        if self.var_plazo_fijo.get():
+            if self.label_rentabilidad_plazo_fijo is not None:
+                self.label_rentabilidad_plazo_fijo.destroy()
+                self.label_rentabilidad_plazo_fijo = None
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
+        else:
+            if self.label_rentabilidad_plazo_fijo is not None:
+                self.label_rentabilidad_plazo_fijo.destroy()
+                self.label_rentabilidad_plazo_fijo = None
+            
+   
 
     def tickdirecto(self):
         cuando_comprar = self.combo_metodos_comprar.get()
@@ -635,6 +688,9 @@ class FormularioInversionFutbol():
         self.take_profit_entry.configure(state="normal")
         self.lotaje_entry.configure(state="normal")
         self.boton_empezar_inversion_futbol.configure(state="normal")
+        self.ibex35.configure(state="normal")
+        self.sp500.configure(state="normal")
+        self.plazo_fijo.configure(state="normal")
 
         #Parar todos los elementos corriendo
         self.funciones_recursivas=False #paro la ejecucion de las funciones recursivas
@@ -668,9 +724,8 @@ class FormularioInversionFutbol():
         
         self.rentabilidad_futbol.set(str(suma_rentabilidades))
         self.label_rentabilidad_futbol.configure(textvariable=self.rentabilidad_futbol)
-        #Rentabilidad comparativa   
-        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
-        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
+ 
+
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -719,8 +774,6 @@ class FormularioInversionFutbol():
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_rentabilidad_futbol.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_rentabilidad_comparativa_texto.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_rentabilidad_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
 
@@ -738,7 +791,14 @@ class FormularioInversionFutbol():
             if self.boton_parar_inversion is not None:
                 self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
                 self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
-        
+
+            if self.label_rentabilidad_ibex35 is not None:
+                self.label_rentabilidad_ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            if self.label_rentabilidad_sp500 is not None:
+                self.label_rentabilidad_sp500.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+            if self.label_rentabilidad_plazo_fijo is not None:
+                self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
             #Ajustar equipo
             if self.combo_equipos is not None:
                 self.label_equipo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
@@ -764,9 +824,13 @@ class FormularioInversionFutbol():
                         self.combo_metodos_vender.configure(width=int(self.frame_width * 0.02))
 
                     #Ajustar comparativa
-                    if self.combo_comparativa is not None:
+                    if self.label_comparativa is not None:
                         self.label_comparativa.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-                        self.combo_comparativa.configure(width=int(self.frame_width * 0.02))
+                        self.ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                        self.sp500.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                        self.plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+        
+
                         #Ajustar lotaje
                         if self.lotaje_entry is not None:
                             self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))

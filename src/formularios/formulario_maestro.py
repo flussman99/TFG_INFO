@@ -101,7 +101,7 @@ class FormularioMaestroDesign(tk.Tk):
         self.boton_operaciones = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_operaciones_creativas = tk.Button(self.menu_lateral, state=tk.DISABLED)
         self.boton_perfil = tk.Button(self.menu_lateral, state=tk.DISABLED)
-        self.boton_informacion = tk.Button(self.menu_lateral)        
+        self.boton_informacion = tk.Button(self.menu_lateral, state=tk.DISABLED)        
 
         buttons_info = [
             ("Op. Clásicas", "\uf03e", self.boton_operaciones,self.abrir_panel_clasicas),
@@ -180,6 +180,13 @@ class FormularioMaestroDesign(tk.Tk):
         self.boton_operaciones.config(state="normal")
         self.boton_operaciones_creativas.config(state="normal")
         self.boton_perfil.config(state="normal")
+        self.boton_informacion.config(state="normal")
+
+    def deshabilitar_botones(self):
+        self.boton_operaciones.config(state="disabled")
+        self.boton_operaciones_creativas.config(state="disabled")
+        self.boton_perfil.config(state="disabled")
+        self.boton_informacion.config(state="disabled")
 
     def cambiar_estado_sesion(self, user_id):
         if self.bool_inicio == False:
@@ -193,3 +200,4 @@ class FormularioMaestroDesign(tk.Tk):
             self.boton_operaciones.config(state="disabled")
             self.boton_operaciones_creativas.config(state="disabled")
             self.boton_perfil.config(state="disabled")
+            self.boton_informacion.config(state="disabled")

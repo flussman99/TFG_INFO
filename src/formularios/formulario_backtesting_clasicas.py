@@ -42,7 +42,7 @@ class FormularioBackTestingClasicas():
         self.label_titulo_clasicas.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
-        self.frame_inferior = tk.Frame(self.frame_principal, bg="lightgray", width=399, height=276)
+        self.frame_inferior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL, width=399, height=276)
         self.frame_inferior.pack(fill=tk.BOTH)
 
         #VARIABLES
