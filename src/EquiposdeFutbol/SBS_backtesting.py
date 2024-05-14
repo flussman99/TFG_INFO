@@ -401,7 +401,9 @@ def leerUrl(url):
                     competition_elem = match.find('div', class_='middle-info')
                 # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
                     date_elem = match.find('div', class_='date-transform')
-                    fecha_convertida=convert_date(date_elem.text.strip())
+                    if date_elem is not None:
+                        fecha_convertida=convert_date(date_elem.text.strip())
+                    
                     home_team_elem = match.find('div', class_='team-name', itemprop='name')
                     away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
                     result_elem = match.find('div', class_='marker')
@@ -482,12 +484,12 @@ def cargar_html(equipo):
     elif equipo == 'Atletico de Madrid':
         # List of HTML files to process
         html_files = [
-            '2014-2015_Atletico.html',
-            '2015-2016_Atletico.html',
-            '2016-2017_Atletico.html',
-            '2017-2018_Atletico.html',
-            '2018-2019_Atletico.html',
-            '2019-2020_Atletico.html',
+            # '2014-2015_Atletico.html',
+            # '2015-2016_Atletico.html',
+            # '2016-2017_Atletico.html',
+            # '2017-2018_Atletico.html',
+            # '2018-2019_Atletico.html',
+            # '2019-2020_Atletico.html',
             '2020-2021_Atletico.html',
             '2021-2022_Atletico.html'
         ]
@@ -746,7 +748,8 @@ def leerHtml(equipo):#AQUI LE DEBERIA PASAR EL EQUIPO PARA ELEGIR LOS HTML QUE V
                     competition_elem = match.find('div', class_='middle-info')
                 # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
                     date_elem = match.find('div', class_='date-transform')
-                    fecha_convertida=convert_date(date_elem.text.strip())
+                    if date_elem is not None:
+                        fecha_convertida=convert_date(date_elem.text.strip())
                     home_team_elem = match.find('div', class_='team-name', itemprop='name')
                     away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
                     result_elem = match.find('div', class_='marker')
