@@ -203,7 +203,7 @@ def check_buy() -> bool:
 
     if CUR_SIGNAL.iloc[-1] >= CUR_MACD.iloc[-1] and CUR_RSI.iloc[-1] < 35 :
         return True
-    return False
+    return True
 
 
 def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy

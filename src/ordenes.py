@@ -144,7 +144,7 @@ def open_buy(trading_data: dict):
         return None
 
     # Calcular el costo estimado de la operación de compra
-    cost = price * int(trading_data['lotage'])
+    cost = price * float(trading_data['lotage'])
 
     # Verificar si tienes suficiente dinero en la cuenta
     if account_info.balance < cost:
@@ -319,6 +319,9 @@ def cerrar_todas_las_posiciones(trading_data):
     
     results = []
     orders = mt5.positions_get(symbol=trading_data['market'])
+    if orders is None:
+        print("No hay posiciones abiertas")
+        return None
     for position in orders:
         result = cerrar_posicion(position)
         print("venta")

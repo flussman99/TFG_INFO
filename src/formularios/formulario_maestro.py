@@ -11,6 +11,9 @@ from formularios.formulario_informacion import FormularioInformacion
 from formularios.formulario_perfil import FormularioPerfil
 import tkinter as tk
 from tkinter import font
+import bot as bt
+import MetaTrader5 as mt5
+import ordenes as ord
 
 
 class FormularioMaestroDesign(tk.Tk):
@@ -29,7 +32,11 @@ class FormularioMaestroDesign(tk.Tk):
     def cerrar_aplicacion(self):
         print("------------Cerrando aplicación------------")
         #DAVID aqui para parar los threads BOTELLA DE AGUA
-
+        if(bt.Bot is not None):
+            bt.Bot.kill_threads(bt.Bot)
+            print(bt.Bot.trading_data)
+            ord.cerrar_todas_las_posiciones(bt.Bot.trading_data)
+        bt.Bot = None
         self.destroy()
     
     def config_window(self):

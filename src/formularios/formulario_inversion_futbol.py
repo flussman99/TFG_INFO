@@ -491,7 +491,7 @@ class FormularioInversionFutbol():
                 for item in self.tree_ticks.get_children():
                     self.tree_ticks.delete(item)
 
-        self.rentabilidades_comparativas()
+        
 
         self.tickdirecto()
 
@@ -545,14 +545,17 @@ class FormularioInversionFutbol():
         self.tree_container.grid_columnconfigure(1, weight=1)
 
     def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
-        
+        inicio_txt=self.fecha_inicio_indicadores
+        fin_txt=self.fecha_fin_indicadores
+        frecuencia_txt = "Daily"
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
-            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='IBEX35'
+            rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: "+str(rentIbex35), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_ibex35 is not None:
@@ -564,7 +567,9 @@ class FormularioInversionFutbol():
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
-            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='SP500'
+            rentSP = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: "+str(rentSP), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_sp500 is not None:
@@ -576,12 +581,15 @@ class FormularioInversionFutbol():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='Plazo Fijo'
+            rentPF = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: "+str(rentPF), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
+            
             
    
 
@@ -701,17 +709,15 @@ class FormularioInversionFutbol():
         self.frame_directo=frame_partidos_final
         
         #Calcular la rentabilidad de la comparativa
-        indicador=self.combo_comparativa.get()
-        frecuencia_txt = "Daily"
         self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
-        rentabilidad_indicador = self.b.calcular_rentabilidad_comparativa(frecuencia_txt,self.pais_seleccionado,self.fecha_inicio_indicadores, self.fecha_fin_indicadores, indicador)
+        self.rentabilidades_comparativas()
         
-        self.establecerRentabilidades(rentabilidad_indicador)
+        self.establecerRentabilidades()
         
         self.treeview_partidos()
         self.treeview_ticks()
    
-    def establecerRentabilidades(self, rentabilidad_indicador):
+    def establecerRentabilidades(self):
         #Rentabilidad Futbol
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
         if rentabilidades.empty:

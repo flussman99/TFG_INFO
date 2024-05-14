@@ -22,9 +22,10 @@ import time
 
 class FormularioInversionClasicas():
 
-    def __init__(self, panel_principal):
+    def __init__(self, panel_principal, id_user):
 
         self.b = bt(1)
+        self.id_user = id_user
 
         self.frame_width = 0
         self.frame_height = 0
@@ -496,7 +497,8 @@ class FormularioInversionClasicas():
             suma_rentabilidades = 0
         else:
             # Continue with your existing logic for processing 'Rentabilidad' values
-            suma_rentabilidades = rentabilidades.sum().round(2)
+            suma_rentabilidadess = rentabilidades.sum()
+            suma_rentabilidades = round(suma_rentabilidadess, 2)
             # Rest of your code here
         
         self.rentabilidad_clasica.set(str(suma_rentabilidades) + "%")

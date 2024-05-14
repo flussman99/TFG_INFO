@@ -26,6 +26,7 @@ class Bot:
     almacenar_frame_rentabilidad = queue.Queue()
     frame_directo=queue.Queue()
     frmae_ticks_directo=queue.Queue()
+
     
     trading_data = {
         "lotage": 1.0,
@@ -152,8 +153,8 @@ class Bot:
     
         print('Thread - Futbol. LAUNCHED')
 
-    def calcular_rentabilidad_comparativa(self, frecuencia, pais ,fecha_inicio, fecha_fin, indicador):
-        return tr.elegirIndicador(frecuencia, fecha_inicio, fecha_fin, pais,indicador)
+    def calcular_rentabilidad_comparativa(self, frecuencia, fecha_inicio, fecha_fin, indicador):
+        return tr.rentabilidadIndicador(frecuencia, fecha_inicio, fecha_fin,indicador)
         
 
     def parar_inversion(self):
@@ -217,17 +218,6 @@ class Bot:
         print('Thread - Futbol. LAUNCHED')    
 
         return frame
-    
-    def thread_slope_abs_rel(self):
-        """Function to launch the thread for calculating the slope
-        and, the absolute and relative points in the chart.
-        """
-        #t = threading.Thread(target=slope_abs_rel.thread_slope_abs_rel, 
-                             #args=(self.pill2kill, self.ticks, self.indicators))
-        #self.threads.append(t)
-        #t.start()
-        print('Thread - slope_abs_rel. LAUNCHED')
-    
 
     #Poner threads para cada estrategia 
         
@@ -326,7 +316,7 @@ class Bot:
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos
         if frecuencia_txt == "1M":
-            frecuencia = 20
+            frecuencia = 60
         elif frecuencia_txt == "3M":
             frecuencia = 180
         elif frecuencia_txt == "5M":
