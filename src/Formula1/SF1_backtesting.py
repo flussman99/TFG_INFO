@@ -182,6 +182,8 @@ imagenes_pilotos = {
     'Stoffel Vandoorne': 'src/imagenes/F1/Vandoorne.png',
     'Max Verstappen': 'src/imagenes/F1/Verstappen.png',
     'Sebastian Vettel': 'src/imagenes/F1/Vettel.png',
+    'Ayumu Iwasa': 'src/imagenes/F1/Iwasa.png',
+    'Ollie Bearman': 'src/imagenes/F1/Bearman.png',
     'Zhou Guanyu': 'src/imagenes/F1/Zhou.png'
 }
 

@@ -332,18 +332,18 @@ class FormularioInversionFormula1():
         if (self.label_stop_loss is None):
             #Entry stop loss
             self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+            self.label_stop_loss.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
             self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
-            self.stop_loss_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+            self.stop_loss_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
         
         if (self.label_take_profit is None):
             #Entry take profit
             self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+            self.label_take_profit.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
             self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
-            self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+            self.take_profit_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
 
         if self.label_lotaje is None:
             #Label lotaje
