@@ -437,6 +437,7 @@ class FormularioInversionFutbol():
     def getValorPrecio(self):
         accion=self.acronimos_acciones_mt5.get(self.combo_accion.get())
         selected = mt5.symbol_select(accion, True)
+        print(accion)
         if selected:
             tick = mt5.symbol_info_tick(accion)
             precio=tick[2]

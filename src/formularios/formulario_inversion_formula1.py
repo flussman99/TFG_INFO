@@ -91,16 +91,16 @@ class FormularioInversionFormula1():
         self.imagen_piloto = None
         self.label_imagen_piloto = None
 
-        #Inicializar variables
-        self.label_fecha_inicio = None
-        self.label_fecha_fin = None
-        self.fecha_inicio_entry = None
-        self.fecha_fin_entry = None
+        # #Inicializar variables
+        # self.label_fecha_inicio = None
+        # self.label_fecha_fin = None
+        # self.fecha_inicio_entry = None
+        # self.fecha_fin_entry = None
 
         self.fecha_lim = datetime.today()
         self.fecha_ini = datetime.today()
 
-        #Variables SBS
+        #Variables SF1
         self.acciones=SF1.acciones_escuderias
         self.standing=SF1.html_standings_files
         self.calendar=SF1.html_calendars_files
@@ -140,19 +140,19 @@ class FormularioInversionFormula1():
         self.frame_combo_boxs.place(relx=0.02, rely=0.3)
 
         #Label de "Elige el año"
-        self.label_ano = tk.Label(self.frame_combo_boxs, text="Elige el año", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        self.label_ano = tk.Label(self.frame_combo_boxs, text="Pilotos del año:", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_ano.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         #ComboBox de años
-        self.combo_anos = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+        self.combo_anos = tk.Label(self.frame_combo_boxs, text="2024", font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.combo_anos.grid(row=1, column=0, padx=10, pady=2, sticky="w")
 
         #Añadir años a la lista
-        self.anos = SF1.obtener_listado_años()
-        self.combo_anos["values"] = list(self.anos)
+        # self.anos = SF1.obtener_listado_años()
+        # self.combo_anos["values"] = list(self.anos)
 
         #Al seleccionar un año se actualizan los pilotos
-        self.combo_anos.bind("<<ComboboxSelected>>", self.actualizar_formula1_pilotos)
+        self.actualizar_formula1_pilotos()
         
         #Actualizar vista al cambiar de accion        
         #self.combo_accion.bind("<<ComboboxSelected>>", self.actualizar_futbol_metodos)
@@ -160,7 +160,7 @@ class FormularioInversionFormula1():
         #Ajustar vista
         self.on_parent_configure(None)
 
-    def actualizar_formula1_pilotos(self, event):
+    def actualizar_formula1_pilotos(self):
         
         if self.combo_pilotos is not None:
             self.combo_pilotos.destroy()
@@ -183,7 +183,7 @@ class FormularioInversionFormula1():
         self.combo_pilotos.grid(row=1, column=1, padx=10, pady=2, sticky="w")
 
         #Añadir pilotos a la lista
-        self.pilotos = SF1.obtener_listado_pilotos(self.combo_anos.get())
+        self.pilotos = SF1.obtener_listado_pilotos('2024')
         #Ordenar los pilotos alfabeticamente
         self.pilotos.sort()
         self.combo_pilotos["values"] = list(self.pilotos)
@@ -192,11 +192,9 @@ class FormularioInversionFormula1():
         self.combo_pilotos.bind("<<ComboboxSelected>>", self.actualizar_formula1_imagen_piloto)
 
         #Si ya hay una fecha actualizarla
-        if self.fecha_fin_entry is not None:
-            self.set_dates()
+        # if self.fecha_fin_entry is not None:
+        #     self.set_dates()
 
-        #Actualizar vista
-        self.on_parent_configure(event)
 
 
     def actualizar_formula1_imagen_piloto(self, event):
@@ -214,19 +212,19 @@ class FormularioInversionFormula1():
         self.label_imagen_piloto.place(relx=0.8, rely=0.1)
 
        
-        #Coger el año seleccionado
-        self.ano = self.combo_anos.get()
+        # #Coger el año seleccionado
+        # self.ano = self.combo_anos.get()
         #Coger el piloto seleccionado
         self.piloto = self.combo_pilotos.get()
 
         #Label de accion
-        self.accion = SF1.obtener_accion_escuderia(self.piloto, self.ano)
+        self.accion = SF1.obtener_accion_escuderia(self.piloto, '2024')
         self.label_accion = tk.Label(self.frame_combo_boxs, text="La acción selecionada es: " + self.accion, font=("Aptos", 15, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
         self.label_accion.grid(row=2, column=0, columnspan=2, padx=10, pady=2, sticky="w")
 
-        #Si ya hay una fecha actualizarla
-        if self.fecha_fin_entry is not None:
-            self.set_dates()
+        # #Si ya hay una fecha actualizarla
+        # if self.fecha_fin_entry is not None:
+        #     self.set_dates()
 
         #continuar
         self.actualizar_formula1_metodos(None)
@@ -323,37 +321,95 @@ class FormularioInversionFormula1():
             self.plazo_fijo.grid(row=3, column=2, padx=10, pady=2, sticky="w")
 
         #al mirar todos los datos actualizar el boton
-        self.actualizar_lotaje(None)
+        self.actualizar_lotajes(None)
 
         #Ajustar vista
         self.on_parent_configure(None)
 
-    def actualizar_lotaje(self, event):
+    def actualizar_lotajes(self, event):
+        if (self.label_stop_loss is None):
+            #Entry stop loss
+            self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_stop_loss.grid(row=4, column=0, padx=10, pady=2, sticky="w")
+
+            self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
+            self.stop_loss_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+        
+        if (self.label_take_profit is None):
+            #Entry take profit
+            self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_take_profit.grid(row=4, column=1, padx=10, pady=2, sticky="w")
+
+            self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
+            self.take_profit_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+
         if self.label_lotaje is None:
             #Label lotaje
             self.label_lotaje = tk.Label(self.frame_combo_boxs, text="Lotaje", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_lotaje.grid(row=3, column=3, padx=10, pady=2, sticky="w")
+            self.label_lotaje.grid(row=4, column=2, padx=10, pady=2, sticky="w")
             
             #Entry lotaje
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
-            self.lotaje_entry.grid(row=4, column=3, padx=10, pady=2, sticky="w")
+            self.lotaje_entry.grid(row=5, column=2, padx=10, pady=2, sticky="w")
 
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_inversion.grid(row=3, column=4, padx=10, pady=2, sticky="w")
+            self.label_inversion.grid(row=4, column=3, padx=10, pady=2, sticky="w")
 
-        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
+
+        self.stop_loss_entry.bind("<KeyRelease>", self.actualizar_formula1_stop_loss)
+        self.take_profit_entry.bind("<KeyRelease>", self.actualizar_formula1_take_profit)
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_f1_lotaje)
+
+        #Actualizar vista
+        self.on_parent_configure(None)
+
+    def actualizar_formula1_stop_loss(self, event):
+        if self.stop_loss_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux_loss = float(self.stop_loss_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
 
         #Actualizar vista
         self.on_parent_configure(event)
 
-    def actualizar_futbol_lotaje(self, event):
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_formula1_take_profit(self, event):
+        if self.take_profit_entry.get() == "" and self.boton_empezar_inversion is not None:
+            self.boton_empezar_inversion.configure(state="disabled")
+
+        try:
+            aux_profit = float(self.take_profit_entry.get())
+
+            # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
+        except ValueError:
+            # Si no se puede convertir a entero, se maneja la excepción aquí
+            # Por ejemplo, podrías mostrar un mensaje de error al usuario
+            messagebox.showerror("Error", "El valor ingresado no es un número entero válido")
+
+        #Actualizar vista
+        self.on_parent_configure(event)
+
+        #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_f1_lotaje(self, event):
         if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
             self.boton_empezar_inversion.configure(state="disabled")
 
         try:
-            aux = int(self.lotaje_entry.get())
-            self.lotaje_entry.configure(text=aux)    
+            aux = float(self.lotaje_entry.get())
 
             # Aquí puedes usar 'aux', que contendrá el valor convertido a entero
         except ValueError:
@@ -371,82 +427,97 @@ class FormularioInversionFormula1():
         self.on_parent_configure(event)
 
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
-        if self.lotaje_entry.get() != "":
-            self.actualizar_formula1_ticks()
+        if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
+            self.actualizar_boton_inversion()
+
+    def actualizar_boton_inversion(self):
+
+        # Boton de "Empezar inversion"
+        self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
+        self.boton_empezar_inversion.grid(row=4, column=4, rowspan=2, padx=10, pady=2, sticky="w")
+
+        #Actualizar vista
+        self.on_parent_configure(None)
 
     def getValorPrecio(self):
-        return 5
-        #DAVID AQUI PILLAS EL PRECIO PERRA
 
-    def set_dates(self):
-        min_year, max_year = SF1.obtener_periodo_valido(self.piloto, self.combo_anos.get())
-        self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
-        self.fecha_ini = datetime(min_year, 1, 1)
+        selected = mt5.symbol_select(self.accion, True)
+        print(self.accion)
+        if selected:
+            tick = mt5.symbol_info_tick(self.accion)
+            precio=tick[2]
+            
+        return precio
 
-        self.fecha_fin_entry.config(maxdate=self.fecha_lim)
-        self.fecha_fin_entry.config(mindate=self.fecha_ini)
-        self.fecha_fin_entry.set_date(self.fecha_lim)
+    # def set_dates(self):
+    #     min_year, max_year = SF1.obtener_periodo_valido(self.piloto, '2024')
+    #     self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
+    #     self.fecha_ini = datetime(min_year, 1, 1)
 
-        self.fecha_inicio_entry.config(maxdate=self.fecha_lim)
-        self.fecha_inicio_entry.config(mindate=self.fecha_ini)
-        self.fecha_inicio_entry.set_date(self.fecha_ini)
+    #     self.fecha_fin_entry.config(maxdate=self.fecha_lim)
+    #     self.fecha_fin_entry.config(mindate=self.fecha_ini)
+    #     self.fecha_fin_entry.set_date(self.fecha_lim)
+
+    #     self.fecha_inicio_entry.config(maxdate=self.fecha_lim)
+    #     self.fecha_inicio_entry.config(mindate=self.fecha_ini)
+    #     self.fecha_inicio_entry.set_date(self.fecha_ini)
     
     def actualizar_formula1_ticks(self):
-        if (self.fecha_inicio_entry is None):
-            #Label fecha inicio
-            self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
+        # if (self.fecha_inicio_entry is None):
+        #     #Label fecha inicio
+        #     self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        #     self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
-            #label fecha fin
-            self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
+        #     #label fecha fin
+        #     self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+        #     self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
 
-            #Date fecha inicio
-            fecha_ayer = datetime.now() - timedelta(days = 1)
-            self.fecha_inicio_entry = DateEntry(
-                self.frame_combo_boxs, 
-                date_pattern='yyyy/mm/dd',
-                background='darkblue', 
-                foreground='white', 
-                borderwidth=2,
-                maxdate=self.fecha_lim,
-                mindate=self.fecha_ini
-            )
-            self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
+        #     #Date fecha inicio
+        #     fecha_ayer = datetime.now() - timedelta(days = 1)
+        #     self.fecha_inicio_entry = DateEntry(
+        #         self.frame_combo_boxs, 
+        #         date_pattern='yyyy/mm/dd',
+        #         background='darkblue', 
+        #         foreground='white', 
+        #         borderwidth=2,
+        #         maxdate=self.fecha_lim,
+        #         mindate=self.fecha_ini
+        #     )
+        #     self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
 
-            #Date fecha fin
-            self.fecha_fin_entry = DateEntry(
-                self.frame_combo_boxs,
-                date_pattern='yyyy/mm/dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2,
-                maxdate=self.fecha_lim,
-                mindate=self.fecha_ini
-            )
-            self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
+        #     #Date fecha fin
+        #     self.fecha_fin_entry = DateEntry(
+        #         self.frame_combo_boxs,
+        #         date_pattern='yyyy/mm/dd',
+        #         background='darkblue',
+        #         foreground='white',
+        #         borderwidth=2,
+        #         maxdate=self.fecha_lim,
+        #         mindate=self.fecha_ini
+        #     )
+        #     self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
 
-            self.set_dates()
+        #     self.set_dates()
 
         if (self.label_stop_loss is None):
             #Entry stop loss
             self.label_stop_loss = tk.Label(self.frame_combo_boxs, text="Stop Loss (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_stop_loss.grid(row=5, column=2, padx=(10,0), pady=2, sticky="w")
+            self.label_stop_loss.grid(row=6, column=2, padx=(10,0), pady=2, sticky="w")
 
             self.stop_loss_entry = Entry(self.frame_combo_boxs, width=30)
-            self.stop_loss_entry.grid(row=6, column=2, padx=(10,0), pady=2, sticky="w")
+            self.stop_loss_entry.grid(row=7, column=2, padx=(10,0), pady=2, sticky="w")
         
         if (self.label_take_profit is None):
             #Entry take profit
             self.label_take_profit = tk.Label(self.frame_combo_boxs, text="Take Profit (Opcional)", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.label_take_profit.grid(row=5, column=3, padx=(10,0), pady=2, sticky="w")
+            self.label_take_profit.grid(row=6, column=3, padx=(10,0), pady=2, sticky="w")
 
             self.take_profit_entry = Entry(self.frame_combo_boxs, width=30)
-            self.take_profit_entry.grid(row=6, column=3, padx=(10,0), pady=2, sticky="w")
+            self.take_profit_entry.grid(row=7, column=3, padx=(10,0), pady=2, sticky="w")
 
         # Boton de "Empezar inversion"
         self.boton_empezar_inversion = tk.Button(self.frame_combo_boxs, text="Empezar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.empezar_inversion) # wraplength determina el ancho máximo antes de que el texto se divida en dos líneas
-        self.boton_empezar_inversion.grid(row=5, column=4, rowspan=2, padx=10, pady=2, sticky="w")
+        self.boton_empezar_inversion.grid(row=6, column=4, rowspan=2, padx=10, pady=2, sticky="w")
 
         #Ajustar vista
         self.on_parent_configure(None)
@@ -454,7 +525,7 @@ class FormularioInversionFormula1():
     def empezar_inversion(self):
 
         #Deshabilitar los combo boxs, entrys y botones
-        self.combo_anos.configure(state="disabled")
+        # self.combo_anos.configure(state="disabled")
         self.combo_pilotos.configure(state="disabled")
         self.combo_metodos_comprar.configure(state="disabled")
         self.combo_metodos_vender.configure(state="disabled")
@@ -462,8 +533,8 @@ class FormularioInversionFormula1():
         self.sp500.configure(state="disabled")
         self.plazo_fijo.configure(state="disabled")
         self.lotaje_entry.configure(state="disabled")
-        self.fecha_inicio_entry.configure(state="disabled")
-        self.fecha_fin_entry.configure(state="disabled")
+        # self.fecha_inicio_entry.configure(state="disabled")
+        # self.fecha_fin_entry.configure(state="disabled")
         self.stop_loss_entry.configure(state="disabled")
         self.take_profit_entry.configure(state="disabled")
         self.boton_empezar_inversion.configure(state="disabled")
@@ -478,9 +549,11 @@ class FormularioInversionFormula1():
             if self.tree is not None:
                 for item in self.tree.get_children():
                     self.tree.delete(item)
+            if self.tree_ticks is not None:
+                for item in self.tree_ticks.get_children():
+                    self.tree_ticks.delete(item)
+            
 
-
-        self.rentabilidades_comparativas()
 
         # Llamar a la función para obtener nuevos datos
         self.tickdirecto()
@@ -536,14 +609,17 @@ class FormularioInversionFormula1():
         self.tree_container.grid_columnconfigure(1, weight=1)
 
     def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
-        
+        inicio_txt=self.fecha_inicio_indicadores
+        fin_txt=self.fecha_fin_indicadores
+        frecuencia_txt = "Daily"
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
-            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='IBEX35'
+            rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: "+str(rentIbex35), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_ibex35 is not None:
@@ -555,7 +631,9 @@ class FormularioInversionFormula1():
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
-            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='SP500'
+            rentSP = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: "+str(rentSP), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_sp500 is not None:
@@ -567,12 +645,15 @@ class FormularioInversionFormula1():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='Plazo Fijo'
+            rentPF = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: "+str(rentPF), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
+
 
     def obtenerPais(self, accion_txt):
         print(accion_txt)
@@ -591,8 +672,8 @@ class FormularioInversionFormula1():
     def tickdirecto(self):
         
         frecuencia_txt = "Daily"
-        inicio_txt = self.fecha_inicio_entry.get()
-        fin_txt = self.fecha_fin_entry.get()
+        # inicio_txt = self.fecha_inicio_entry.get()
+        # fin_txt = self.fecha_fin_entry.get()
         estrategia_txt = 'Formula1'
         piloto_txt = self.piloto
         cuando_comprar = self.combo_metodos_comprar.get()
@@ -681,7 +762,7 @@ class FormularioInversionFormula1():
 
     def parar_inversion(self):
         # Habilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
-        self.combo_anos.configure(state="normal")
+        # self.combo_anos.configure(state="normal")
         self.combo_pilotos.configure(state="normal")
         #self.combo_acciones.configure(state="normal")
         self.combo_metodos_comprar.configure(state="normal")
@@ -693,8 +774,8 @@ class FormularioInversionFormula1():
         self.ibex35.configure(state="normal")
         self.sp500.configure(state="normal")
         self.plazo_fijo.configure(state="normal")
-        self.fecha_inicio_entry.configure(state="normal")
-        self.fecha_fin_entry.configure(state="normal")
+        # self.fecha_inicio_entry.configure(state="normal")
+        # self.fecha_fin_entry.configure(state="normal")
 
 
         self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
@@ -703,107 +784,35 @@ class FormularioInversionFormula1():
         frame_carreras_final=self.b.parar_carreras()
         self.frame_ticks=frame_inversiones_finalizadas
         self.frame_directo=frame_carreras_final
+
+
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+        self.rentabilidades_comparativas()
+        
+        self.establecerRentabilidades()
+        # rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
+        # suma_rentabilidades = rentabilidades.sum().round(2)
+        # self.rentabilidad_f1.set(str(suma_rentabilidades))
+        # self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
+
         self.treeview_carreras()
         self.treeview_ticks()
-        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
-
+        
+    def establecerRentabilidades(self):
+        #Rentabilidad Futbol
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum().round(2)
+        if rentabilidades.empty:
+            # Handle the case when 'Rentabilidad' column is not found or has no valid values
+            suma_rentabilidades = 0
+        else:
+            # Continue with your existing logic for processing 'Rentabilidad' values
+            suma_rentabilidades = rentabilidades.sum().round(2)
+            # Rest of your code here
+        
         self.rentabilidad_f1.set(str(suma_rentabilidades))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
-        
 
 
-    # def guardar_inversion(self):
-        
-    #     # Conexión a la base de datos
-    #     self.conn = mysql.connector.connect(
-    #                 host=DBConfig.HOST,
-    #                 user=DBConfig.USER,
-    #                 password=DBConfig.PASSWORD,
-    #                 database=DBConfig.DATABASE,
-    #                 port=DBConfig.PORT
-    #             )
-        
-    #     # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
-    #     nombre_inversión = ""
-    #     while True:
-    #         # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
-    #         nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
-
-    #         if nombre_inversión is None:
-    #             # Si se hace clic en Cancelar, salimos del bucle
-    #             break
-
-    #         if not nombre_inversión:
-    #             # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
-    #             messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
-    #             continue
-            
-    #         if self.nombre_inversion_existe(nombre_inversión):
-    #             messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
-    #             continue
-
-    #         # Si llegamos a este punto, el usuario ha introducido un nombre de inversión correcto
-    #         break
-
-    #     if(nombre_inversión is None):
-    #         return
-        
-    #     # Le damos valor al tipo de inversión que esta haciendo el usuario
-    #     tipo = "Formula 1"
-
-    #     # Cogemos la acción en la que ha invertido el usuario
-    #     accion = self.accion
-
-    #     # Cogemos la fecha de inicio y la de fin de la inversión
-    #     fecha_ini = self.fecha_inicio_entry.get()
-    #     fecha_fin = self.fecha_fin_entry.get()
-
-    #     # Cogemos cuando toma las decisiones de comprar y vender el usuario
-    #     compra = self.combo_metodos_comprar.get()
-    #     venta = self.combo_metodos_vender.get()
-
-    #     # Le damos valor a la frecuencia
-    #     frecuencia = "Diaria"
-
-    #     # Cogemos la rentabilidad de la inversión
-    #     rentabilidad = self.rentabilidad_f1.get()
-
-    #     # Guardamos la inversión en la base de datos
-    #     cursor = self.conn.cursor()
-    #     try:
-    #         # Realizamos la consulta para insertar los datos en la tabla Inversiones
-    #         consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    #         datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia, rentabilidad)
-    #         cursor.execute(consulta, datos)
-    #     except Exception as e:
-    #         print(e)
-        
-    #     # Cerramos el cursor y la conexxión
-    #     cursor.close()
-    #     self.conn.commit()
-    #     self.conn.close()
-
-    # def nombre_inversion_existe(self, nombre_inversion):
-    #     # Obtener el cursor para ejecutar consultas
-    #     cursor = self.conn.cursor()
-
-    #     # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-    #     consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
-    #     datos = (self.id_user, nombre_inversion) 
-    #     cursor.execute(consulta, datos)
-    #     cantidad = cursor.fetchone()[0]
-
-    #     # Cerrar el cursor
-    #     cursor.close()
-
-    #     return cantidad > 0
-
-
-    # def mas_informacion(self):
-    #     self.limpiar_panel(self.frame_principal)     
-    #     FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Formula1", self.rentabilidad_f1.get())
 
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
@@ -859,11 +868,11 @@ class FormularioInversionFormula1():
             self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.015))
 
         #ajustar el tamaño de las fechas
-        if self.fecha_inicio_entry is not None:
-            self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-            self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
-            self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
+        # if self.fecha_inicio_entry is not None:
+        #     self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+        #     self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+        #     self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
+        #     self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
 
         if self.label_rentabilidad_ibex35 is not None:
             self.label_rentabilidad_ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
