@@ -230,7 +230,7 @@ class FormularioInicioSesion():
         try:
             # Ejecutamos la consulta SQL para verificar si el usuario ya existe
             cursor = self.conn.cursor()
-            consulta = "SELECT * FROM usuarios WHERE nombre_usuario = %s"
+            consulta = "SELECT * FROM Usuarios WHERE user = %s"
             cursor.execute(consulta, (user,))
             resultado = cursor.fetchall()
 
@@ -240,11 +240,11 @@ class FormularioInicioSesion():
                 messagebox.showerror("Error", "El usuario ya existe")
             else:
                 # El usuario no existe, se agrega a la base de datos
-                consulta = "INSERT INTO usuarios (nombre, user, contraseña, userMetaTrader, passwordMetaTrader) VALUES (%s, %s, %s, %s, %s)"
+                consulta = "INSERT INTO Usuarios (nombre, user, contraseña, userMetaTrader, passwordMetaTrader) VALUES (%s, %s, %s, %s, %s)"
                 datos = (nombre, user, contra, user_mt, contra_mt)
                 cursor.execute(consulta, datos)
                 self.conn.commit()
-                messagebox.showinfo("Éxito", "Usuario registrado correctamente")
+                messagebox.showinfo("Éxito", "Usuario registrado correctamente, ahora debes Iniciar Sesión.")
 
         except mysql.connector.Error as error:
             # Para manejar errores de la base de datos
