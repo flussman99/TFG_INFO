@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 import util.util_imagenes as util_img
 import pandas as pd
@@ -72,6 +72,7 @@ class FormularioInversionClasicas():
         self.stop_loss_entry = None
         self.take_profit_entry = None
         self.lotaje_entry = None
+        self.lotaje_usuario = None
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -85,6 +86,7 @@ class FormularioInversionClasicas():
         #Botones
         self.boton_empezar_inversion = None
         self.boton_parar_inversion = None
+        self.boton_guardar_inversion = None
 
         #Rentabilidad
         self.label_rentabilidad_clasica = None
@@ -203,6 +205,12 @@ class FormularioInversionClasicas():
             #Entry de lotaje
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
             self.lotaje_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
+
+             # Información Lotaje del usuario
+            lotaje_usu = mt5.account_info()
+            self.lotaje_actual = lotaje_usu.balance
+            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black", wraplength=200)
+            self.lotaje_usuario.grid(row=0, column=3, padx=10, pady=2, sticky="w")
 
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -360,6 +368,9 @@ class FormularioInversionClasicas():
         self.stop_loss_entry.configure(state="disabled")
         self.take_profit_entry.configure(state="disabled")
         self.boton_empezar_inversion.configure(state="disabled")
+
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(state="disabled")
         
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
@@ -432,6 +443,121 @@ class FormularioInversionClasicas():
       
         self.actualiar_frame()
 
+    def guardar_inversion(self):
+        # Conexión a la base de datos
+        self.conn = mysql.connector.connect(
+                    host=DBConfig.HOST,
+                    user=DBConfig.USER,
+                    password=DBConfig.PASSWORD,
+                    database=DBConfig.DATABASE,
+                    port=DBConfig.PORT
+                )
+        
+        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
+        nombre_inversión = ""
+        while True:
+            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
+            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
+
+            if nombre_inversión is None:
+                # Si se hace clic en Cancelar, salimos del bucle
+                break
+
+            if not nombre_inversión:
+                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
+                continue
+            
+            if self.nombre_inversion_existe(nombre_inversión):
+                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
+                continue
+            
+            # Si llegamos a este punto, el usuario ha ingresado un nombre de inversión válido
+            break
+
+        if(nombre_inversión is None):
+            return
+        
+        # Le damos valor al tipo de inversión que esta haciendo el usuario
+        tipo = "Inversión " + self.combo_estrategia.get()
+
+        # Cogemos la acción en la que ha invertido el usuario	
+        accion = self.combo_accion.get()
+
+        # Cogemos la fecha de inicio y la de fin de la inversión
+        # Hay que cogerlo del treeview
+        fecha_ini, fecha_fin = self.obtener_primer_ultimo_valor_fecha()
+
+        #Cogemos cuando toma las decisiones de comprar y vender el usuario
+        if tipo == 'Inversión RSI':
+            compra = "RSI < 35 y MACDI > MACSI"
+            venta = "RSI > 65 y MACDI < MACSI"
+        elif tipo == 'Inversión Media Movil':
+            compra = "MM c/p < MM l/p y nº compras < 10"
+            venta = "MM c/p > MM l/p"
+        elif tipo == 'Inversión Bandas':
+            compra = "Banda Inferior > Precio Compra"
+            venta = "Banda Superior < Precio Compra y nº compras < 10"
+        elif tipo == 'Inversión Estocastico':
+            compra = "Línea K > Línea D y RSI < 35 y nº compras < 10"
+            venta = "Línea K < Línea D y RSI > 60"
+
+        #Le damos valor a la frecuencia
+        frecuencia = "Diaria"
+
+        # Cogemos la rentabilidad de la inversión
+        rentabilidad = str(self.rentabilidad_clasica.get()) + "%"
+
+        # Cogemos la rentabilidad de los índices seleccionado
+        rentabilidad_ibex = "No aplica"
+        rentabilidad_sp500 = "No aplica"
+        rentabilidad_plazos = "No aplica"
+        rentabilidad_plazos = "No aplica"
+        
+        # Guardamos la inversión en la base de datos
+        cursor = self.conn.cursor()
+        try:
+            # Realizamos la consulta para insertar los datos en la tabla Inversiones
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, rentabilidad_ibex, rentabilidad_sp500, rentabilidad_plazos)
+            cursor.execute(consulta, datos)
+        except Exception as e:
+            print(e)
+        
+        # Cerramos el cursor y la conexxión
+        cursor.close()
+        self.conn.commit()
+        self.conn.close()
+    
+    def obtener_primer_ultimo_valor_fecha(self):
+        fechas = []
+        for item in self.tree.get_children():
+            # Obtener el índice de la columna "Fecha" en el Treeview
+            indice_fecha = self.tree["columns"].index("Fecha")
+            fecha = self.tree.item(item)["values"][indice_fecha]
+            fechas.append(fecha)
+        
+        if fechas:
+            primer_fecha = min(fechas)
+            ultimo_fecha = max(fechas)
+            return primer_fecha, ultimo_fecha
+        else:
+            return None, None
+
+    def nombre_inversion_existe(self, nombre_inversion):
+        # Obtener el cursor para ejecutar consultas
+        cursor = self.conn.cursor()
+
+        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
+        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
+        datos = (self.id_user, nombre_inversion) 
+        cursor.execute(consulta, datos)
+        cantidad = cursor.fetchone()[0]
+
+        # Cerrar el cursor
+        cursor.close()
+
+        return cantidad > 0
 
     def calcular_frecuencia(self, frecuencia_txt):
         # Obtener valores de la frecuencia en segundos
@@ -487,7 +613,10 @@ class FormularioInversionClasicas():
         self.take_profit_entry.configure(state="normal")
         self.boton_empezar_inversion.configure(state="normal")
 
-
+        # Boton de "Guardar"
+        self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
+        self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
+        self.boton_guardar_inversion.configure(state="normal")
 
         self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
         self.b.kill_threads()
@@ -584,6 +713,14 @@ class FormularioInversionClasicas():
                         if self.boton_empezar_inversion is not None:
                             self.boton_empezar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
                             self.boton_empezar_inversion.configure(width=int(self.frame_width * 0.015))
+
+                            if self.lotaje_usuario is not None:
+                                self.lotaje_usuario.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.lotaje_usuario.configure(width=int(self.frame_width * 0.02))
+
+                                if self.boton_guardar_inversion is not None:
+                                    self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                                    self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
 
 
 

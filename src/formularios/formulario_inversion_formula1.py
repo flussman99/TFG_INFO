@@ -534,7 +534,6 @@ class FormularioInversionFormula1():
     def empezar_inversion(self):
 
         #Deshabilitar los combo boxs, entrys y botones
-        # self.combo_anos.configure(state="disabled")
         self.deshabilitar_botones()
         self.combo_pilotos.configure(state="disabled")
         self.combo_metodos_comprar.configure(state="disabled")
@@ -543,12 +542,11 @@ class FormularioInversionFormula1():
         self.sp500.configure(state="disabled")
         self.plazo_fijo.configure(state="disabled")
         self.lotaje_entry.configure(state="disabled")
-        # self.fecha_inicio_entry.configure(state="disabled")
-        # self.fecha_fin_entry.configure(state="disabled")
         self.stop_loss_entry.configure(state="disabled")
         self.take_profit_entry.configure(state="disabled")
         self.boton_empezar_inversion.configure(state="disabled")
-
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(state="disabled")
 
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
@@ -784,7 +782,8 @@ class FormularioInversionFormula1():
         self.ibex35.configure(state="normal")
         self.sp500.configure(state="normal")
         self.plazo_fijo.configure(state="normal")
-        
+        self.boton_parar_inversion.configure(state="disabled")
+
         # Boton de "Guardar"
         self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
         self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)

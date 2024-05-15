@@ -382,16 +382,16 @@ class FormularioBackTestingClasicas():
         fecha_fin = self.fecha_fin_entry.get()
 
         # Cogemos cuando se toman las decisiones de comprar y vender
-        if tipo == 'RSI':
+        if tipo == 'Backtesting RSI':
             compra = "RSI < 35 y MACDI > MACSI"
             venta = "RSI > 65 y MACDI < MACSI"
-        elif tipo == 'Media Movil':
+        elif tipo == 'Backtesting Media Movil':
             compra = "MM c/p < MM l/p y nº compras < 10"
             venta = "MM c/p > MM l/p"
-        elif tipo == 'Bandas':
+        elif tipo == 'Backtesting Bandas':
             compra = "Banda Inferior > Precio Compra"
             venta = "Banda Superior < Precio Compra y nº compras < 10"
-        elif tipo == 'Estocastico':
+        elif tipo == 'Backtesting Estocastico':
             compra = "Línea K > Línea D y RSI < 35 y nº compras < 10"
             venta = "Línea K < Línea D y RSI > 60"
 

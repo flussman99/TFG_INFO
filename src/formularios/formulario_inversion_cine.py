@@ -581,7 +581,8 @@ class FormularioInversionCine():
         self.ibex35.configure(state="disabled")
         self.sp500.configure(state="disabled")
         self.plazo_fijo.configure(state="disabled")
-
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(state="disabled")
 
 
         # Verificar si la interfaz de usuario ya ha sido creada
@@ -824,6 +825,7 @@ class FormularioInversionCine():
         self.ibex35.configure(state="normal")
         self.sp500.configure(state="normal")
         self.plazo_fijo.configure(state="normal")
+        self.boton_parar_inversion.configure(state="disabled")
 
         # Boton de "Guardar"
         self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
