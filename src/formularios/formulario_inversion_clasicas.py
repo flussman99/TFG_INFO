@@ -205,6 +205,12 @@ class FormularioInversionClasicas():
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
             self.lotaje_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
 
+            # Información Lotaje del usuario
+            lotaje_usu = mt5.account_info()
+            self.lotaje_actual = lotaje_usu.balance
+            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.lotaje_usuario.grid(row=6, column=2, padx=10, pady=2, sticky="w")
+
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_inversion.grid(row=2, column=2, padx=10, pady=2, sticky="w")
@@ -671,8 +677,7 @@ class FormularioInversionClasicas():
         if self.boton_guardar_inversion is not None:
             self.boton_guardar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.015))
-            self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.015))
-
+        
         #Ajustar
         if self.label_mercado is not None:
             #Ajustar mercado
@@ -699,6 +704,10 @@ class FormularioInversionClasicas():
                             self.label_lotaje.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                             self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
                             self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
+                        if self.lotaje_usuario is not None:
+                            self.lotaje_usuario.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                            self.lotaje_usuario.configure(width=int(self.frame_width * 0.02))
 
                             if self.label_stop_loss is not None:
                                 self.label_stop_loss.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))

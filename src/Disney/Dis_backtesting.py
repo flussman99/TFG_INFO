@@ -43,7 +43,7 @@ estudios_Disney = [
     'Silverback Films',
     'Fox Searchlight Pictures',
     'Regency Enterprises',
-    'Others'
+    'Todos'
 ]
 
 imagenes_estudios = {
@@ -78,7 +78,7 @@ imagenes_estudios = {
     'Silverback Films': 'src/imagenes/Disney/Silverback_Films.png',
     'Fox Searchlight Pictures': 'src/imagenes/Disney/Fox_Searchlight_Pictures.png',
     'Regency Enterprises': 'src/imagenes/Disney/Regency_Enterprises.png',
-    'Others': 'src/imagenes/Disney/Others.png'
+    'Todos': 'src/imagenes/Disney/Todos.png'
 }
 
    
@@ -194,8 +194,9 @@ def datosPeliculas(filename, studio):
     if 'Release Date' in df.columns:
         df['Release Date'] = pd.to_datetime(df['Release Date'], errors='coerce')
     
-    # Filtrar el Studio que hemos seleccionado
-    df = df.loc[df['Studio'] == studio]
+    # Filtrar el Studio que hemos seleccionado si no corresponde con el valor de Todos:
+    if studio != 'Todos':
+        df = df.loc[df['Studio'] == studio]
 
     return df
 

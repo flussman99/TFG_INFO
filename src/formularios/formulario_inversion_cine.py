@@ -87,6 +87,7 @@ class FormularioInversionCine():
         self.label_stop_loss = None
         self.label_take_profit = None
         self.label_lotaje = None
+        self.lotaje_usuario = None
 
         self.stop_loss_entry = None
         self.take_profit_entry = None
@@ -242,6 +243,12 @@ class FormularioInversionCine():
             #Entry lotaje
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
             self.lotaje_entry.grid(row=5, column=2, padx=10, pady=2, sticky="w")
+
+            # Información Lotaje del usuario
+            lotaje_usu = mt5.account_info()
+            self.lotaje_actual = lotaje_usu.balance
+            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.lotaje_usuario.grid(row=6, column=2, padx=10, pady=2, sticky="w")
 
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
@@ -692,6 +699,10 @@ class FormularioInversionCine():
             self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
         
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.015))
+
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
@@ -717,9 +728,9 @@ class FormularioInversionCine():
             self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
    
 
-        #Ajustar label elegir liga
+        
         if self.label_disney is not None:
-            #Ajustar liga
+            
             self.label_disney.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
@@ -754,6 +765,11 @@ class FormularioInversionCine():
                                 self.label_lotaje.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                                 self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
                                 self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
+                            if self.lotaje_usuario is not None:
+                                self.lotaje_usuario.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.lotaje_usuario.configure(width=int(self.frame_width * 0.02))
+                                self.lotaje_usuario.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
                                 if self.label_rentabilidad is not None:
                                     self.label_rentabilidad.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
