@@ -278,13 +278,13 @@ class FormularioBackTestingFormula1():
 
         #Quitar opciones dependiendo de lo que se eliga en comprar, opciones especiales en cada caso 
         if self.metodo_comprar == "Top 1":
-            self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 3":
-            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 5":
-            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 10":
-            self.combo_metodos_vender["values"] = ["No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
                 
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
