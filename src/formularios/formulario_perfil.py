@@ -41,7 +41,7 @@ class FormularioPerfil():
         self.tabla = ttk.Treeview(self.frame_principal)
         style = ttk.Style()
         style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), foreground="blue")
-        self.tabla["columns"] = ("Nombre", "Tipo", "Accion", "Fecha Inicio", "Fecha Fin", "Compra", "Venta", "Frecuencia", "Rentabilidad", "Indicador", "Rent. Indicador")
+        self.tabla["columns"] = ("Nombre", "Tipo", "Accion", "Fecha Inicio", "Fecha Fin", "Compra", "Venta", "Frec.", "Rent.", "Rent. IBEX", "Rent. SP", "Rent. PF")
         self.tabla.column("#0", width=0, stretch=tk.NO)
         self.tabla.column("Nombre", width=100)
         self.tabla.column("Tipo", width=65)
@@ -50,10 +50,11 @@ class FormularioPerfil():
         self.tabla.column("Fecha Fin", width=55)
         self.tabla.column("Compra", width=100)
         self.tabla.column("Venta", width=100)
-        self.tabla.column("Frecuencia", width=100)
-        self.tabla.column("Rentabilidad", width=100)
-        self.tabla.column("Indicador", width=60)
-        self.tabla.column("Rent. Indicador", width=100)
+        self.tabla.column("Frec.", width=100)
+        self.tabla.column("Rent.", width=100)
+        self.tabla.column("Rent. IBEX", width=100)
+        self.tabla.column("Rent. SP", width=100)
+        self.tabla.column("Rent. PF", width=100)
         self.tabla.heading("Nombre", text="Nombre")
         self.tabla.heading("Tipo", text="Tipo")
         self.tabla.heading("Accion", text="Accion")
@@ -61,24 +62,25 @@ class FormularioPerfil():
         self.tabla.heading("Fecha Fin", text="Fecha Final")
         self.tabla.heading("Compra", text="Compra")
         self.tabla.heading("Venta", text="Venta")
-        self.tabla.heading("Frecuencia", text="Frecuencia")
-        self.tabla.heading("Rentabilidad", text="Rentabilidad")
-        self.tabla.heading("Indicador", text="Indicador")
-        self.tabla.heading("Rent. Indicador", text="Rent. Indicador")
+        self.tabla.heading("Frec.", text="Frec.")
+        self.tabla.heading("Rent.", text="Rent.")
+        self.tabla.heading("Rent. IBEX", text="Rent. IBEX")
+        self.tabla.heading("Rent. SP", text="Rent. SP")
+        self.tabla.heading("Rent. PF", text="Rent. PF")
         self.tabla.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Obtener el cursor para ejecutar consultas
         cursor = self.conn.cursor()
 
         # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
-        consulta = "SELECT nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador FROM Inversiones WHERE id_usuario = %s"
+        consulta = "SELECT nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos  FROM Inversiones WHERE id_usuario = %s"
         datos = (self.id_user,) 
         cursor.execute(consulta, datos)
         
         # Recorrer los resultados y agregarlos a la tabla
         for fila in cursor.fetchall():
-            nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador = fila
-            self.tabla.insert("", tk.END, values=(nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador))
+            nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos = fila
+            self.tabla.insert("", tk.END, values=(nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos))
 
         # Cerrar el cursor y la conexión
         cursor.close()
@@ -89,13 +91,14 @@ class FormularioPerfil():
     def ajustar_tabla(self, event):
         width = event.width
         self.tabla.column("Nombre", width=int(width * 0.05))
-        self.tabla.column("Tipo", width=int(width * 0.03))
+        self.tabla.column("Tipo", width=int(width * 0.06))
         self.tabla.column("Accion", width=int(width * 0.06))
         self.tabla.column("Fecha Inicio", width=int(width * 0.05))
         self.tabla.column("Fecha Fin", width=int(width * 0.05))
-        self.tabla.column("Compra", width=int(width * 0.06))
-        self.tabla.column("Venta", width=int(width * 0.06))
-        self.tabla.column("Frecuencia", width=int(width * 0.06))
-        self.tabla.column("Rentabilidad", width=int(width * 0.06))
-        self.tabla.column("Indicador", width=int(width * 0.04))
-        self.tabla.column("Rent. Indicador", width=int(width * 0.07))
+        self.tabla.column("Compra", width=int(width * 0.035))
+        self.tabla.column("Venta", width=int(width * 0.035))
+        self.tabla.column("Frec.", width=int(width * 0.035))
+        self.tabla.column("Rent.", width=int(width * 0.035))
+        self.tabla.column("Rent. IBEX", width=int(width * 0.035))
+        self.tabla.column("Rent. SP", width=int(width * 0.035))
+        self.tabla.column("Rent. PF", width=int(width * 0.035))

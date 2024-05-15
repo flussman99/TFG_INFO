@@ -550,7 +550,7 @@ class FormularioBackTestingFormula1():
         self.treeview()
 
     def establecerRentabilidades(self, rentabilidad):
-        #Rentabilidad Futbol
+        #Rentabilidad F1
         self.rentabilidad_f1.set(str(rentabilidad))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
    
@@ -615,7 +615,7 @@ class FormularioBackTestingFormula1():
             return
         
         # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Formula 1"
+        tipo = "Backtesting F1"
 
         # Cogemos la acción en la que ha invertido el usuario
         accion = self.accion

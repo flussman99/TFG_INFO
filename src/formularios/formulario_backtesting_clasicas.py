@@ -372,7 +372,7 @@ class FormularioBackTestingClasicas():
             return
 
         # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = self.combo_estrategia.get()
+        tipo = "Backtesting " + self.combo_estrategia.get()
 
         # Cogemos la acción en la que ha invertido el usuario
         accion = self.combo_accion.get()

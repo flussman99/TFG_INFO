@@ -148,7 +148,7 @@ class FormularioCreativas():
 
     def invertirfutbol(self):
         self.limpiar_panel(self.frame_principal)
-        FormularioInversionFutbol(self.frame_principal, self.deshabilitar_botones, self.habilitar_botones)
+        FormularioInversionFutbol(self.frame_principal, self.user_id, self.deshabilitar_botones, self.habilitar_botones)
 
     def formula1(self):
         self.limpiar_panel(self.frame_principal)     
