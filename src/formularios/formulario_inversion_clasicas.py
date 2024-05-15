@@ -392,7 +392,7 @@ class FormularioInversionClasicas():
 
         # Cogemos la fecha de inicio y la de fin de la inversión
         # Hay que cogerlo del treeview
-        echa_ini, fecha_fin = self.obtener_primer_ultimo_valor_fecha()
+        fecha_ini, fecha_fin = self.obtener_primer_ultimo_valor_fecha()
 
         #Cogemos cuando toma las decisiones de comprar y vender el usuario
         if tipo == 'Inversion RSI':
