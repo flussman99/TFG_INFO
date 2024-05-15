@@ -72,6 +72,7 @@ class FormularioInversionClasicas():
         self.stop_loss_entry = None
         self.take_profit_entry = None
         self.lotaje_entry = None
+        self.lotaje_usuario = None
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -208,8 +209,8 @@ class FormularioInversionClasicas():
             # Información Lotaje del usuario
             lotaje_usu = mt5.account_info()
             self.lotaje_actual = lotaje_usu.balance
-            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            self.lotaje_usuario.grid(row=6, column=2, padx=10, pady=2, sticky="w")
+            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black",  wraplength=200)
+            self.lotaje_usuario.grid(row=0, column=3, columnspan=2, padx=10, pady=2, sticky="w")
 
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
