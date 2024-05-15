@@ -230,7 +230,7 @@ html_pilotTeams_files = [
 ]
 
 
-def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, combo_venta: int, piloto: str):
+def backtesting(prices: list, inicio: str, fin: str, url, combo_compra: int, combo_venta: int, piloto: str):
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
     
@@ -263,12 +263,12 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
 
         precioCompra = piloto_frame.at[i, 'Precio']
             
-        if comprobar(resultado, combo_resultado) and len(compras) < 10:
+        if comprobar(resultado, combo_compra) and len(compras) < 10:
             decisiones.append("Compra")#COMPRO
             rentabilidad.append(None)
             compras.append(precioCompra)
             posicion_abierta=True
-        elif not comprobar(resultado, combo_resultado) and posicion_abierta == True:
+        elif not comprobar(resultado, combo_venta) and posicion_abierta == True:
             decisiones.append("Venta")#VENDO
             posicion_abierta=False
             print(compras)
@@ -285,15 +285,15 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_resultado: int, 
     print("frame f1",piloto_frame)
     return piloto_frame    
 
-def comprobar(resultado, combo_resultado):
+def comprobar(resultado, combo):
     
-    if combo_resultado == "Top 1":
+    if combo == "Top 1":
         resultado_combo = 1
-    elif combo_resultado == "Top 3":
+    elif combo == "Top 3":
         resultado_combo = 3
-    elif combo_resultado == "Top 5":
+    elif combo == "Top 5":
         resultado_combo = 5
-    elif combo_resultado == "Top 10":
+    elif combo == "Top 10":
         resultado_combo = 10
     else:
         resultado_combo = 30

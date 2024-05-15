@@ -278,13 +278,13 @@ class FormularioBackTestingFormula1():
 
         #Quitar opciones dependiendo de lo que se eliga en comprar, opciones especiales en cada caso 
         if self.metodo_comprar == "Top 1":
-            self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 1", "Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 3":
-            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 3", "Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 5":
-            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 5", "Top 10", "No puntúa"]
         elif self.metodo_comprar == "Top 10":
-            self.combo_metodos_vender["values"] = ["No puntúa"]
+            self.combo_metodos_vender["values"] = ["Top 10", "No puntúa"]
                 
         
         #Llamar a demas atributos solo cuando metodo comprar y vender tenga un valor seleccionado
@@ -550,7 +550,7 @@ class FormularioBackTestingFormula1():
         self.treeview()
 
     def establecerRentabilidades(self, rentabilidad):
-        #Rentabilidad Futbol
+        #Rentabilidad F1
         self.rentabilidad_f1.set(str(rentabilidad))
         self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
    
@@ -615,7 +615,7 @@ class FormularioBackTestingFormula1():
             return
         
         # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Formula 1"
+        tipo = "Backtesting F1"
 
         # Cogemos la acción en la que ha invertido el usuario
         accion = self.accion

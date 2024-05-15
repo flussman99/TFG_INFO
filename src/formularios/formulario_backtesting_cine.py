@@ -175,7 +175,7 @@ class FormularioBackTestingCine():
     def actualizar_metodos(self):
         if self.label_metodo_comprar is None:
             #Label de "Elige cuando comprar"
-            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Comprar con Rating mayor a:", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Comprar con Rating mayor a:", font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
             # Entry para el rating
@@ -359,7 +359,7 @@ class FormularioBackTestingCine():
             self.tree.insert("", "end", values=tuple(row))
 
     def empezar_backtesting(self):
-        #Verifiar que se han seleccionado todos los campos
+        #Verificar que se han seleccionado todos los campos
         if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
@@ -368,7 +368,18 @@ class FormularioBackTestingCine():
         if self.fecha_inicio_entry.get() == self.fecha_fin_entry.get():
             messagebox.showerror("Error", "La fecha de inicio y fin no pueden ser la misma.")
             return
-
+        
+        # Verificar que la valoración es un valor válido
+        try:
+            valoracion = float(self.combo_metodos_comprar.get())
+        except ValueError:
+            messagebox.showerror("Error", "La valoración debe ser un valor numerico.")
+            return
+        
+        if valoracion < 0 or valoracion > 10:
+            messagebox.showerror("Error", "La valoración debe ser un valor entre 0 y 10.")
+            return
+        
         # Verificar si la interfaz de usuario ya ha sido creada
         if not hasattr(self, 'frame_datos'):
             # Si no ha sido creada, entonces crearla
@@ -407,19 +418,16 @@ class FormularioBackTestingCine():
         print(frecuencia_txt, accion_txt, inicio_txt, fin_txt, estrategia_txt)
 
         self.b.establecer_frecuencia_accion(frecuencia_txt, accion_txt) 
-        self.frame_without_filter, rentabilidad, rentabilidad_indicador = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar_float, cuando_comprar_float, estudio_txt, indicador)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
+        self.frame_without_filter, rentabilidad = self.b.thread_creativas(inicio_txt,fin_txt,pais_txt,self.url,estrategia_txt, cuando_comprar_float, cuando_comprar_float, estudio_txt)#pasas un vacio pq no necesitas ese valor sin ambargo en la del futbol si
         
-        self.establecerRentabilidades(rentabilidad, rentabilidad_indicador)
+        self.establecerRentabilidades(rentabilidad)
         self.treeview()
 
-    def establecerRentabilidades(self, rentabilidad, rentabilidad_indicador):
-        #Rentabilidad Futbol
+    def establecerRentabilidades(self, rentabilidad):
+        #Rentabilidad Disney
         self.rentabilidad_cine.set(str(rentabilidad))
         self.label_rentabilidad_cine.configure(textvariable=self.rentabilidad_cine)
 
-        #Rentabilidad comparativa    
-        self.rentabilidad_comparativa.set(str(rentabilidad_indicador))
-        self.label_rentabilidad_comparativa.configure(textvariable=self.rentabilidad_comparativa)
         
    
 
@@ -484,7 +492,7 @@ class FormularioBackTestingCine():
             return
         
         # Le damos valor al tipo de inversión que esta haciendo el usuario
-        tipo = "Disney"
+        tipo = "Backtesting Disney"
 
         # Cogemos la acción en la que ha invertido el usuario	
         accion = "DIS.NYSE"
@@ -501,7 +509,7 @@ class FormularioBackTestingCine():
         frecuencia = "Diaria"
 
         # Cogemos la rentabilidad de la inversión
-        rentabilidad = self.rentabilidad_cine.get()
+        rentabilidad = str(self.rentabilidad_cine.get()) + "%"
 
         # Cogemos la rentabilidad de los índices seleccionados
         if self.var_ibex35.get():

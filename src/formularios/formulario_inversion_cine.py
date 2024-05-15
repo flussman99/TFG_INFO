@@ -17,7 +17,7 @@ import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 import ordenes as ORD   
-
+import tick_reader as tr
 
 class FormularioInversionCine():
 
@@ -40,8 +40,8 @@ class FormularioInversionCine():
         self.frame_superior.pack(fill=tk.BOTH)
 
         #Titulo frame superior
-        self.label_titulo_futbol = tk.Label(self.frame_superior, text="Inversión de Operaciones de Cine", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
-        self.label_titulo_futbol.place(relx=0.05, rely=0.1)
+        self.label_titulo_disney = tk.Label(self.frame_superior, text="Inversión de Operaciones de Cine", font=("Berlin Sans FB", 20, "bold"), bg=COLOR_CUERPO_PRINCIPAL, fg="#2d367b")
+        self.label_titulo_disney.place(relx=0.05, rely=0.1)
 
         # Frame inferior (con scrollbar)
         self.frame_inferior = tk.Frame(self.frame_principal, bg=COLOR_CUERPO_PRINCIPAL, width=399, height=276)
@@ -87,6 +87,7 @@ class FormularioInversionCine():
         self.label_stop_loss = None
         self.label_take_profit = None
         self.label_lotaje = None
+        self.lotaje_usuario = None
 
         self.stop_loss_entry = None
         self.take_profit_entry = None
@@ -107,7 +108,7 @@ class FormularioInversionCine():
         #Botones
         self.boton_empezar_inversion = None
         self.boton_parar_inversion = None
-
+        self.boton_guardar_inversion = None
 
         #ComboBoxs
         self.crear_combo_boxs()
@@ -180,16 +181,15 @@ class FormularioInversionCine():
     def actualizar_metodos(self):
         if self.label_metodo_comprar is None:
             #Label de "Elige cuando comprar"
-            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Elige cuando comprar", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Comprar con Rating mayor a:", font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
-            #ComboBox de metodos comprar
-            self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
+            # Entry para el rating
+            self.combo_metodos_comprar = Entry(self.frame_combo_boxs, width=30)
             self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-            self.combo_metodos_comprar["values"] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
 
             #Actualizar al seleccionar algo
-            self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
+            self.combo_metodos_comprar.bind("<KeyRelease>", self.actualizar_comparativa)
         
         #Actualizar vista
         self.on_parent_configure(None)
@@ -244,19 +244,25 @@ class FormularioInversionCine():
             self.lotaje_entry = Entry(self.frame_combo_boxs, width=30)
             self.lotaje_entry.grid(row=5, column=2, padx=10, pady=2, sticky="w")
 
+            # Información Lotaje del usuario
+            lotaje_usu = mt5.account_info()
+            self.lotaje_actual = lotaje_usu.balance
+            self.lotaje_usuario = tk.Label(self.frame_combo_boxs, text="Balance disponible: " + str(self.lotaje_actual), font=("Aptos", 12), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            self.lotaje_usuario.grid(row=6, column=2, padx=10, pady=2, sticky="w")
+
             #Label inversion
             self.label_inversion = tk.Label(self.frame_combo_boxs, text="Inversión: ", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_inversion.grid(row=4, column=3, padx=10, pady=2, sticky="w")
 
 
-        self.stop_loss_entry.bind("<KeyRelease>", self.actualizar_futbol_stop_loss)
-        self.take_profit_entry.bind("<KeyRelease>", self.actualizar_futbol_take_profit)
-        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_futbol_lotaje)
+        self.stop_loss_entry.bind("<KeyRelease>", self.actualizar_disney_stop_loss)
+        self.take_profit_entry.bind("<KeyRelease>", self.actualizar_disney_take_profit)
+        self.lotaje_entry.bind("<KeyRelease>", self.actualizar_disney_lotaje)
 
         #Actualizar vista
         self.on_parent_configure(None)
     
-    def actualizar_futbol_stop_loss(self, event):
+    def actualizar_disney_stop_loss(self, event):
         if self.stop_loss_entry.get() == "" and self.boton_empezar_inversion is not None:
             self.boton_empezar_inversion.configure(state="disabled")
 
@@ -276,7 +282,7 @@ class FormularioInversionCine():
         if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
             self.actualizar_boton_inversion()
 
-    def actualizar_futbol_take_profit(self, event):
+    def actualizar_disney_take_profit(self, event):
         if self.take_profit_entry.get() == "" and self.boton_empezar_inversion is not None:
             self.boton_empezar_inversion.configure(state="disabled")
 
@@ -296,7 +302,7 @@ class FormularioInversionCine():
         if self.lotaje_entry.get() != "" and self.stop_loss_entry.get() != "" and self.take_profit_entry.get() != "":
             self.actualizar_boton_inversion()
 
-    def actualizar_futbol_lotaje(self, event):
+    def actualizar_disney_lotaje(self, event):
         if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
             self.boton_empezar_inversion.configure(state="disabled")
 
@@ -365,7 +371,7 @@ class FormularioInversionCine():
         self.boton_parar_inversion = tk.Button(self.frame_datos, text="Parar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.parar_inversion) 
         self.boton_parar_inversion.pack(side="right", padx=(0, 10), pady=5)
 
-
+        
         # Crear un contenedor para los Treeviews
         self.tree_container = tk.Frame(self.frame_inferior)
         self.tree_container.pack(side="left", fill="both", expand=True)
@@ -397,7 +403,7 @@ class FormularioInversionCine():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
+            self.rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
             self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
@@ -428,13 +434,142 @@ class FormularioInversionCine():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-  
+    
+    def rentabilidadIndicador(self,time_period,inicio,fin, indicador):
+        return tr.rentabilidadIndicador(time_period,inicio,fin,indicador)
+
+    def guardar_inversion(self):
+        # Conexión a la base de datos
+        self.conn = mysql.connector.connect(
+                    host=DBConfig.HOST,
+                    user=DBConfig.USER,
+                    password=DBConfig.PASSWORD,
+                    database=DBConfig.DATABASE,
+                    port=DBConfig.PORT
+                )
+        
+        # Para ponerle nombre a la inversión, realizamos este bucle hasta que el usuario ingrese un nombrenombre_inversión = ""
+        nombre_inversión = ""
+        while True:
+            # Dejamos que el usuario ingrese el nombre de la inversión que ha realizado
+            nombre_inversión = simpledialog.askstring("Guardar inversión", "Ingrese el nombre de la inversión:", parent=self.frame_principal)
+
+            if nombre_inversión is None:
+                # Si se hace clic en Cancelar, salimos del bucle
+                break
+
+            if not nombre_inversión:
+                # En el caso de que no se haya ingresado un nombre, mostramos mensaje de error y volvemos a pedirlo
+                messagebox.showerror("Error", "Debes ingresar un nombre para tu inversión.")
+                continue
+            
+            if self.nombre_inversion_existe(nombre_inversión):
+                messagebox.showerror("Error", "Ya existe una inversión con ese nombre.")
+                continue
+            
+            # Si llegamos a este punto, el usuario ha ingresado un nombre de inversión válido
+            break
+
+        if(nombre_inversión is None):
+            return
+        
+        # Le damos valor al tipo de inversión que esta haciendo el usuario
+        tipo = "Inversión Disney"
+
+        # Cogemos la acción en la que ha invertido el usuario	
+        accion = "DIS.NYSE"
+
+        # Cogemos la fecha de inicio y la de fin de la inversión
+        # Hay que cogerlo del treeview
+        fecha_ini, fecha_fin = self.obtener_primer_ultimo_valor_fecha()
+
+        #Cogemos cuando toma las decisiones de comprar y vender el usuario
+        compra = self.combo_metodos_comprar.get()
+        venta = self.combo_metodos_comprar.get()
+
+        #Le damos valor a la frecuencia
+        frecuencia = "Diaria"
+
+        # Cogemos la rentabilidad de la inversión
+        rentabilidad = str(self.rentabilidad_cine.get()) + "%"
+
+        # Cogemos la rentabilidad de los índices seleccionados
+        if self.var_ibex35.get():
+            rentabilidad_ibex = str(self.rentIbex35) + "%"
+        else:
+            rentabilidad_ibex = "No aplica"
+
+        if self.var_sp500.get():
+            rentabilidad_sp500 = str(self.rentSP) + "%"
+        else:
+            rentabilidad_sp500 = "No aplica"
+        
+        if self.var_plazo_fijo.get():
+            rentabilidad_plazos = str(self.rentPF) + "%"
+        else:
+            rentabilidad_plazos = "No aplica"
+        # Guardamos la inversión en la base de datos
+        cursor = self.conn.cursor()
+        try:
+            # Realizamos la consulta para insertar los datos en la tabla Inversiones
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, rentabilidad_ibex, rentabilidad_sp500, rentabilidad_plazos)
+            cursor.execute(consulta, datos)
+        except Exception as e:
+            print(e)
+        
+        # Cerramos el cursor y la conexxión
+        cursor.close()
+        self.conn.commit()
+        self.conn.close()
+    
+    def obtener_primer_ultimo_valor_fecha(self):
+        fechas = []
+        for item in self.tree.get_children():
+            # Obtener el índice de la columna "Fecha" en el Treeview
+            indice_fecha = self.tree["columns"].index("Fecha")
+            fecha = self.tree.item(item)["values"][indice_fecha]
+            fechas.append(fecha)
+        
+        if fechas:
+            primer_fecha = min(fechas)
+            ultimo_fecha = max(fechas)
+            return primer_fecha, ultimo_fecha
+        else:
+            return None, None
+
+    def nombre_inversion_existe(self, nombre_inversion):
+        # Obtener el cursor para ejecutar consultas
+        cursor = self.conn.cursor()
+
+        # Consulta para obtener los datos de la tabla Inversiones segun el id_user correspondiente
+        consulta = "SELECT COUNT(*) FROM Inversiones WHERE id_usuario = %s AND nombre = %s"
+        datos = (self.id_user, nombre_inversion) 
+        cursor.execute(consulta, datos)
+        cantidad = cursor.fetchone()[0]
+
+        # Cerrar el cursor
+        cursor.close()
+
+        return cantidad > 0
 
     def empezar_inversion(self):
         #Verifiar que se han seleccionado todos los campos
         if self.combo_estudios.get() == "" or self.combo_metodos_comprar.get() == "":
             messagebox.showerror("Error", "Debes seleccionar todos los campos.")
             return
+        
+        #Verificar que la valoración es un valor entre 0 y 10
+        try:
+            valoracion = float(self.combo_metodos_comprar.get())
+        except ValueError:
+            messagebox.showerror("Error", "La valoración debe ser un valor numerico.")
+            return
+        
+        if valoracion < 0 or valoracion > 10:
+            messagebox.showerror("Error", "La valoración debe ser un valor entre 0 y 10.")
+            return
+
         # Deshabilitar los ComboBoxs, los Entry y el Botón de "Empezar inversión"
         self.deshabilitar_botones()
         self.combo_estudios.configure(state="disabled")
@@ -552,7 +687,7 @@ class FormularioInversionCine():
         self.frame_inferior.configure(width=self.frame_width, height=self.frame_height*0.5)
 
         #Ajustar el tamaño del titulo
-        self.label_titulo_futbol.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
+        self.label_titulo_disney.configure(font=("Berlin Sans FB",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.2), "bold"))
 
         #Ajustar info ticks
         if self.boton_empezar_inversion is not None:
@@ -564,6 +699,10 @@ class FormularioInversionCine():
             self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
         
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.015))
+
         #Ajustar rentabilidad
         if self.label_rentabilidad is not None:
             self.label_rentabilidad.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.12)))
@@ -589,9 +728,9 @@ class FormularioInversionCine():
             self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
    
 
-        #Ajustar label elegir liga
+        
         if self.label_disney is not None:
-            #Ajustar liga
+            
             self.label_disney.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
@@ -626,6 +765,11 @@ class FormularioInversionCine():
                                 self.label_lotaje.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                                 self.lotaje_entry.configure(width=int(self.frame_width * 0.02))
                                 self.label_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+
+                            if self.lotaje_usuario is not None:
+                                self.lotaje_usuario.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
+                                self.lotaje_usuario.configure(width=int(self.frame_width * 0.02))
+                                self.lotaje_usuario.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
                                 if self.label_rentabilidad is not None:
                                     self.label_rentabilidad.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
@@ -680,6 +824,11 @@ class FormularioInversionCine():
         self.ibex35.configure(state="normal")
         self.sp500.configure(state="normal")
         self.plazo_fijo.configure(state="normal")
+
+        # Boton de "Guardar"
+        self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
+        self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
+        self.boton_guardar_inversion.configure(state="normal")
 
         #Calcular la rentabilidad de la comparativa
         self.calcular_rentabilidad_comparativa()
