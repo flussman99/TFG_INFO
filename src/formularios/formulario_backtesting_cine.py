@@ -178,17 +178,12 @@ class FormularioBackTestingCine():
             self.label_metodo_comprar = tk.Label(self.frame_combo_boxs, text="Comprar con Rating mayor a:", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_metodo_comprar.grid(row=2, column=0, padx=10, pady=2, sticky="w")
 
-            #ComboBox de metodos comprar
-            self.combo_metodos_comprar = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
-            self.combo_metodos_comprar["values"] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-
             # Entry para el rating
-            #self.combo_metodos_comprar = tk.Entry(self.frame_combo_boxs, font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-            #self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
+            self.combo_metodos_comprar = Entry(self.frame_combo_boxs, width=30)
+            self.combo_metodos_comprar.grid(row=3, column=0, padx=10, pady=2, sticky="w")
 
             #Actualizar al seleccionar algo
-            self.combo_metodos_comprar.bind("<<ComboboxSelected>>", self.actualizar_comparativa)
+            self.combo_metodos_comprar.bind("<KeyRelease>", self.actualizar_comparativa)
         
         #Actualizar vista
         self.on_parent_configure(None)
@@ -298,15 +293,20 @@ class FormularioBackTestingCine():
         #Actualizar vista
         self.on_parent_configure(None)
 
-    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
+    def rentabilidades_comparativas(self): 
         
+        inicio_txt = self.fecha_inicio_entry.get()
+        fin_txt = self.fecha_fin_entry.get()
+        frecuencia_txt = "Daily"
+
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            #rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
-            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='IBEX35'
+            self.rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: "+str(self.rentIbex35), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_ibex35 is not None:
@@ -318,7 +318,9 @@ class FormularioBackTestingCine():
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
-            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='SP500'
+            self.rentSP = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: "+str(self.rentSP), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_sp500 is not None:
@@ -330,7 +332,9 @@ class FormularioBackTestingCine():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
-            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
+            indicador='Plazo Fijo'
+            self.rentPF = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
+            self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: "+str(self.rentPF), font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
         else:
             if self.label_rentabilidad_plazo_fijo is not None:
@@ -499,18 +503,27 @@ class FormularioBackTestingCine():
         # Cogemos la rentabilidad de la inversión
         rentabilidad = self.rentabilidad_cine.get()
 
-        # Cogemos el indicador con el que se compara la inversión
-        indicador = self.combo_comparativa.get()
+        # Cogemos la rentabilidad de los índices seleccionados
+        if self.var_ibex35.get():
+            rentabilidad_ibex = str(self.rentIbex35) + "%"
+        else:
+            rentabilidad_ibex = "No aplica"
 
-        # Cogemos la rentabilidad de la inversión
-        rentabilidadIndicador = self.rentabilidad_comparativa.get()
-
+        if self.var_sp500.get():
+            rentabilidad_sp500 = str(self.rentSP) + "%"
+        else:
+            rentabilidad_sp500 = "No aplica"
+        
+        if self.var_plazo_fijo.get():
+            rentabilidad_plazos = str(self.rentPF) + "%"
+        else:
+            rentabilidad_plazos = "No aplica"
         # Guardamos la inversión en la base de datos
         cursor = self.conn.cursor()
         try:
             # Realizamos la consulta para insertar los datos en la tabla Inversiones
-            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, indicador, rentabilidad_indicador) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, indicador, rentabilidadIndicador)
+            consulta = "INSERT INTO Inversiones (id_usuario, nombre, tipo, accion, fecha_inicio, fecha_fin, compra, venta, frecuencia, rentabilidad, rentabilidad_ibex, rentabilidad_sp, rentabilidad_plazos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            datos = (self.id_user, nombre_inversión, tipo, accion, fecha_ini, fecha_fin, compra, venta, frecuencia ,rentabilidad, rentabilidad_ibex, rentabilidad_sp500, rentabilidad_plazos)
             cursor.execute(consulta, datos)
         except Exception as e:
             print(e)

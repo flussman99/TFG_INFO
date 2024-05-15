@@ -111,10 +111,10 @@ class FormularioMaestroDesign(tk.Tk):
         self.boton_informacion = tk.Button(self.menu_lateral, state=tk.DISABLED)        
 
         buttons_info = [
-            ("Op. Clásicas", "\uf03e", self.boton_operaciones,self.abrir_panel_clasicas),
-            ("Op. Creativas", "\uf129", self.boton_operaciones_creativas,self.abrir_panel_creativas),
-            ("Perfil", "\uf129", self.boton_perfil,self.abrir_panel_perfil),
-            ("Información", "\uf013", self.boton_informacion,self.abrir_panel_informacion)
+            ("Op. Clásicas", "\uf201", self.boton_operaciones,self.abrir_panel_clasicas),
+            ("Op. Creativas", "\uf0eb", self.boton_operaciones_creativas,self.abrir_panel_creativas),
+            ("Perfil", "\uf007", self.boton_perfil,self.abrir_panel_perfil),
+            ("Información", "\uf129", self.boton_informacion,self.abrir_panel_informacion)
         ]
 
         for text, icon, button,comando in buttons_info:
