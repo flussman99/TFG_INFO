@@ -31,11 +31,11 @@ month_names = {
 }
 
 ligas = {
-    'La Liga': ['Real Madrid', 'Barcelona', 'Atletico de Madrid','Valencia'],
+    'La Liga': ['Real Madrid', 'Barcelona', 'Atlético','Valencia'],
     'Premier League': [ 'Arsenal','Manchester United','Manchester City','Chelsea','Liverpool'],
-    'Bundesliga': ['Bayern Munich','Borussia Dortmund','RB Leipzig','Bayer Leverkusen'],
-    'Serie A': ['Juventus','Roma','Napoles','AC Milan','Inter de Milan'],
-    'Ligue 1':['PSG','Olympique Lyon','Olympique Marsella']
+    'Bundesliga': ['Bayern München','B. Dortmund','RB Leipzig','B. Leverkusen'],
+    'Serie A': ['Juventus','Roma','Napoli','Milan','Inter'],
+    'Ligue 1':['PSG','Olympique Lyonnais','Olympique Marseille']
 }
 
 
@@ -109,72 +109,72 @@ acciones = {
     'Real Madrid': ['Adidas(ADS)','Grupo ACS(ACS)'],
     'Barcelona': [ 'Nike(NKE)'],
     'Arsenal': ['Adidas(ADS)'],
-    'Bayern Munich': ['Deutsche Bank(DTE)', 'Allianz(ALV)'],
-    'Atletico de Madrid':['Nike(NKE)'],
+    'Bayern München': ['Deutsche Bank(DTE)', 'Allianz(ALV)'],
+    'Atlético':['Nike(NKE)'],
     'Valencia': ['Coca cola(KO)'],
     'Manchester United':['DXC Technology(DXC)'],
     'Liverpool': ['Standard Chartered(STAN)'],
     'Manchester City': ['Electronic Arts(EA)'],
     'Chelsea': ['Trivago(TRVG)'],
-    'Borussia Dortmund':['Evonik Industries(EVK)'],
+    'B. Dortmund':['Evonik Industries(EVK)'],
     'RB Leipzig': ['Volkswagen(VOW3)'],
-    'Bayer Leverkusen':['Bayer AG(BAYN)'],
+    'B. Leverkusen':['Bayer AG(BAYN)'],
     'Juventus':['Adidas(ADS)'],
     'Roma': ['Toyota(TM)'],
-    'Napoles': ['Ebay Inc(EBAY)'],
-    'AC Milan': ['Bayerische Motoren Werke(BMW)'],
-    'Inter de Milan': ['Ebay Inc(EBAY)','Nike(NKE)'],
+    'Napoli': ['Ebay Inc(EBAY)'],
+    'Milan': ['Bayerische Motoren Werke(BMW)'],
+    'Inter': ['Ebay Inc(EBAY)','Nike(NKE)'],
     'PSG':['Nike(NKE)','McDonalds(MCD)'],
-    'Olympique Lyon': ['Adidas(ADS)'],
-    'Olympique Marsella': ['Orange(ORAN)'],
+    'Olympique Lyonnais': ['Adidas(ADS)'],
+    'Olympique Marseille': ['Orange(ORAN)'],
 }
 
 urls_equipos = {
     'Real Madrid': 'https://es.besoccer.com/equipo/partidos/real-madrid',
     'Barcelona': 'https://es.besoccer.com/equipo/partidos/barcelona',
     'Arsenal': 'https://es.besoccer.com/equipo/partidos/arsenal',
-    'Bayern Munich': 'https://es.besoccer.com/equipo/partidos/bayern-munchen',
-    'Atletico de Madrid': 'https://es.besoccer.com/equipo/partidos/atletico-madrid',
+    'Bayern München': 'https://es.besoccer.com/equipo/partidos/bayern-munchen',
+    'Atlético': 'https://es.besoccer.com/equipo/partidos/atletico-madrid',
     'Valencia': 'https://es.besoccer.com/equipo/partidos/valencia-cf',
     'Manchester United': 'https://es.besoccer.com/equipo/partidos/manchester-united-fc',
     'Manchester City': 'https://es.besoccer.com/equipo/partidos/manchester-city-fc',
     'Liverpool': 'https://es.besoccer.com/equipo/partidos/liverpool',
     'Chelsea': 'https://es.besoccer.com/equipo/partidos/chelsea-fc',
-    'Borussia Dortmund': 'https://es.besoccer.com/equipo/partidos/borussia-dortmund',
+    'B. Dortmund': 'https://es.besoccer.com/equipo/partidos/borussia-dortmund',
     'RB Leipzig': 'https://es.besoccer.com/equipo/partidos/rb-leipzig',
-    'Bayer Leverkusen': 'https://es.besoccer.com/equipo/partidos/bayer-leverkusen',
+    'B. Leverkusen': 'https://es.besoccer.com/equipo/partidos/bayer-leverkusen',
     'Juventus': 'https://es.besoccer.com/equipo/partidos/juventus-fc',
     'Roma': 'https://es.besoccer.com/equipo/partidos/roma',
-    'Napoles': 'https://es.besoccer.com/equipo/partidos/napoli',
-    'AC Milan': 'https://es.besoccer.com/equipo/partidos/milan',
-    'Inter de Milan': 'https://es.besoccer.com/equipo/partidos/internazionale',
+    'Napoli': 'https://es.besoccer.com/equipo/partidos/napoli',
+    'Milan': 'https://es.besoccer.com/equipo/partidos/milan',
+    'Inter': 'https://es.besoccer.com/equipo/partidos/internazionale',
     'PSG': 'https://es.besoccer.com/equipo/partidos/paris-saint-germain-fc',
-    'Olympique Lyon': 'https://es.besoccer.com/equipo/partidos/olympique-lyonnais',
-    'Olympique Marsella': 'https://es.besoccer.com/equipo/partidos/olympique-marsella'
+    'Olympique Lyonnais': 'https://es.besoccer.com/equipo/partidos/olympique-lyonnais',
+    'Olympique Marseille': 'https://es.besoccer.com/equipo/partidos/olympique-marsella'
 }
 
 imagenes_equipos={
     'Real Madrid': 'src/imagenes/Futbol/real-madrid-icono.png',
     'Barcelona': 'src/imagenes/Futbol/barcelona-icono.png',
     'Arsenal': 'src/imagenes/Futbol/arsenal-icono.png',
-    'Bayern Munich': 'src/imagenes/Futbol/munich-icono.png',
-    'Atletico de Madrid': 'src/imagenes/Futbol/atletico-de-madrid-icono.png',
+    'Bayern München': 'src/imagenes/Futbol/munich-icono.png',
+    'Atlético': 'src/imagenes/Futbol/atletico-de-madrid-icono.png',
     'Valencia': 'src/imagenes/Futbol/valencia-icono.png',
     'Manchester United': 'src/imagenes/Futbol/united-icono.png',
     'Manchester City': 'src/imagenes/Futbol/city-icono.png',
     'Liverpool': 'src/imagenes/Futbol/liverpool-icono.png',
     'Chelsea': 'src/imagenes/Futbol/chelsea-icono.png',
-    'Borussia Dortmund': 'src/imagenes/Futbol/borussia-icono.png',
+    'B. Dortmund': 'src/imagenes/Futbol/borussia-icono.png',
     'RB Leipzig': 'src/imagenes/Futbol/leipzig-icono.png',
-    'Bayer Leverkusen': 'src/imagenes/Futbol/leverkusen-icono.png',
+    'B. Leverkusen': 'src/imagenes/Futbol/leverkusen-icono.png',
     'Juventus': 'src/imagenes/Futbol/juventus-icono.png',
     'Roma': 'src/imagenes/Futbol/roma-icono.png',
-    'Napoles': 'src/imagenes/Futbol/napoles-icono.png',
-    'AC Milan': 'src/imagenes/Futbol/milan-icono.png',
-    'Inter de Milan': 'src/imagenes/Futbol/inter-icono.png',
+    'Napoli': 'src/imagenes/Futbol/napoles-icono.png',
+    'Milan': 'src/imagenes/Futbol/milan-icono.png',
+    'Inter': 'src/imagenes/Futbol/inter-icono.png',
     'PSG': 'src/imagenes/Futbol/psg-icono.png',
-    'Olympique Lyon': 'src/imagenes/Futbol/lyon-icono.png',
-    'Olympique Marsella': 'src/imagenes/Futbol/marsella-icono.png'
+    'Olympique Lyonnais': 'src/imagenes/Futbol/lyon-icono.png',
+    'Olympique Marseille': 'src/imagenes/Futbol/marsella-icono.png'
 }
 
 imagenes_ligas={
@@ -316,6 +316,7 @@ def ultimoPartido(equipos_txt:str,url,cola):
         FECHA_ULTIMO_PARTIDO = last_row['Fecha']
         print(FECHA_ULTIMO_PARTIDO)
         # Asignar el Resultado a cada partido
+        print(last_row)
         if last_row['Equipo Local'] == equipos_txt:
             if int(last_row['ResultadoLocal']) > int(last_row['ResultadoVisitante']):
                 equipos_frame.loc[equipos_frame.tail(1).index, 'Resultado'] = 'Ganado'
@@ -491,7 +492,7 @@ def cargar_html(equipo):
             '2021-2022_Barcelona.html'
         ]
         
-    elif equipo == 'Atletico de Madrid':
+    elif equipo == 'Atlético':
         # List of HTML files to process
         html_files = [
             '2014-2015_Atletico.html',
@@ -580,7 +581,7 @@ def cargar_html(equipo):
             '2020-2021_Liverpool.html',
             '2021-2022_Liverpool.html'
         ]             
-    elif equipo == 'Bayern Munich':
+    elif equipo == 'Bayern München':
         # List of HTML files to process
         html_files = [
             '2014-2015_Bayern.html',
@@ -593,7 +594,7 @@ def cargar_html(equipo):
             '2021-2022_Bayern.html'
         ] 
 
-    elif equipo == 'Borussia Dortmund':
+    elif equipo == 'B. Dortmund':
         # List of HTML files to process
         html_files = [
             '2014-2015_Borussia.html',
@@ -619,7 +620,7 @@ def cargar_html(equipo):
             '2021-2022_RB.html'
         ] 
 
-    elif equipo == 'Bayer Leverkusen':
+    elif equipo == 'B. Leverkusen':
         # List of HTML files to process
         html_files = [
             '2014-2015_Leverkusen.html',
@@ -644,7 +645,7 @@ def cargar_html(equipo):
             '2021-2022_PSG.html'
         ]
 
-    elif equipo == 'Olympique Lyon':
+    elif equipo == 'Olympique Lyonnais':
         # List of HTML files to process
         html_files = [
             '2014-2015_OL.html',
@@ -657,7 +658,7 @@ def cargar_html(equipo):
             '2021-2022_OL.html'
         ]
 
-    elif equipo == 'Olympique Marsella':
+    elif equipo == 'Olympique Marseille':
         # List of HTML files to process
         html_files = [
             '2014-2015_OM.html',
@@ -696,7 +697,7 @@ def cargar_html(equipo):
             '2021-2022_Roma.html'
         ] 
 
-    elif equipo == 'Napoles':
+    elif equipo == 'Napoli':
         # List of HTML files to process
         html_files = [
             '2014-2015_Napoles.html',
@@ -709,7 +710,7 @@ def cargar_html(equipo):
             '2021-2022_Napoles.html'
         ]            
         
-    elif equipo == 'AC Milan':
+    elif equipo == 'Milan':
         # List of HTML files to process
         html_files = [
             '2014-2015_Milan.html',
@@ -721,7 +722,7 @@ def cargar_html(equipo):
             '2020-2021_Milan.html',
             '2021-2022_Milan.html'
         ]  
-    elif equipo == 'Inter de Milan':
+    elif equipo == 'Inter':
         # List of HTML files to process
         html_files = [
             '2014-2015_Inter.html',
