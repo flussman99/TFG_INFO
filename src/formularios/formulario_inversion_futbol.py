@@ -762,7 +762,7 @@ class FormularioInversionFutbol():
             print("-------------------FRAME TICKS PARTIDO-------------------")
             print(self.frame_directo)
             self.treeview_partidos()
-            self.frame_principal.after(7000, self.actualiar_partidos)
+            self.frame_principal.after(10000, self.actualiar_partidos)
     
     def actualiar_frame(self):
         if(self.funciones_recursivas):
@@ -773,7 +773,7 @@ class FormularioInversionFutbol():
             print("-------------------FRAME TICKS -------------------")
             print(self.frame_ticks)
             self.treeview_ticks()
-            self.frame_principal.after(7000, self.actualiar_frame)
+            self.frame_principal.after(10000, self.actualiar_frame)
 
     def treeview_partidos(self):
         self.current_frame =self.frame_directo
@@ -859,7 +859,8 @@ class FormularioInversionFutbol():
             suma_rentabilidades = 0
         else:
             # Continue with your existing logic for processing 'Rentabilidad' values
-            suma_rentabilidades = rentabilidades.sum().round(2)
+            suma_rentabilidades = rentabilidades.sum()
+            suma_rentabilidades = round(suma_rentabilidades, 2)
             # Rest of your code here
         
         self.rentabilidad_futbol.set(str(suma_rentabilidades))

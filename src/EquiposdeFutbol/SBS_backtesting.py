@@ -10,6 +10,9 @@ import tick_reader as tr
 import MetaTrader5 as mt5
 from typing import Tuple
 from config import API_KEY 
+import schedule
+import time
+from datetime import datetime, time, timedelta
 
 # Spanish month names
 month_names = {
@@ -353,19 +356,26 @@ def inicializar_variables(combo_comprar,comobo_vender):
     RESULTADO_ULTIMO_PARTIDO=None
     NUEVO_PARTIDO=False
     FRAMEDIRECTO = pd.DataFrame(columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador'])
+def thread_futbol(pill2kill, trading_data: dict, equipos_txt, url, combo_comprar, comobo_vender, cola):
+    inicializar_variables(combo_comprar, comobo_vender)
+    ultimoPartido(equipos_txt, url, cola)
+    initial_execution = True  # Flag to track initial execution
+    
+    # Calcular el tiempo hasta las 9 de la mañana
+    now = datetime.now()
+    target_time = datetime.combine(now.date(), time(9, 0))
+    if now > target_time:
+        target_time += timedelta(days=1)  # Si la hora actual es después de las 9 am, programar para el próximo día
 
-
-def thread_futbol(pill2kill,trading_data: dict, equipos_txt,url,combo_comprar,comobo_vender,cola):
-
-    inicializar_variables(combo_comprar,comobo_vender)
-    ultimoPartido(equipos_txt,url,cola)
-
-    while not pill2kill.wait(20):
-        ultimoPartido(equipos_txt,url,cola)
+    seconds = (target_time - now).total_seconds()  # Calcular la diferencia de tiempo en segundos
+    print(f"Waiting for {seconds} seconds before checking matches...")
+    while not pill2kill.wait(seconds if initial_execution else trading_data['time_period']):
+        ultimoPartido(equipos_txt, url, cola)
         print("Checking matches...")
         print(FRAMEDIRECTO)
-
-
+        
+        if initial_execution:
+            initial_execution = False  # Establecer la bandera en False después de la ejecución inicial
 def check_buy() -> Tuple[bool, bool]:
     global RESULTADO_ULTIMO_PARTIDO,NUEVO_PARTIDO,COMBO_COMPRAR
     print(NUEVO_PARTIDO)
