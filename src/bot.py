@@ -11,7 +11,7 @@ import pandas as pd
 import os
 import queue
 import time
-
+import schedule
 class Bot:
     
     # Attributes
@@ -264,6 +264,7 @@ class Bot:
         """
         # Print a message to indicate that the threads are being stopped
         print('Threads - Stopping threads')
+        # Borra todas las tareas programadas
         
         # Set the `pill2kill` event, which will cause the threads to stop
         self.pill2kill.set()

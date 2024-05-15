@@ -482,6 +482,7 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
     FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
    
     tiempoUltima=0
+    
     while not pill2kill.wait(trading_data['time_period']):
         if(comprobar_mercado(trading_data)):
             print("merc aberto")
@@ -532,9 +533,9 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
 
     FRAMETICKS = pd.DataFrame(columns=['Accion', 'Orden', 'Fecha', 'Precio', 'Decision', 'Rentabilidad'])
    
-
-    while not pill2kill.wait(10):
-        trading_data['time_period'] = 86400
+    initial_execution = True  # Flag to track initial execution
+    while not pill2kill.wait(10 if initial_execution else 3600):
+        
         if(comprobar_mercado(trading_data)):
             Nuevo,comprobacion = check_buy(estrategia_directo)
             if(Nuevo):#ha habido partdo nuevo
@@ -566,6 +567,9 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
         else:
             insertar_fila("MERCADO CERRADO", None, trading_data, compras) 
             print("MERCADO CERRADO")
+        
+        if initial_execution:
+            initial_execution = False  # Set flag to False after initial execution
 
 
 # def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
