@@ -940,6 +940,10 @@ class FormularioInversionFutbol():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 
+            if self.boton_guardar_inversion is not None:
+                self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+                self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
+
             #Ajustar equipo
             if self.combo_equipos is not None:
                 self.label_equipo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
