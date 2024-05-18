@@ -223,6 +223,12 @@ class FormularioInversionClasicas():
 
 
     def actualizar_inversion(self, event):
+
+        #comprobar si es mayor que uno:
+        if float(self.lotaje_entry.get()) < 1:
+            messagebox.showerror("Error", "El valor ingresado debe ser mayor que 1")
+            return
+        
         try:
             aux = float(self.lotaje_entry.get())
 

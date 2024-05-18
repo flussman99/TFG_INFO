@@ -536,6 +536,11 @@ class FormularioInversionFutbol():
         if self.lotaje_entry.get() == "" and self.boton_empezar_inversion_futbol is not None:
             self.boton_empezar_inversion_futbol.configure(state="disabled")
 
+        #comprobar si es mayor que uno:
+        if float(self.lotaje_entry.get()) < 1:
+            messagebox.showerror("Error", "El valor ingresado debe ser mayor que 1")
+            return
+
         try:
             aux = float(self.lotaje_entry.get())
 
