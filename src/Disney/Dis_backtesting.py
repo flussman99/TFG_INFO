@@ -7,6 +7,7 @@ import re
 import numpy as np
 from typing import Tuple
 import tick_reader as tr
+from datetime import datetime, time, timedelta
 
 data = []
 compras = []
@@ -266,11 +267,23 @@ def thread_Disney(pill2kill,trading_data: dict, studio_txt,url,combo_comprar,com
 
     inicializar_variables(combo_comprar,comobo_vender)
     ultimaPelicula(studio_txt,url,cola)
+    initial_execution = True  # Flag to track initial execution
+    
+    # Calcular el tiempo hasta las 9 de la mañana
+    now = datetime.now()
+    target_time = datetime.combine(now.date(), time(9, 0))
+    if now > target_time:
+        target_time += timedelta(days=1)  # Si la hora actual es después de las 9 am, programar para el próximo día
 
+    seconds = (target_time - now).total_seconds()  # Calcular la diferencia de tiempo en segundos
+    print(f"Waiting for {seconds} seconds before checking matches...")
     while not pill2kill.wait(trading_data['time_period']):
         ultimaPelicula(studio_txt,url,cola)
         print("Checking films...")
         print(FRAMEDIRECTO)
+        
+        if initial_execution:
+            initial_execution = False  # Establecer la bandera en False después de la ejecución inicial
 
 def inicializar_variables(combo_comprar,comobo_vender):
     global COMBO_COMPRAR,COMBO_VENDER,FECHA_ULTIMA_PELICULA,RESULTADO_ULTIMA_PELICULA,NUEVA_PELICULA,FRAMEDIRECTO
