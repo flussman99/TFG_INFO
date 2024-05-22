@@ -223,10 +223,12 @@ def calcular_rentabilidad_plazo_fijo(fecha_inicio, fecha_final):
     fecha_inicio = dt.datetime.strptime(fecha_inicio, '%Y/%m/%d')
     fecha_final = dt.datetime.strptime(fecha_final, '%Y/%m/%d')
     dias = (fecha_final - fecha_inicio).days
-    
+
+    tiempo= dias/365
+
     # Calcular la rentabilidad utilizando la misma fórmula
-    rentabilidad = (3 / 100 / 365) * dias
-    return round(rentabilidad,2)*100
+    rentabilidad = ((1.03 ** tiempo)-1)*100
+    return round(rentabilidad,3)
 
 
 
