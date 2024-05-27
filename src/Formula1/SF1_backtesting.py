@@ -187,7 +187,7 @@ imagenes_pilotos = {
     'Zhou Guanyu': 'src/imagenes/F1/Zhou.png'
 }
 
-# List of HTML files to process from https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
+# Lista de los archivos HTML de https://www.f1-fansite.com/f1-results/f1-standings-2023-championship/
 html_standings_files = [
     '2014.html',
     '2015.html',
@@ -231,6 +231,7 @@ html_pilotTeams_files = [
 
 
 def backtesting(prices: list, inicio: str, fin: str, url, combo_compra: int, combo_venta: int, piloto: str):
+    
     # Crear un DataFrame de la lista prices
     ticks_frame = pd.DataFrame(prices, columns=['time', 'price'])
     
@@ -242,16 +243,16 @@ def backtesting(prices: list, inicio: str, fin: str, url, combo_compra: int, com
     
     print(ticks_frame)
 
-    # Iterate over the rows in piloto_frame
+    #  Recorremos las filas de piloto_frame
     for i, row in piloto_frame.iterrows(): 
         resultado = row['Resultado']
 
 
-        # Find the corresponding price in ticks_frame
+        # Encontramos su precio correspondiente en ticks_frame
         price = ticks_frame.loc[ticks_frame['time'] >= row['Fecha'], 'price'].first_valid_index()
 
         if price is not None:
-            # If a price was found, update the 'precio' column in piloto_frame
+            # Cuando se encuentra un precio, se actualiza
             piloto_frame.at[i, 'Precio'] = float(ticks_frame.loc[price, 'price'])
         if 'DNF' in resultado[0] or 'DNS'  in resultado[0] or 'No participo' in resultado[0] or ' ' in resultado[0] or 'N' in resultado[0] or 'DSQ' in resultado[0] or 'WD' in resultado[0]:
             resultado = 30
@@ -433,8 +434,8 @@ def datosPiloto(ticks:list,inicio: str, fin: str, url:str,piloto:str):
 
 def leerHTML(piloto, inicio, fin):
     base_dir = os.path.abspath('src\Formula1\html')
-
-    # Convert the HTML files list to full file paths
+    
+    # Convertimos la lista de los archivos HTML
     html_results_files = [os.path.join(base_dir, file) for file in html_standings_files]
     html_dates_files = [os.path.join(base_dir, file) for file in html_calendars_files]
     año = 2014
@@ -487,7 +488,8 @@ def leerHTML(piloto, inicio, fin):
 
 
     df['Fecha'] = pd.to_datetime(df['Fecha'])
-    # Initialize a new column 'precio' in piloto_frame with NaN values
+    
+    # Inicializamos una nueva columna precio en piloto_frame con valores NaN
     df = df[df['Fecha'].between(inicio, fin)]
     df['Precio'] = np.nan
 
