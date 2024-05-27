@@ -682,7 +682,11 @@ class FormularioInversionClasicas():
         if self.boton_parar_inversion is not None:
             self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
             self.boton_parar_inversion.configure(width=int(self.frame_width * 0.015))
-        
+
+        if self.boton_guardar_inversion is not None:
+            self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
+            self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
+
         #Ajustar
         if self.label_mercado is not None:
             #Ajustar mercado
@@ -724,10 +728,7 @@ class FormularioInversionClasicas():
                                 self.lotaje_usuario.configure(font=("Aptos", int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
                                 self.lotaje_usuario.configure(width=int(self.frame_width * 0.02))
 
-                                if self.boton_guardar_inversion is not None:
-                                    self.boton_parar_inversion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1), "bold"))
-                                    self.boton_parar_inversion.configure(width=int(self.frame_width * 0.01))
-
+                               
 
 
         
