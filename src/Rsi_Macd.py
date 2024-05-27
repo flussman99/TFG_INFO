@@ -20,7 +20,6 @@ MACDs = []
 CUR_MACD = None
 CUR_SIGNAL = None
 CUR_RSI = None
-# Definir 'TIMEBTWOPERATIONS' como un timedelta que representa 15 minutos
 TIMEBTWOPERATIONS = timedelta(minutes=15)
 compras=[]
 MAX_LEN = 9
@@ -91,7 +90,6 @@ def load_ticks_directo(ticks: list, market: str, time_period: int):
         print("Failed to select EURCAD, error code =",mt5.last_error())
     else: symbol_info=mt5.symbol_info(market)
     print(symbol_info)
-    # Loading data
     tick = mt5.symbol_info_tick(market)
     print(tick)
  
@@ -162,7 +160,6 @@ def thread_rsi_macd(pill2kill, ticks: list, trading_data: dict):
     tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
 
     while not pill2kill.wait(trading_data['time_period']):
-        # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         
         if tick is not None:
@@ -206,7 +203,7 @@ def check_buy() -> bool:
     return True
 
 
-def check_sell() -> bool:#ñle tendre que pasar el valor al que la he comprado cada una de las buy
+def check_sell() -> bool:
     """Function to check if the MACD indicator
     allows a buy operation"""
 

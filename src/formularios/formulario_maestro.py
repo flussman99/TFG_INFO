@@ -3,7 +3,6 @@ from tkinter import font
 from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
 import util.util_ventana as util_ventana
 import util.util_imagenes as util_img
-# Nuevo
 from formularios.formulario_inicio_sesion import FormularioInicioSesion
 from formularios.formulario_clasicas import FormularioClasicas
 from formularios.formulario_creativas import FormularioCreativas
@@ -12,7 +11,6 @@ from formularios.formulario_perfil import FormularioPerfil
 import tkinter as tk
 from tkinter import font
 import bot as bt
-import MetaTrader5 as mt5
 import ordenes as ord
 
 
@@ -31,7 +29,7 @@ class FormularioMaestroDesign(tk.Tk):
 
     def cerrar_aplicacion(self):
         print("------------Cerrando aplicación------------")
-        #DAVID aqui para parar los threads BOTELLA DE AGUA
+        
         if(bt.Bot is not None):
             bt.Bot.kill_threads(bt.Bot)
             print(bt.Bot.trading_data)
@@ -69,7 +67,7 @@ class FormularioMaestroDesign(tk.Tk):
                            command=self.toggle_panel, bd=0)
         self.buttonMenuLateral.pack(side=tk.LEFT, padx=(10, 10))
 
-        # Logo en chiquitito
+        # Logo en pequeño
         self.logo_chiquitito = util_img.leer_imagen("src/imagenes/formulario_maestro/logo_reducido.png", (40, 40))
         self.labelLogoChiquitito = tk.Label(self.barra_superior, image=self.logo_chiquitito, bg=COLOR_BARRA_SUPERIOR)
         self.labelLogoChiquitito.pack(side=tk.LEFT)
@@ -121,7 +119,7 @@ class FormularioMaestroDesign(tk.Tk):
             self.configurar_boton_menu(button, text, icon, font_awesome, ancho_menu, alto_menu,comando)                    
     
     def controles_cuerpo(self):
-        # Define the width and height variables
+        # Define la anchura y la altura
         width = 500
         height = 300
         # Imagen en el cuerpo principal
@@ -156,7 +154,6 @@ class FormularioMaestroDesign(tk.Tk):
             self.menu_lateral.pack_forget()
         else:
             self.menu_lateral.pack(side=tk.LEFT, fill='y')
-    # Nuevo
 
     def abrir_panel_inicio_sesion(self, event):   
         self.limpiar_panel(self.cuerpo_principal)     

@@ -1,19 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
-from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
+from tkinter import ttk, simpledialog, messagebox, Entry
+from config2 import COLOR_CUERPO_PRINCIPAL
 import util.util_imagenes as util_img
-import pandas as pd
-import psutil
-import os
-import sys 
 from bot import Bot as bt
-import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
 from Disney import Dis_backtesting as Disney
 from tkcalendar import DateEntry
-import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
@@ -86,7 +79,7 @@ class FormularioBackTestingCine():
         self.fecha_fin_entry = None
         self.fecha_min = datetime(year=2010, month=1, day=28)
 
-        #Variables SBS
+        #Variables DISNEY
         self.estudios = Disney.estudios_Disney
         self.imagenes_estudios = Disney.imagenes_estudios
         self.url = 'src/Disney/html/Disney_Pelis_2010_2024.csv'
@@ -151,7 +144,7 @@ class FormularioBackTestingCine():
         #Ajustar vista
         self.on_parent_configure(None)
 
-        #Actualizar vista al cambiar de liga
+        #Actualizar vista
         self.combo_estudios.bind("<<ComboboxSelected>>", self.actualizar_estudio)
 
     def actualizar_estudio(self, event):
@@ -536,7 +529,7 @@ class FormularioBackTestingCine():
         except Exception as e:
             print(e)
         
-        # Cerramos el cursor y la conexxión
+        # Cerramos el cursor y la conexión
         cursor.close()
         self.conn.commit()
         self.conn.close()
@@ -625,9 +618,9 @@ class FormularioBackTestingCine():
             self.label_rentabilidad_plazo_fijo.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
    
 
-        #Ajustar label elegir liga
+        #Ajustar label elegir Pelicula
         if self.label_disney is not None:
-            #Ajustar liga
+            #Ajustar pelicula
             self.label_disney.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
             self.label_accion.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
 

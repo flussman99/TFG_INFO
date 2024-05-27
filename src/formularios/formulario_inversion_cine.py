@@ -96,7 +96,7 @@ class FormularioInversionCine():
         #Variables SBS
         self.estudios = Disney.estudios_Disney
         self.imagenes_estudios = Disney.imagenes_estudios
-        self.url = 'https://en.wikipedia.org/wiki/List_of_Walt_Disney_Studios_films_(2020-2029)'
+        self.urls = ['https://en.wikipedia.org/wiki/List_of_Walt_Disney_Studios_films_(2020-2029)', 'https://en.wikipedia.org/wiki/List_of_Walt_Disney_Studios_Motion_Pictures_international_films_(2020-2029)']
 
         #Variables de la tabla
         self.frame_without_filter=None
@@ -306,6 +306,11 @@ class FormularioInversionCine():
         if self.lotaje_entry.get() == "" and self.boton_empezar_inversion is not None:
             self.boton_empezar_inversion.configure(state="disabled")
 
+        #comprobar si es mayor que uno:
+        if float(self.lotaje_entry.get()) < 1:
+            messagebox.showerror("Error", "El valor ingresado debe ser mayor que 1")
+            return
+
         try:
             aux = float(self.lotaje_entry.get())
 
@@ -396,14 +401,17 @@ class FormularioInversionCine():
         self.tree_container.grid_columnconfigure(0, weight=1)
         self.tree_container.grid_columnconfigure(1, weight=1)
 
-    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
-        
+    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores     
+        inicio_txt=self.fecha_inicio_indicadores
+        fin_txt=self.fecha_fin_indicadores
+        frecuencia_txt = "Daily"
         #Ibex35 si está seleccionado
         if self.var_ibex35.get():
             if self.label_rentabilidad_ibex35 is not None:
                 self.label_rentabilidad_ibex35.destroy()
                 self.label_rentabilidad_ibex35 = None
-            self.rentIbex35 = self.b.rentabilidad_indicador('Ibex35') 
+            indicador='IBEX35'
+            self.rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador) 
             self.label_rentabilidad_ibex35 = tk.Label(self.frame_rentabilidades, text="Rentabilidad IBEX35: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_ibex35.pack(side="left", padx=(0, 10), pady=5)
         else:
@@ -416,6 +424,8 @@ class FormularioInversionCine():
             if self.label_rentabilidad_sp500 is not None:
                 self.label_rentabilidad_sp500.destroy()
                 self.label_rentabilidad_sp500 = None
+            indicador='SP500'
+            self.rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador)
             self.label_rentabilidad_sp500 = tk.Label(self.frame_rentabilidades, text="Rentabilidad SP500: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_sp500.pack(side="left", padx=(0, 10), pady=5)
         else:
@@ -428,6 +438,8 @@ class FormularioInversionCine():
             if self.label_rentabilidad_plazo_fijo is not None:
                 self.label_rentabilidad_plazo_fijo.destroy()
                 self.label_rentabilidad_plazo_fijo = None
+            indicador='Plazo Fijo'
+            self.rentIbex35 = self.b.rentabilidadIndicador(frecuencia_txt,inicio_txt,fin_txt,indicador)
             self.label_rentabilidad_plazo_fijo = tk.Label(self.frame_rentabilidades, text="Rentabilidad Plazo Fijo: ", font=("Aptos", 10), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_rentabilidad_plazo_fijo.pack(side="left", padx=(0, 10), pady=5)
         else:
@@ -581,7 +593,8 @@ class FormularioInversionCine():
         self.ibex35.configure(state="disabled")
         self.sp500.configure(state="disabled")
         self.plazo_fijo.configure(state="disabled")
-
+        if self.boton_guardar_inversion is not None:
+            self.boton_guardar_inversion.configure(state="disabled")
 
 
         # Verificar si la interfaz de usuario ya ha sido creada
@@ -594,7 +607,6 @@ class FormularioInversionCine():
                 for item in self.tree.get_children():
                     self.tree.delete(item)
 
-        self.rentabilidades_comparativas()
         # Llamar a la función para obtener nuevos datos
         self.tickdirecto()
 
@@ -651,7 +663,7 @@ class FormularioInversionCine():
         self.b.establecer_inversion_directo(frecuencia_txt, accion_txt, lotaje_txt,stoploss_txt,takeprofit_txt)#le pasamos el acronimo de MT5 que es donde invierto
         self.fecha_inicio_indicadores=datetime.now().date() #para los sp500, ibex
         
-        self.b.thread_Disney(estudio_txt, self.url, cuando_comprar_float, cuando_comprar_float)
+        self.b.thread_Disney(estudio_txt, self.urls, cuando_comprar_float, cuando_comprar_float)
         self.b.thread_orders_creativas(estrategia_txt)
         self.funciones_recursivas = True
         self.actualizar_peliculas()
@@ -663,7 +675,7 @@ class FormularioInversionCine():
             # if(SBS.FRAMEDIRECTO.empty):
             #     self.frame_principal.after(10000, self.actualiar_partidos)#10s
             self.frame_directo=Disney.FRAMEDIRECTO
-            print("-------------------FRAME TICKS PARTIDO-------------------")
+            print("-------------------FRAME TICKS PELICULA-------------------")
             print(self.frame_directo)
             self.treeview_peliculas()
             self.frame_principal.after(7000, self.actualizar_peliculas)
@@ -824,14 +836,12 @@ class FormularioInversionCine():
         self.ibex35.configure(state="normal")
         self.sp500.configure(state="normal")
         self.plazo_fijo.configure(state="normal")
+        self.boton_parar_inversion.configure(state="disabled")
 
         # Boton de "Guardar"
         self.boton_guardar_inversion = tk.Button(self.frame_datos, text="Guardar\ninversión", font=("Aptos", 12), bg="green", fg="white", command=self.guardar_inversion) 
         self.boton_guardar_inversion.pack(side="right", padx=(0, 10), pady=5)
         self.boton_guardar_inversion.configure(state="normal")
-
-        #Calcular la rentabilidad de la comparativa
-        self.calcular_rentabilidad_comparativa()
 
 
         self.funciones_recursivas=False#paro la ejecucion de las funciones recursivas
@@ -840,12 +850,27 @@ class FormularioInversionCine():
         frame_carreras_final=self.b.parar_peliculas()
         self.frame_ticks=frame_inversiones_finalizadas
         self.frame_directo=frame_carreras_final
+
+        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
+        self.rentabilidades_comparativas()
+
+        self.establecerRentabilidades()
+
         self.treeview_peliculas()
         self.treeview_ticks()
-        self.fecha_fin_indicadores=datetime.now().date()#para los sp500, ibex
 
+
+    def establecerRentabilidades(self):
+        #Rentabilidad Disney
         rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        suma_rentabilidades = rentabilidades.sum().round(2)
+        if rentabilidades.empty:
+            # Handle the case when 'Rentabilidad' column is not found or has no valid values
+            suma_rentabilidades = 0
+        else:
+            # Continue with your existing logic for processing 'Rentabilidad' values
+            suma_rentabilidades = rentabilidades.sum().round(2)
+            # Rest of your code here
+        
         self.rentabilidad_cine.set(str(suma_rentabilidades))
         self.label_rentabilidad_cine.configure(textvariable=self.rentabilidad_cine)
 
