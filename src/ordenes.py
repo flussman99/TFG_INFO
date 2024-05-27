@@ -60,43 +60,6 @@ def handle_buy(buy, market):#modificar compra
         time.sleep(0.1)
 
 
-def handle_sell(sell, market: str):#modificar venta
-    """Function to handle a sell operation.
-
-    Args:
-        sell : Sell operation.
-        market (str): Market where the operation was openned.
-    """
-    position=mt5.positions_get(symbol=market)[-1].ticket # esta funcion te devuelve una lista de las posiciones abiertas
-    #como solo quiero una pongo la -1 porque solo tengo una posicion abierta
-    point = mt5.symbol_info(market).point
-    GOAL = sell['price']-point*THRESHOLD #trailing stop
-    while True:
-        tick = mt5.symbol_info_tick(market)
-        if tick.bid <= GOAL:
-            # Modifying the stop loss
-            #
-            request = {
-                "action": mt5.TRADE_ACTION_SLTP,
-                "symbol": market,
-                "sl": tick.bid + MARGIN * point,
-                "tp": tick.bid - MARGIN * point,
-                "deviation": 20,
-                "magic": 234000,
-                "comment": "python script open",
-                "type_time": mt5.ORDER_TIME_GTC,
-                "type_filling": mt5.ORDER_FILLING_RETURN,
-                "position": position # el toicket que quiero modificar
-            }
-            GOAL = tick.bid - 1 * point
-            mt5.order_send(request)
-        # We check if the operation has been closed in order to leave the function
-        if len(mt5.positions_get(ticket=position)) == 0:
-            return
-        time.sleep(0.1)
-
-
-
 def open_buy(trading_data: dict):
     """Function to open a buy operation.
 
@@ -113,9 +76,8 @@ def open_buy(trading_data: dict):
     
     counter = 0
 
-    # We only open the operation if the spread is 0
-    # we check the spread 300000 times
-    #nuestro margen de spread es del 0.5% por eso esta puesto el 0.005 ademas counter solo mirara 1 minuto los sprea sino no hago la operacion
+  
+    #nuestro margen de spread es del 0.5% por eso esta puesto el 0.005 ademas counter solo mirara 1 minuto los spread sino no hago la operacion
 
     spread= symbol_info.ask- symbol_info.bid
 
@@ -135,7 +97,7 @@ def open_buy(trading_data: dict):
 
 
     point = mt5.symbol_info(trading_data['market']).point
-    price = mt5.symbol_info_tick(trading_data['market']).ask #para la compra
+    price = mt5.symbol_info_tick(trading_data['market']).ask 
 
     account_info = mt5.account_info()
 
@@ -166,20 +128,18 @@ def open_buy(trading_data: dict):
         "price": price,
         "sl": float(price - price * float(aux_sl)),
         "tp": float(price + price*float(aux_tp)),
-        "deviation": deviation, #no sabemos q es
-        "magic": 234000,#no sabemos q es
+        "deviation": deviation, 
+        "magic": 234000,
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    # Sending the buy
     print(buy)
     result=mt5.order_send(buy)
     result_dict=result._asdict()
     for field in result_dict.keys():
         print("   {}={}".format(field,result_dict[field]))
-    #print(result)
 
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
     if result.retcode != mt5.TRADE_RETCODE_DONE:
@@ -219,7 +179,7 @@ def open_sell(trading_data: dict):
             print(symbol_info.bid)    
 
             return None
-    # si el símbolo no está disponible en MarketWatch, lo añadimos
+        
     if not symbol_info.visible:
         print("[Thread - orders]", trading_data['market'], "is not visible, trying to switch on")
         if not mt5.symbol_select(trading_data['market'], True):
@@ -244,7 +204,6 @@ def open_sell(trading_data: dict):
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    # Sending the sell
     result = mt5.order_send(sell)
 
     print("[Thread - orders] 1. order_send(): by {} {} lots at {} with deviation={} points".format(trading_data['market'],trading_data['lotage'],price,deviation))
@@ -487,7 +446,6 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
         if(comprobar_mercado(trading_data)):
             print("merc aberto")
             if len(compras) < 10 and check_buy(estrategia_directo):  
-                # if(tiempoUltima==0 or diftime(date.datetime.now(),tiempoUltima)):          
                     buy = open_buy(trading_data)
                     if buy is not None:
                         HAYPOSICIONESABIERTAS=True
@@ -498,7 +456,6 @@ def thread_orders(pill2kill, trading_data: dict, estrategia_directo):
                         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
                         print("[Thread - orders] Buy open -", dt_string)
                         buy = None
-                # else: print("Diferencia de tiempo menor a 15 minutos")
             elif HAYPOSICIONESABIERTAS and check_sell(estrategia_directo):
                     sell = cerrar_todas_las_posiciones(trading_data)
                     if sell is not None:
@@ -571,56 +528,3 @@ def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
         if initial_execution:
             initial_execution = False  # Set flag to False after initial execution
 
-
-# def thread_orders_creativas(pill2kill, trading_data: dict, estrategia_directo):
-#     """Function executed by a thread. It opens and handles operations.
-
-#     Args:
-#         pill2kill (Threading.Event): Event to stop the thread's execution.
-#         trading_data (dict): Dictionary with all the needed data 
-#         for opening operations.
-#     """
-#     print("[THREAD - orders - Creativas] - Working")
-    
-#     print("[THREAD] - Checking operations")
-
-#     global FRAMETICKS, HAYPOSICIONESABIERTAS   
-
-#     def execute_thread():
-        #  if(comprobar_mercado(trading_data)):
-        #     Nuevo,comprobacion = check_buy(estrategia_directo)
-        #     if(Nuevo):#ha habido partdo nuevo
-        #         if(len(compras) < 10 and comprobacion):#coincide resultado con la eleccion del usuario
-        #             buy = open_buy(trading_data)
-        #             if buy is not None:
-        #                 HAYPOSICIONESABIERTAS=True
-        #                 compras.append(buy)
-        #                 insertar_ticks("Compra", buy, trading_data, compras)
-        #                 now = date.datetime.now()
-        #                 dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-        #                 print("[Thread - orders] Buy open -", dt_string)
-        #                 buy = None
-        #         elif(HAYPOSICIONESABIERTAS and check_sell(estrategia_directo)):
-        #             sell = cerrar_todas_las_posiciones(trading_data)
-        #             if sell is not None:
-        #                 HAYPOSICIONESABIERTAS=False
-        #                 insertar_ticks("Venta Creativas", sell, trading_data, compras)
-        #                 compras.clear() 
-        #                 now = date.datetime.now()
-        #                 dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
-        #                 print("[Thread - orders] Close position -", dt_string)
-        #                 sell = None
-        #         else:#no coincide resultado con la eleccion del usuario
-        #             insertar_ticks("NO HA HABIDO EL RESULTADO ELEGIDO", None, trading_data, compras) 
-        #             print("NO HA HABIDO EL RESULTADO ELEGIDO")
-        #     else:#no ha habido partdo nuevo
-        #         print("NO HA HABIDO EVENTO NUEVO")
-        # else:
-        #     print("MERCADO CERRADO")
-
-#     # Schedule the execution of thread_orders_creativas at 9 am every day
-#     schedule.every().day.at("09:00").do(execute_thread)
-
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)

@@ -104,22 +104,12 @@ class Bot:
         tr.txt_to_int_fecha(inicio_txt)
         tr.txt_to_int_fecha(fin_txt)
 
-        # PROBAR AQUI ESTA FUNCION PARA SACAR MARGEN DE BENEFICIO
-
-        # mt5.order_calc_profit(ORDER_TYPE_SELL, self.trading_data['market'], 1, precio_inicio, precio_fin)
-        
-        # https://www.mql5.com/en/docs/python_metatrader5/mt5ordercalcprofit_py
-        
-
     def thread_tick_reader(self, inicio_txt, fin_txt,estrategia_txt):
         """Function to launch the tick reader thread.
         """
         tr.thread_tick_reader(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad)
         
-        # t = threading.Thread(target=tr.thread_tick_reader, 
-        #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,estrategia_txt,self.almacenar_frame_rentabilidad))
-        # self.threads.append(t)
-        # t.start()
+     
         print('Thread - tick_reader. LAUNCHED')
 
         # Obtener el resultado de la almacenar_frame_rentabilidad
@@ -132,10 +122,7 @@ class Bot:
         """Function to launch the tick reader thread.
         """
         tr.thread_creativas(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad)
-        # t = threading.Thread(target=tr.thread_Futbol, 
-        #                      args=(self.ticks, self.trading_data, inicio_txt, fin_txt,pais_txt,url_txt,estrategia_txt,cuando_comprar,cuando_vender,equipo_txt,self.almacenar_frame_rentabilidad))
-        # self.threads.append(t)
-        # t.start()
+       
         print('Thread - tick_reader. LAUNCHED')
         # Obtener el resultado de la almacenar_frame_rentabilidad
         frame, rentabilidad = self.almacenar_frame_rentabilidad.get()#saca el dato de la cola
@@ -269,7 +256,6 @@ class Bot:
         # Set the `pill2kill` event, which will cause the threads to stop
         self.pill2kill.set()
 
-        # orders.cerrar_todas_las_posiciones(self.trading_data)
 
         # Wait for each thread to finish
         for thread in self.threads:

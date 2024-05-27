@@ -94,11 +94,10 @@ def diftime(t1,t2):
    
 def load_ticks_directo(ticks: list, market: str, time_period: int):
     
-    # Loading data
      # Loading data
     tick = mt5.symbol_info_tick(market)
     today=pd.to_datetime(tick[0], unit='s')#coje el horario del tick de la accion que haya elegido asi me adapto el horario en funcion del tick y la accion seleccionada
-    date_from = today - dt.timedelta(days=17)#esto es lo que hay que camabiar en cada estrategia
+    date_from = today - dt.timedelta(days=17)
     loaded_ticks = mt5.copy_ticks_range(market, date_from, today, mt5.COPY_TICKS_ALL)
     
     if loaded_ticks is None:
@@ -154,9 +153,7 @@ def thread_estocastico(pill2kill, ticks: list, trading_data: dict):
     tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
     
     while not pill2kill.wait(trading_data['time_period']):
-        # Every trading_data['time_period'] seconds we add a tick to the list
-        tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
-        # print(tick)
+        tick = mt5.symbol_info_tick(trading_data['market'])
         if tick is not None:
             tiempoactualTick=pd.to_datetime(tick[0], unit='s')
             print(tick)
@@ -166,7 +163,6 @@ def thread_estocastico(pill2kill, ticks: list, trading_data: dict):
                 ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
                 print("Nuevo tick añadido:", ticks[-1])
                 prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-                # print(prices_frame)
 
                 rsi= RSIIndicator(prices_frame["price"], window=14, fillna=False)
                 prices_frame["RSI"] = rsi.rsi()
