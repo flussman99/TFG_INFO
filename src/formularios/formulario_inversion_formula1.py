@@ -94,11 +94,7 @@ class FormularioInversionFormula1():
         self.imagen_piloto = None
         self.label_imagen_piloto = None
 
-        # #Inicializar variables
-        # self.label_fecha_inicio = None
-        # self.label_fecha_fin = None
-        # self.fecha_inicio_entry = None
-        # self.fecha_fin_entry = None
+        
 
         self.fecha_lim = datetime.today()
         self.fecha_ini = datetime.today()
@@ -194,11 +190,7 @@ class FormularioInversionFormula1():
         #Al seleccionar un piloto se actualiza la imagen
         self.combo_pilotos.bind("<<ComboboxSelected>>", self.actualizar_formula1_imagen_piloto)
 
-        #Si ya hay una fecha actualizarla
-        # if self.fecha_fin_entry is not None:
-        #     self.set_dates()
-
-
+        
 
     def actualizar_formula1_imagen_piloto(self, event):
         if self.label_imagen_piloto is not None:
@@ -463,55 +455,9 @@ class FormularioInversionFormula1():
             
         return precio
 
-    # def set_dates(self):
-    #     min_year, max_year = SF1.obtener_periodo_valido(self.piloto, '2024')
-    #     self.fecha_lim = min(datetime(max_year, 12, 31), datetime.today())
-    #     self.fecha_ini = datetime(min_year, 1, 1)
 
-    #     self.fecha_fin_entry.config(maxdate=self.fecha_lim)
-    #     self.fecha_fin_entry.config(mindate=self.fecha_ini)
-    #     self.fecha_fin_entry.set_date(self.fecha_lim)
-
-    #     self.fecha_inicio_entry.config(maxdate=self.fecha_lim)
-    #     self.fecha_inicio_entry.config(mindate=self.fecha_ini)
-    #     self.fecha_inicio_entry.set_date(self.fecha_ini)
     
     def actualizar_formula1_ticks(self):
-        # if (self.fecha_inicio_entry is None):
-        #     #Label fecha inicio
-        #     self.label_fecha_inicio = tk.Label(self.frame_combo_boxs, text="Fecha inicio", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        #     self.label_fecha_inicio.grid(row=5, column=0, padx=10, pady=2, sticky="w")
-
-        #     #label fecha fin
-        #     self.label_fecha_fin = tk.Label(self.frame_combo_boxs, text="Fecha fin", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
-        #     self.label_fecha_fin.grid(row=5, column=1, padx=10, pady=2, sticky="w")
-
-        #     #Date fecha inicio
-        #     fecha_ayer = datetime.now() - timedelta(days = 1)
-        #     self.fecha_inicio_entry = DateEntry(
-        #         self.frame_combo_boxs, 
-        #         date_pattern='yyyy/mm/dd',
-        #         background='darkblue', 
-        #         foreground='white', 
-        #         borderwidth=2,
-        #         maxdate=self.fecha_lim,
-        #         mindate=self.fecha_ini
-        #     )
-        #     self.fecha_inicio_entry.grid(row=6, column=0, padx=10, pady=2, sticky="w")
-
-        #     #Date fecha fin
-        #     self.fecha_fin_entry = DateEntry(
-        #         self.frame_combo_boxs,
-        #         date_pattern='yyyy/mm/dd',
-        #         background='darkblue',
-        #         foreground='white',
-        #         borderwidth=2,
-        #         maxdate=self.fecha_lim,
-        #         mindate=self.fecha_ini
-        #     )
-        #     self.fecha_fin_entry.grid(row=6, column=1, padx=10, pady=2, sticky="w")
-
-        #     self.set_dates()
 
         if (self.label_stop_loss is None):
             #Entry stop loss
@@ -806,11 +752,7 @@ class FormularioInversionFormula1():
         self.rentabilidades_comparativas()
         
         self.establecerRentabilidades()
-        # rentabilidades = self.frame_ticks[self.frame_ticks['Rentabilidad'] != '-']['Rentabilidad']
-        # suma_rentabilidades = rentabilidades.sum().round(2)
-        # self.rentabilidad_f1.set(str(suma_rentabilidades))
-        # self.label_rentabilidad_f1.configure(textvariable=self.rentabilidad_f1)
-
+        
         self.treeview_carreras()
         self.treeview_ticks()
     
@@ -998,13 +940,7 @@ class FormularioInversionFormula1():
             self.boton_guardar_inversion.configure(width=int(self.frame_width * 0.015))
             self.boton_mostrar_operaciones.configure(width=int(self.frame_width * 0.015))
 
-        #ajustar el tamaño de las fechas
-        # if self.fecha_inicio_entry is not None:
-        #     self.label_fecha_inicio.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-        #     self.label_fecha_fin.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
-        #     self.fecha_inicio_entry.configure(width=int(self.frame_width * 0.02))
-        #     self.fecha_fin_entry.configure(width=int(self.frame_width * 0.02))
-
+       
         if self.label_rentabilidad_ibex35 is not None:
             self.label_rentabilidad_ibex35.configure(font=("Aptos",  int(int(min(self.frame_width, self.frame_height) * 0.2)*0.1)))
         if self.label_rentabilidad_sp500 is not None:
