@@ -427,12 +427,17 @@ class FormularioBackTestingClasicas():
 
         return cantidad > 0
 
-    def mas_informacion(self):
-        self.limpiar_panel(self.frame_principal)     
-        print ("Estrategia: ", self.estrategia_txt)
-        print("-------------------ESTRAREFA---------------------")
-        FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, self.estrategia_txt, self.rentabilidad_clasica.get())
+    def mas_informacion(self):  
+        if self.combo_estrategia.get() == 'RSI':
+            FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "RSI", self.rentabilidad_clasica.get())
+        elif self.combo_estrategia.get() == 'Media Movil':
+            FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Media Movil", self.rentabilidad_clasica.get())
+        elif self.combo_estrategia.get() == 'Bandas':
+            FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Bandas", self.rentabilidad_clasica.get())
+        elif self.combo_estrategia.get() == 'Estocastico':
+            FormularioBackTestingMasInformacion(self.frame_principal, self.frame_without_filter, "Estocastico", self.rentabilidad_clasica.get())
 
+        
     def limpiar_panel(self,panel):
         # Función para limpiar el contenido del panel
         for widget in panel.winfo_children():
