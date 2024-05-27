@@ -86,7 +86,6 @@ def diftime(t1,t2):
    
 def load_ticks_directo(ticks: list, market: str, time_period: int):
     
-    # Loading data
     
      # Loading data
     tick = mt5.symbol_info_tick(market)
@@ -145,7 +144,6 @@ def thread_MediaMovil(pill2kill, ticks: list, trading_data: dict):
     print("[THREAD - tick_reader] - Taking ticks")
     tiempoUltimoTick=ticks[-1][0]#Coger el tiempo del ultimo tick
     while not pill2kill.wait(trading_data['time_period']):
-        # Every trading_data['time_period'] seconds we add a tick to the list
         tick = mt5.symbol_info_tick(trading_data['market'])#esta funcion tenemos los precios
         if tick is not None:
             tiempoactualTick=pd.to_datetime(tick[0], unit='s')
@@ -157,7 +155,6 @@ def thread_MediaMovil(pill2kill, ticks: list, trading_data: dict):
                 ticks.append([pd.to_datetime(tick[0], unit='s'),tick[2]])
                 print("Nuevo tick añadido:", ticks[-1])
                 prices_frame = pd.DataFrame(ticks, columns=['time', 'price'])#refresco el prices_frame
-                # print(prices_frame)
 
                 prices_frame['mediaMovil_CP'] = prices_frame['price'].rolling(window=30).mean()
                 prices_frame['mediaMovil_LP'] = prices_frame['price'].rolling(window=60).mean()

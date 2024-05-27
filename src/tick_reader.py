@@ -39,7 +39,6 @@ def thread_tick_reader(ticks: list, trading_data: dict, inicio_txt, fin_txt,estr
         ticks (list): List of ticks to fill.
         trading_data (dict): Trading data needed for loading ticks.
     """
-    # global spread_list
     print("Show symbol_info")
     symbol_info_dict = mt5.symbol_info(trading_data['market'])._asdict()
     for prop in symbol_info_dict:
@@ -92,7 +91,6 @@ def thread_creativas(ticks: list, trading_data: dict, inicio_txt, fin_txt,pais_t
     print("[THREAD - tick_futbol] - Working")
 
     load_ticks_invest(ticks,trading_data['market'], trading_data['time_period'], inicio_txt, fin_txt, pais_txt)
-    # Filling the list with previos ticks
     frame = estrategias_Creativas(ticks,estrategia_txt,inicio_txt, fin_txt,url_txt,cuando_comprar_actuar,cuando_vender_vacio,equipos_pilotos_txt)
     rentabilidad=rentabilidad_total(frame['Rentabilidad'])#genero mi rentabilidad total
     cola.put((frame, rentabilidad))
@@ -223,10 +221,12 @@ def calcular_rentabilidad_plazo_fijo(fecha_inicio, fecha_final):
     fecha_inicio = dt.datetime.strptime(fecha_inicio, '%Y/%m/%d')
     fecha_final = dt.datetime.strptime(fecha_final, '%Y/%m/%d')
     dias = (fecha_final - fecha_inicio).days
-    
+
+    tiempo= dias/365
+
     # Calcular la rentabilidad utilizando la misma fórmula
-    rentabilidad = (3 / 100 / 365) * dias
-    return round(rentabilidad,2)*100
+    rentabilidad = ((1.03 ** tiempo)-1)*100
+    return round(rentabilidad,3)
 
 
 
@@ -283,9 +283,6 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     # convert time in seconds into the datetime format
     ticks_frame['time']=pd.to_datetime(ticks_frame['time'], unit='s')
 
-    # mostrar todos los ticks con todas las columnas
-    # print("\nDisplay dataframe with ticks")
-    # print(ticks_frame)
 
     # Añadiendo a la lista que muestro en el excell solo time y price--> tick[2] -->ask 
     second_to_include = 0
@@ -298,11 +295,7 @@ def load_ticks(ticks: list, market: str, time_period: int, inicio_txt, fin_txt):
     final_frame=pd.DataFrame(ticks)
 
     print(final_frame)
-    # # Removing the ticks that we do not need
-    # not_needed_ticks = len(ticks) - MAX_TICKS_LEN
-    # if not_needed_ticks > 0:
-    #     for i in range(not_needed_ticks):
-    #         del ticks[0]
+   
    
 
 def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
@@ -314,8 +307,6 @@ def calcular_rentabilidad(precios_apertura: list, precio_cierre: int):
     for precio_apertura in precios_apertura:
         if precio_apertura != 0:
             rentabilidad = ((precio_cierre - precio_apertura) / precio_apertura) * 100
-            # print("Rentabilidad obtenida")
-            # print(rentabilidad)
             rentabilidad_total += rentabilidad
             
     rentabilidad_total = rentabilidad_total/len(precios_apertura)
