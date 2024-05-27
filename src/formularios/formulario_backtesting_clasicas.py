@@ -1,19 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog, Canvas, Entry, Text, Button, PhotoImage
-from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
-import util.util_imagenes as util_img
-import pandas as pd
-import psutil
-import os
-import sys 
+from tkinter import ttk, messagebox, simpledialog
+from config2 import COLOR_CUERPO_PRINCIPAL
 from bot import Bot as bt
-import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
-from EquiposdeFutbol import SBS_backtesting as SBS
 from tkcalendar import DateEntry
-import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion

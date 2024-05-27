@@ -1,19 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
-from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
+from tkinter import ttk, simpledialog, messagebox
+from config2 import COLOR_CUERPO_PRINCIPAL
 import util.util_imagenes as util_img
-import pandas as pd
-import psutil
-import os
-import sys 
 from bot import Bot as bt
-import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
 from Formula1 import SF1_backtesting as SF1
 from tkcalendar import DateEntry
-import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
@@ -92,7 +85,7 @@ class FormularioBackTestingFormula1():
         self.fecha_lim = datetime.today()
         self.fecha_ini = datetime.today()
 
-        #Variables SBS
+        #Variables SF1
         self.acciones=SF1.acciones_escuderias
         self.standing=SF1.html_standings_files
         self.calendar=SF1.html_calendars_files

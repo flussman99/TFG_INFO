@@ -1,17 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
-from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
-import util.util_imagenes as util_img
-import pandas as pd
-import psutil
-import os
-import sys 
-from bot import Bot as bt
-import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import matplotlib.pyplot as plt
-import mysql.connector
-from configDB import DBConfig
-import pandas as pd
+from config2 import COLOR_CUERPO_PRINCIPAL
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -160,7 +148,7 @@ class FormularioBackTestingMasInformacion():
         print("Graficando precios")
 
 
-        # Crear la figura de la gráfica, puntos con 
+        # Crear la figura de la gráfica, puntos con los precios de compra y venta
         if self.estrategia == "Futbol" or self.estrategia == "Formula1" or self.estrategia == "Cine":
             df_valid_precios = self.dataFrame[~self.dataFrame['Precio'].isna()]
         else:

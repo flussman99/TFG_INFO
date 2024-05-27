@@ -1,19 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog, messagebox, Canvas, Entry, Text, Button, PhotoImage
-from config2 import COLOR_BARRA_SUPERIOR, COLOR_MENU_LATERAL, COLOR_CUERPO_PRINCIPAL, COLOR_MENU_CURSOR_ENCIMA
+from tkinter import ttk, simpledialog, messagebox
+from config2 import COLOR_CUERPO_PRINCIPAL
 import util.util_imagenes as util_img
-import pandas as pd
-import psutil
-import os
-import sys 
 from bot import Bot as bt
-import MetaTrader5 as mt5 #Importamos libreria de metatrader le metemos el as para utilizarla con un nombre mas corto
-import matplotlib.pyplot as plt
 import mysql.connector
 from configDB import DBConfig
 from EquiposdeFutbol import SBS_backtesting as SBS
 from tkcalendar import DateEntry
-import matplotlib.dates as mdates
 import tkinter as tk
 from datetime import datetime, timedelta
 from formularios.formulario_mas_informacion import FormularioBackTestingMasInformacion
@@ -315,10 +308,6 @@ class FormularioBackTestingFutbol():
             self.label_comparativa = tk.Label(self.frame_combo_boxs, text="Comparativa", font=("Aptos", 15), bg=COLOR_CUERPO_PRINCIPAL, fg="black")
             self.label_comparativa.grid(row=2, column=2, padx=10, pady=2, sticky="w")
 
-            #ComboBox de comparativa
-            #self.combo_comparativa = ttk.Combobox(self.frame_combo_boxs, state="readonly", width=30)
-            #self.combo_comparativa.grid(row=3, column=2, padx=10, pady=2, sticky="w")
-            #self.combo_comparativa["values"] = ['SP500', 'IBEX35', 'Plazo Fijo']
 
             #CheckBox de comparativas
             self.var_ibex35 = tk.BooleanVar()
@@ -420,7 +409,7 @@ class FormularioBackTestingFutbol():
         #Actualizar vista
         self.on_parent_configure(None)
 
-    def rentabilidades_comparativas(self): #DAVID aqui necesito la rentabilidad de los indicadores
+    def rentabilidades_comparativas(self): 
         
         inicio_txt = self.fecha_inicio_entry.get()
         fin_txt = self.fecha_fin_entry.get()

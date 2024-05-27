@@ -2,7 +2,7 @@ import tkinter as tk
 from config import  COLOR_CUERPO_PRINCIPAL
 import mysql.connector
 from configDB import DBConfig
-from tkinter import ttk, messagebox, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import ttk
 
 class FormularioPerfil():
 
