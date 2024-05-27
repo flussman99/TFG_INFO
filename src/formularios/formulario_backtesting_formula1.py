@@ -196,7 +196,12 @@ class FormularioBackTestingFormula1():
         #Coger el piloto seleccionado
         self.piloto = self.combo_pilotos.get()
         #Poner imagen del piloto
-        self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100,100))
+        try:
+            self.imagen_piloto = util_img.leer_imagen(self.imagenes_pilotos[self.piloto], (100, 100))
+        except Exception as e:
+            # Aquí puedes manejar el error, por ejemplo, asignando una imagen por defecto
+            print(f"Error al leer la imagen: {e}")
+            self.imagen_piloto = None
         self.label_imagen_piloto = tk.Label(self.frame_superior, image=self.imagen_piloto, bg=COLOR_CUERPO_PRINCIPAL)
         self.label_imagen_piloto.place(relx=0.8, rely=0.1)
 

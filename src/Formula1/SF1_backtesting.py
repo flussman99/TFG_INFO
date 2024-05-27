@@ -153,7 +153,7 @@ imagenes_pilotos = {
     'Marcus Ericsson': 'src/imagenes/F1/Ericsson.png',
     'Pierre Gasly': 'src/imagenes/F1/Gasly.png',
     'Antonio Giovinazzi': 'src/imagenes/F1/Giovinazzi.png',
-    'Roman Grosjean': 'src/imagenes/F1/Grosjean.png',
+    'Romain Grosjean': 'src/imagenes/F1/Grosjean.png',
     'Esteban Gutiérrez': 'src/imagenes/F1/Gutiérrez.png',
     'Lewis Hamilton': 'src/imagenes/F1/Hamilton.png',
     'Nico Hülkenberg': 'src/imagenes/F1/Hulkenberg.png',
