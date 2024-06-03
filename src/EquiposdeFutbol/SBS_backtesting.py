@@ -263,6 +263,7 @@ def crearDf(ticks:list,inicio: str, fin: str,equipos_txt:str):
     ticks_frame.to_excel('tick.xlsx', index=False)
     # Convert data to a DataFrame
     equipos_frame = pd.DataFrame(data, columns=['Fecha', 'Competición', 'Equipo Local', 'Equipo Visitante','Marcador', 'ResultadoLocal', 'ResultadoVisitante'])
+    equipos_frame.to_excel('equipos.xlsx', index=False)
     data.clear()#ya lo tengo que limpiar
     # Convertir la columna 'Fecha' a datetime
     equipos_frame['Fecha'] = pd.to_datetime(equipos_frame['Fecha'])
@@ -392,68 +393,169 @@ def check_sell() -> bool:#en el check buy returneo si coincide con valor de vent
     else:#El resultado del partido no coincide con la eleccion del usuario
         return False
    
-def leerUrl(url):
 
+
+def leerUrl(url):
     print(url)
     response = requests.get(url)
 
     if response.status_code == 200:
         respuesta = response.text
         soup = BeautifulSoup(respuesta, 'html.parser')
-        matches = soup.find_all('a', class_='match-link', attrs={'data-cy': 'match'})
+        panels = soup.find('div', id='panels').find_all('div', class_='panel')
 
-            
-        for match in matches:
-                    competition_elem = match.find('div', class_='middle-info')
-                # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
-                    date_elem = match.find('div', class_='date-transform')
-                    if date_elem is not None:
-                        fecha_convertida=convert_date(date_elem.text.strip())
-                    
-                    home_team_elem = match.find('div', class_='team-name', itemprop='name')
-                    away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
-                    result_elem = match.find('div', class_='marker')
-                    aplazado_elem = result_elem.find('p', class_='match_hour match-apl')
-                    
-                    
-                    if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem and aplazado_elem is None:
-                        
-                        result_spans = result_elem.find_all('span')
-                        small_elem = result_elem.find('span', class_='small')
-                        
+        for panel in panels:
+            panel_title = panel.find('div', class_='panel-title').text.strip()
+            year = panel_title.split()[-1]
+            matches = panel.find('div', class_='panel-body').find_all('a', class_='match-link')
 
-                        if small_elem is not None:#Para partidos con penaltis me quedo con el resultado de la tanda de penaltis
-                            p1_elem = small_elem.find('span', class_='p1')
-                            p2_elem = small_elem.find('span', class_='p2')
-                            p1 = p1_elem.text.strip()
-                            p2 = p2_elem.text.strip()
-                            data.append([
-                                fecha_convertida.strip(),
-                                competition_elem.text.strip(),
-                                home_team_elem.text.strip(),
-                                away_team_elems[1].text.strip(),
-                                result_elem.text.strip(),
-                                p1,
-                                p2
-                            ])    
-                        elif len(result_spans) == 3:  # Ensure there are two result spans and one dash
-                            result_local = result_spans[1].text.strip()
-                            result_visitante = result_spans[2].text.strip()
-                            data.append([
-                                fecha_convertida.strip(),
-                                competition_elem.text.strip(),
-                                home_team_elem.text.strip(),
-                                away_team_elems[1].text.strip(),
-                                result_elem.text.strip(),
-                                result_local,
-                                result_visitante
-                            ])
-                        else:
-                            break  # Paro aqui porque el primera partido que no tenga 3 elementos sera el primero que se vaya a jugar despues porque tiene dentro de marker la hora del partido
-                        
+            for match in matches:
+                competition_elem = match.find('div', class_='middle-info')
+                date_elem = match.find('div', class_='date')
 
+                if date_elem is not None:
+                    date_str = date_elem.text.strip()
+                    date_parts = date_str.split()
+                    day=date_parts[0]
+                    month=date_parts[1]
+                    fecha_convertida = convert_date_directo(year, month, day)
+
+                home_team_elem = match.find('div', class_='team-name', itemprop='name')
+                away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
+                result_elem = match.find('div', class_='marker')
+                aplazado_elem = result_elem.find('p', class_='hour-transform date ta-c')
+
+                if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem and aplazado_elem is None:
+                    result_spans = result_elem.find_all('span')
+                    small_elem = result_elem.find('span', class_='small')
+
+                    if small_elem is not None:
+                        p1_elem = small_elem.find('span', class_='p1')
+                        p2_elem = small_elem.find('span', class_='p2')
+                        p1 = p1_elem.text.strip()
+                        p2 = p2_elem.text.strip()
+                        data.append([
+                            fecha_convertida.strip(),
+                            competition_elem.text.strip(),
+                            home_team_elem.text.strip(),
+                            away_team_elems[1].text.strip(),
+                            result_elem.text.strip(),
+                            p1,
+                            p2
+                        ])
+                    elif len(result_spans) == 3:
+                        result_local = result_spans[1].text.strip()
+                        result_visitante = result_spans[2].text.strip()
+                        data.append([
+                            fecha_convertida.strip(),
+                            competition_elem.text.strip(),
+                            home_team_elem.text.strip(),
+                            away_team_elems[1].text.strip(),
+                            result_elem.text.strip(),
+                            result_local,
+                            result_visitante
+                        ])
+                    else:
+                        break
+                        
     else:
-            print("Error al obtener la URL. Código de estado:", response.status_code)
+        print("Error al obtener la URL. Código de estado:", response.status_code)
+
+
+
+def convert_date_directo(year, month, day):
+    if(month=="ENE"):
+        numero="01"
+    elif(month=="FEB"):
+        numero="02" 
+    elif(month=="MAR"):
+        numero="03"
+    elif(month=="ABR"):
+        numero="04"
+    elif(month=="MAY"):
+        numero="05"
+    elif(month=="JUN"):
+        numero="06"
+    elif(month=="JUL"):
+        numero="07"
+    elif(month=="AGO"):
+        numero="08"
+    elif(month=="SEP"):
+        numero="09"
+    elif(month=="OCT"):
+        numero="10"
+    elif(month=="NOV"):
+        numero="11"
+    elif(month=="DIC"):
+        numero="12"
+    else:
+        numero="00"
+    return f"{year}-{numero}-{day.zfill(2)}"
+
+
+
+# def leerUrl(url):
+
+#     print(url)
+#     response = requests.get(url)
+
+#     if response.status_code == 200:
+#         respuesta = response.text
+#         soup = BeautifulSoup(respuesta, 'html.parser')
+#         matches = soup.find_all('a', class_='match-link', attrs={'data-cy': 'match'})
+        
+            
+#         for match in matches:
+#                     competition_elem = match.find('div', class_='middle-info')
+#                 # if competition_elem and 'Primera División' in competition_elem.get_text(strip=True):
+#                     date_elem = match.find('div', class_='date-transform')
+#                     if date_elem is not None:
+#                         fecha_convertida=convert_date(date_elem.text.strip())
+                    
+#                     home_team_elem = match.find('div', class_='team-name', itemprop='name')
+#                     away_team_elems = match.find_all('div', class_='team-name', itemprop='name')
+#                     result_elem = match.find('div', class_='marker')
+#                     aplazado_elem = result_elem.find('p', class_='match_hour match-apl')
+                    
+                    
+#                     if date_elem and home_team_elem and len(away_team_elems) > 1 and result_elem and aplazado_elem is None:
+                        
+#                         result_spans = result_elem.find_all('span')
+#                         small_elem = result_elem.find('span', class_='small')
+                        
+
+#                         if small_elem is not None:#Para partidos con penaltis me quedo con el resultado de la tanda de penaltis
+#                             p1_elem = small_elem.find('span', class_='p1')
+#                             p2_elem = small_elem.find('span', class_='p2')
+#                             p1 = p1_elem.text.strip()
+#                             p2 = p2_elem.text.strip()
+#                             data.append([
+#                                 fecha_convertida.strip(),
+#                                 competition_elem.text.strip(),
+#                                 home_team_elem.text.strip(),
+#                                 away_team_elems[1].text.strip(),
+#                                 result_elem.text.strip(),
+#                                 p1,
+#                                 p2
+#                             ])    
+#                         elif len(result_spans) == 3:  # Ensure there are two result spans and one dash
+#                             result_local = result_spans[1].text.strip()
+#                             result_visitante = result_spans[2].text.strip()
+#                             data.append([
+#                                 fecha_convertida.strip(),
+#                                 competition_elem.text.strip(),
+#                                 home_team_elem.text.strip(),
+#                                 away_team_elems[1].text.strip(),
+#                                 result_elem.text.strip(),
+#                                 result_local,
+#                                 result_visitante
+#                             ])
+#                         else:
+#                             break  # Paro aqui porque el primera partido que no tenga 3 elementos sera el primero que se vaya a jugar despues porque tiene dentro de marker la hora del partido
+                        
+
+#     else:
+#             print("Error al obtener la URL. Código de estado:", response.status_code)
 
 
 
